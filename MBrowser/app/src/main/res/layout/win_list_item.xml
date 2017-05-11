@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal"
+	android:gravity="left|center"
+	android:paddingLeft="5dp"
+	android:paddingRight="10dp">
+
+	<LinearLayout
+		android:layout_height="match_parent"
+		android:layout_width="wrap_content"
+		android:orientation="horizontal"
+		android:layout_weight="1.0"
+		android:id="@+id/winlistitem_click">
+
+		<ProgressBar
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:id="@+id/winlistitem_progress"/>
+
+		<LinearLayout
+			android:layout_height="match_parent"
+			android:layout_width="wrap_content"
+			android:orientation="vertical"
+			android:gravity="left|center"
+			android:paddingLeft="5dp">
+
+			<TextView
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:id="@+id/winlistitem_title"
+				android:singleLine="true"
+				android:textColor="@color/dark"/>
+
+			<TextView
+				android:layout_height="wrap_content"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:layout_width="wrap_content"
+				android:layout_marginTop="3dp"
+				android:id="@+id/winlistitem_url"
+				android:singleLine="true"
+				android:textColor="@color/light"/>
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+	<ImageButton
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:background="?android:attr/selectableItemBackground"
+		android:src="@drawable/ic_close"
+		android:scaleType="centerInside"
+		android:id="@+id/winlistitem_close"/>
+
+</LinearLayout>
+

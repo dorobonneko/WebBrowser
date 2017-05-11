@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MBrowser</string>
+   <!-- <string name="first_load">需加载x5内核，是否加载？</string>-->
+    <string name="cancel">取消</string>
+    <string name="sure">确定</string>
+    <string name="input_site">输入网址</string>
+    <string name="input_search">搜索</string>
+    <string name="site_name">网站名称</string>
+    <string name="site_url">网站地址</string>
+    <string name="add">添加导航</string>
+    <string name="site_name_null">网站名称不能为空</string>
+    <string name="site_url_null">网站地址不能为空</string>
+    <string name="new_win">新建窗口</string>
+    <string name="copy">自由复制</string>
+	<string name="open_in_new">新窗口打开</string>
+    <string name="open_in_background">后台打开</string>
+    <string name="web_property">网页属性</string>
+    <string name="read_images">看图模式</string>
+    <string name="copy_url">复制链接</string>
+    <string name="save_image">保存图片</string>
+	<string name="clear_search_history">清除输入历史</string>
+	<string name="toolbox">工具箱</string>
+	<string name="behavior">com.moe.utils.CustomBehavior</string>
+</resources>

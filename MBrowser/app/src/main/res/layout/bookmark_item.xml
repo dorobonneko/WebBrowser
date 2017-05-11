@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="?attr/actionBarSize"
+	android:layout_width="match_parent">
+
+	<ImageView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:src="@android:drawable/ic_delete"
+		android:layout_centerInParent="true"
+		android:layout_alignParentLeft="true"
+		android:id="@+id/bookmarkitem_icon"
+		android:scaleType="centerInside"/>
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="vertical"
+		android:layout_toRightOf="@id/bookmarkitem_icon"
+		android:layout_centerInParent="true">
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:textColor="@color/light"
+			android:singleLine="true"
+			android:id="@+id/bookmarkitem_title"/>
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:textColor="@color/dark"
+			android:singleLine="true"
+			android:id="@+id/bookmarkitem_url"/>
+
+	</LinearLayout>
+
+	<ImageView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:src="@drawable/item_more"
+		android:layout_centerInParent="true"
+		android:layout_alignParentRight="true"
+		android:id="@+id/bookmarkitem_more"
+		android:scaleType="centerInside"
+		android:maxHeight="?attr/actionBarSize"/>
+
+</RelativeLayout>
+

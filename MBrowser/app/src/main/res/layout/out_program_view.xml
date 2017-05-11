@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:md="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:paddingLeft="2dp"
+	android:gravity="bottom|center">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:background="@drawable/conners_white"
+		md:elevation="2dp">
+
+		<LinearLayout
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:orientation="horizontal"
+			android:gravity="center"
+			android:background="@drawable/conners_over">
+
+			<TextView
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="即将打开外部程序"/>
+
+		</LinearLayout>
+
+		<Button
+			android:layout_height="?attr/actionBarSize"
+			android:layout_width="match_parent"
+			android:text="该网站一直允许"
+			android:gravity="center"
+			android:id="@+id/outprogram_allow"
+			android:background="?android:attr/selectableItemBackground"/>
+		
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1px"
+			android:background="@color/border"/>
+
+		<Button
+			android:layout_height="?attr/actionBarSize"
+			android:layout_width="match_parent"
+			android:text="仅本次允许"
+			android:gravity="center"
+			android:id="@+id/outprogram_allow_once"
+			android:background="?android:attr/selectableItemBackground"/>
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1px"
+			android:background="@color/border"/>
+
+		<Button
+			android:layout_height="?attr/actionBarSize"
+			android:layout_width="match_parent"
+			android:text="该网站一直不允许"
+			android:gravity="center"
+			android:id="@+id/outprogram_reject"
+			android:background="?android:attr/selectableItemBackground"/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@drawable/conners_white_no_bottom"
+		android:layout_marginTop="24dp">
+
+		<Button
+			android:layout_height="?attr/actionBarSize"
+			android:layout_width="match_parent"
+			android:text="取消"
+			android:gravity="center"
+			android:id="@+id/outprogram_cancel"
+			android:background="?android:attr/selectableItemBackground"/>
+
+	</LinearLayout>
+
+</LinearLayout>
+

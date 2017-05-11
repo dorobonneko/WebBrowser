@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="1px"
+		android:background="@color/border"
+		android:layout_marginLeft="10dp"
+		android:layout_marginRight="10dp"/>
+
+	<android.support.design.widget.TextInputLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/dialogaddview_sitename">
+
+		<EditText
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:hint="@string/site_name"
+			android:id="@+id/dialogaddview_sitename_content"
+			android:textColor="@color/textColor"
+			android:textColorHint="@color/accent"
+			android:singleLine="true"/>
+
+	</android.support.design.widget.TextInputLayout>
+
+	<android.support.design.widget.TextInputLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/dialogaddview_siteurl">
+
+		<EditText
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:hint="@string/site_url"
+			android:id="@+id/dialogaddview_siteurl_content"
+			android:textColor="@color/textColor"
+			android:textColorHint="@color/accent"
+			android:singleLine="true"/>
+
+	</android.support.design.widget.TextInputLayout>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="1px"
+		android:background="@color/border"/>
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:gravity="center">
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_weight="1"
+			android:background="?android:attr/selectableItemBackground"
+			android:text="@string/add"
+			android:padding="5dp"
+			android:textSize="15sp"
+			android:layout_margin="5dp"
+			android:id="@+id/dialogaddview_add"/>
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:text="|"
+			android:layout_width="wrap_content"/>
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_weight="1"
+			android:background="?android:attr/selectableItemBackground"
+			android:text="@string/cancel"
+			android:padding="5dp"
+			android:textSize="15sp"
+			android:layout_margin="5dp"
+			android:id="@+id/dialogaddview_cancel"/>
+
+	</LinearLayout>
+
+</LinearLayout>
+

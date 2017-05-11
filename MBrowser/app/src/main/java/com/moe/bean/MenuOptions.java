@@ -1,0 +1,6 @@
+package com.moe.bean;
+
+public enum MenuOptions
+{
+	HOME,BOOKMARKS,DOWNLOAD,FULLSCREEN,REFRESH,NOIMAGE,AUTUSCREEN,NIGHTMODE,EXIT;
+}

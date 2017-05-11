@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_marginTop="?attr/actionBarSize"
+	>
+
+	<android.support.v7.widget.RecyclerView
+		android:layout_marginTop="?attr/actionBarSize"
+		android:layout_marginBottom="?attr/actionBarSize"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/windowview_list"/>
+
+	<RelativeLayout
+		android:layout_height="?attr/actionBarSize"
+		android:layout_width="match_parent"
+		android:layout_gravity="bottom">
+
+		<ImageButton
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:src="@android:drawable/ic_menu_close_clear_cancel"
+			android:layout_centerInParent="true"
+			android:id="@+id/windowview_add"/>
+
+	</RelativeLayout>
+</FrameLayout>
+

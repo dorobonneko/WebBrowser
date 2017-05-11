@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <!-----------禁止缩放开始-------->
+<meta name="viewport" content="width=device-width; initial-scale=1.0; minimum-scale=1.0; maximum-scale=1.0; user-scalable=no;" />
+<!----------禁止缩放结束--------->
+<title>主页</title>
+<style type="text/css">
+/********控制超链接颜色和下划线********/
+a:link { text-decoration: none;color:#424242;} /* 未访问的链接 */
+a:visited { text-decoration: none;color:#424242;} /* 已访问的链接 */
+a:hover { text-decoration: none;color:#424242;} /* 鼠标移动到链接上 */
+a:active { text-decoration: none;color:#424242;} /* 选定的链接 */
+</style>
+
+  
+  <script type="text/javascript">
+	var timeout;
+	function touchStart(item){
+	timeout=setTimeout("longClick("+item+");",100);
+	return false;
+	}
+	function touchEnd(item){
+	clearTimeout(timeout);
+	if(timeout!=0){
+	//处理点击事件
+	alert(item.value);
+	location.href=item.value;
+	}else{
+	//长按事件结束，开始处理数据;
+	//moe.delete(item.value);
+	}
+	timeout=0;
+	return false;
+	}
+	function longClick(item){
+	moe.delete(item.value);
+	timeout=0;
+	}
+	var flag=false;
+	function onClick(item){
+	if(!flag){
+	flag=true;
+	timeout=setTimeout(function(){onItemClick(item);},350);
+	}else{
+	flag=false;
+	clearTimeout(timeout);
+	if(item.value.indexOf("moe:")==-1)
+	moe.delete(item.value);
+	}
+	}
+	function onItemClick(item){
+	location.href=item.value;
+	flag=false;
+	}
+	
+	window.onload=function(){
+	var data=moe.getHomePageData();
+	var json=eval('('+data+')');
+	var table=document.getElementById("table");
+	table.innerHTML="";
+	var tr;
+	for(var i=0;i<json.length;i++){
+	if(i%4==0){
+	if(tr!=null)
+	table.appendChild(tr);
+	tr=document.createElement("tr");
+	tr.setAttribute("width","100%");
+	}
+	var td=document.createElement("td");
+	//td.setAttribute("width","25%");
+	td.style.textAlign="center";
+	var div=document.createElement("div");
+	//div.width="100%";
+	//div.height="310px";
+	div.style.fontSize="12px";
+	var a=document.createElement("a");
+	a.href="javascript:void(0)";
+	a.value=json[i].url;
+	//a.addEventListener("touchstart",touchStart('a'));
+	//a.addEventListener("touchend",touchEnd('a'));
+	a.addEventListener("click",function(){onClick(this);});
+	//a.setAttribute("width","90px");
+	var img=document.createElement("img");
+	img.setAttribute("width","42px");
+	img.src=moe.getIcon(json[i].title);
+	a.appendChild(div);
+	div.appendChild(img);
+	div.appendChild(document.createElement("br"));
+	div.appendChild(document.createTextNode(json[i].title));
+	td.appendChild(a);
+	tr.appendChild(td);
+	}
+	for(var n=tr.children.length;n<4;n++){
+	tr.appendChild(document.createElement("td"));
+	};
+	table.appendChild(tr);
+	}
+  </script>
+  
+</head>
+
+<body style="width:360px;margin:0 auto;background-color:#fff;"> 
+<div style="height:31px;text-align:center;"><!------顶部占位-------></div>
+<!--<div id="1" style="width:360px;height:110px;"/>-->
+
+  <table id="table" style="table-layout:fixed;" cellspacing="10px" width="100%" >
+	
+  </table>
+
+
+
+<div id="001" style="width:360;height:24px;"></div>
+<a href="javascript:void(0);">
+<div id="002" style="width:360px;height:42px;background-color:#fff;">
+<div id="003" style="width:360;height:9px;"></div>
+<div id="004" style="width:260px;height:24px;background-color:rgb(250,250,250);margin-left:50px;border-radius:80px;">
+<div id="005" style="height:7px;"></div>
+<div id="006" style="text-align:center;font-size:10px;">
+<font color="#888888">Browser</font>
+</div>
+</div>
+</div>
+</a>
+</body>
+
+</html>
+

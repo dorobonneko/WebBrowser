@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	android:background="@drawable/conners_border">
+	<Button
+		android:visibility="gone"
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:text="@string/copy"
+		android:id="@+id/popupmenu_copy"
+		android:background="?android:attr/selectableItemBackground"/>
+
+
+	<Button
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:id="@+id/popupmenu_open"
+		android:text="@string/open_in_background"
+		android:background="?android:attr/selectableItemBackground"/>
+	<Button
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:id="@+id/popupmenu_open_new"
+		android:text="@string/open_in_new"
+		android:background="?android:attr/selectableItemBackground"/>
+	
+
+	<Button
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:text="@string/copy_url"
+		android:id="@+id/popupmenu_copy_url"
+		android:background="?android:attr/selectableItemBackground"/>
+
+	<Button
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:id="@+id/popupmenu_save_image"
+		android:text="@string/save_image"
+		android:background="?android:attr/selectableItemBackground"/>
+
+	<Button
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:text="@string/read_images"
+		android:id="@+id/popupmenu_read_images"
+		android:background="?android:attr/selectableItemBackground"/>
+
+
+	<Button
+		android:visibility="gone"
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:id="@+id/popupmenu_property"
+		android:text="@string/web_property"
+		android:background="?android:attr/selectableItemBackground"/>
+
+</LinearLayout>
+

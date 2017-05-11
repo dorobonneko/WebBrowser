@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<android.support.design.widget.TextInputLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/addfolderview_error">
+
+		<EditText
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@color/dark"
+			android:id="@+id/addfolderview_name"
+			android:singleLine="true"/>
+					
+	</android.support.design.widget.TextInputLayout>
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal">
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/sure"
+			android:layout_weight="1.0"
+			android:id="@+id/addfolderview_sure"
+			android:background="?android:attr/selectableItemBackground"/>
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/cancel"
+			android:layout_weight="1.0"
+			android:id="@+id/addfolderview_cancel"
+			android:background="?android:attr/selectableItemBackground"/>
+
+	</LinearLayout>
+
+</LinearLayout>
+

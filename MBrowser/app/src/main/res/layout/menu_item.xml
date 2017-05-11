@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:background="?android:attr/selectableItemBackground"
+	android:gravity="center">
+
+	<com.moe.widget.SquareImageView
+		android:layout_height="wrap_content"
+		android:layout_width="60dp"
+		android:minWidth="30dp"
+		android:src="@android:drawable/ic_menu_close_clear_cancel"
+		android:id="@+id/menuitem_icon"
+		android:background="?android:attr/selectableItemBackgroundBorderless"
+		android:scaleType="centerInside"/>
+
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:id="@+id/menuitem_summary"/>
+
+</LinearLayout>
+

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    
+    >
+    <item android:right="-1px" 
+        android:left="-1px"
+        >
+        <!--左右均删除1个像素-->
+            <!--绘制背景-->
+    <shape>
+        <!--宽1个像素的边框-->
+    <stroke  
+        android:width="1px"  
+        android:color="@color/border" />  
+    <!--实体背景，颜色透明-->
+    <solid android:color="@color/primary" />
+        <!--内容缩进3dp-->
+        <padding android:left="3dp"
+            android:right="3dp"
+            android:top="3dp"
+            android:bottom="3dp"/>
+        <!--边角缩进，不使用-->
+    <!-- <corners android:radius="20dp" />-->
+</shape>
+    </item>
+</layer-list>

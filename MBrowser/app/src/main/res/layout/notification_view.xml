@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="horizontal"
+	android:gravity="center">
+
+	<ImageView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:src="@drawable/menu_download"/>
+
+	<LinearLayout
+		android:layout_height="match_parent"
+		android:layout_width="wrap_content"
+		android:orientation="vertical"
+		android:gravity="center"
+		android:layout_weight="1.0">
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:textColor="@color/dark"
+			android:textSize="16sp"/>
+
+		<ProgressBar
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"/>
+
+		<RelativeLayout
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent">
+
+			<TextView
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:textColor="@color/light"
+				android:textSize="12sp"/>
+
+			<TextView
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:textColor="@color/light"
+				android:layout_alignParentRight="true"
+				android:textSize="12sp"/>
+
+		</RelativeLayout>
+
+	</LinearLayout>
+
+	<ImageButton
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:background="?android:attr/selectableItemBackgroundBorderless"
+		android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+
+</LinearLayout>
+

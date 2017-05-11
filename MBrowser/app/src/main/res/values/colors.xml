@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#00000000</color>
+    <!--主背景色-->
+    <color name="primary_dark">#aa22bb99</color>
+    <color name="accent">#ff66ffcc</color>
+    <color name="window_background">#ffffffff</color>
+    <color name="border">#ffadadad</color>
+    <color name="no">#00000000</color>
+	<color name="textColor">#ff555555</color>
+	<color name="light">#ffcccccc</color>
+	<color name="dark">#ff606060</color>
+</resources>

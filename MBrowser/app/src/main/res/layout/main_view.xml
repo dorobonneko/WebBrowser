@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:fitsSystemWindows="false">
+
+	<android.support.design.widget.AppBarLayout
+		android:id="@+id/main_view_appbarlayout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:fitsSystemWindows="true">
+		<LinearLayout
+			android:fitsSystemWindows="true"
+			android:layout_width="match_parent"
+			android:layout_height="?attr/actionBarSize"
+			android:id="@+id/mainview_searchbar"
+			app:elevation="2dp"
+			android:gravity="center"
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:layout_height="1px"
+				android:layout_width="match_parent"
+				android:orientation="horizontal"
+				android:background="@color/border"/>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:background="@drawable/round"
+				android:orientation="horizontal"
+				android:gravity="center"
+				android:layout_weight="1.0"
+				android:layout_margin="3dp">
+
+				<ImageButton
+					android:background="?android:attr/selectableItemBackgroundBorderless"
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:src="@drawable/ic_star_outline"
+					android:id="@+id/mainview_fav"
+					android:scaleType="centerInside"
+					android:layout_marginLeft="5dp"/>
+
+				<TextView
+					android:layout_height="wrap_content"
+					android:text="@string/input_site"
+					android:layout_width="wrap_content"
+					android:layout_weight="1.0"
+					android:layout_marginLeft="10dp"
+					android:id="@+id/mainview_title"
+					android:singleLine="true"/>
+
+				<TextView
+					android:layout_height="wrap_content"
+					android:text="|"
+					android:layout_width="wrap_content"
+					android:layout_marginLeft="10dp"
+					android:layout_marginRight="10dp"/>
+
+				<ImageView
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:src="@drawable/bar_search"
+					android:scaleType="centerInside"/>
+
+				<TextView
+					android:layout_height="wrap_content"
+					android:text="@string/input_search"
+					android:layout_width="wrap_content"
+					android:layout_marginRight="10dp"/>
+
+				<ImageButton
+					android:background="?android:attr/selectableItemBackgroundBorderless"
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:src="@drawable/menu_refresh"
+					android:scaleType="centerInside"
+					android:id="@+id/mainview_refresh"/>
+
+			</LinearLayout>
+
+			
+			<com.moe.widget.ProgressBar
+				android:layout_height="2dp"
+				android:layout_width="match_parent"
+				android:id="@+id/mainview_progress"
+				android:visibility="gone"/>
+			
+		</LinearLayout>
+
+	
+	</android.support.design.widget.AppBarLayout>
+
+	<com.moe.widget.ViewFlipper
+		android:fitsSystemWindows="true"
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:id="@+id/main_content"
+		android:paddingBottom="?attr/actionBarSize"
+		android:paddingTop="?attr/actionBarSize"/>
+	<LinearLayout
+		android:orientation="vertical"
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:background="#70000000"
+		android:id="@+id/mainview_popwin"
+		android:visibility="invisible"
+		android:gravity="bottom|center"
+		/>
+	<LinearLayout
+		android:layout_height="?attr/actionBarSize"
+		android:layout_width="match_parent"
+		android:background="@drawable/bottom_border"
+		android:layout_gravity="bottom"
+		android:id="@+id/mainview_bar"
+		android:orientation="vertical">
+
+		<LinearLayout
+			android:layout_height="1px"
+			android:layout_width="match_parent"
+			android:orientation="horizontal"
+			android:background="@color/border"/>
+
+		<com.moe.widget.ViewFlipper
+			android:layout_height="match_parent"
+			android:layout_width="match_parent"
+			android:id="@+id/mainview_ViewFlipper">
+
+			<LinearLayout
+				android:layout_height="match_parent"
+				android:layout_width="match_parent"
+				android:orientation="horizontal"
+				android:gravity="center">
+
+				<ImageButton
+					android:layout_height="match_parent"
+					android:layout_width="wrap_content"
+					android:src="@drawable/bar_back_normal"
+					android:layout_weight="1.0"
+					android:background="?android:attr/selectableItemBackground"
+					android:id="@+id/mainview_bar_pre"/>
+
+				<ImageButton
+					android:layout_height="match_parent"
+					android:layout_width="wrap_content"
+					android:src="@drawable/bar_next_normal"
+					android:layout_weight="1.0"
+					android:background="?android:attr/selectableItemBackground"
+					android:id="@+id/mainview_bar_next"/>
+
+				<ImageButton
+					android:layout_height="match_parent"
+					android:layout_width="wrap_content"
+					android:src="@drawable/bar_home"
+					android:layout_weight="1.0"
+					android:background="?android:attr/selectableItemBackground"
+					android:id="@+id/mainview_bar_home"/>
+
+				<ImageButton
+					android:layout_height="match_parent"
+					android:layout_width="wrap_content"
+					android:src="@android:drawable/ic_menu_close_clear_cancel"
+					android:layout_weight="1.0"
+					android:background="?android:attr/selectableItemBackground"
+					android:id="@+id/mainview_bar_win"/>
+
+				<ImageButton
+					android:layout_height="match_parent"
+					android:layout_width="wrap_content"
+					android:src="@drawable/bar_menu"
+					android:layout_weight="1.0"
+					android:background="?android:attr/selectableItemBackground"
+					android:id="@+id/mainview_bar_menu"/>
+
+			</LinearLayout>
+
+			<LinearLayout
+				android:orientation="horizontal"
+				android:layout_height="match_parent"
+				android:layout_width="match_parent">
+
+				<ImageButton
+					android:layout_height="match_parent"
+					android:layout_width="match_parent"
+					android:src="@drawable/ic_tshirt_v"
+					android:background="?android:attr/selectableItemBackground"
+					android:layout_weight="1.0"
+					android:scaleType="centerInside"/>
+
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:layout_weight="1.0"/>
+
+				<ImageButton
+					android:layout_height="match_parent"
+					android:layout_width="match_parent"
+					android:src="@drawable/ic_cog"
+					android:background="?android:attr/selectableItemBackground"
+					android:layout_weight="1.0"
+					android:scaleType="centerInside"/>
+
+				<View
+					android:layout_height="match_parent"
+					android:layout_width="match_parent"
+					android:layout_weight="1.0"/>
+
+				<ImageButton
+					android:id="@+id/main_view_exit"
+					android:layout_height="match_parent"
+					android:layout_width="match_parent"
+					android:src="@drawable/ic_power"
+					android:background="?android:attr/selectableItemBackground"
+					android:layout_weight="1.0"
+					android:scaleType="centerInside"/>
+
+			</LinearLayout>
+
+		</com.moe.widget.ViewFlipper>
+
+	</LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>
+

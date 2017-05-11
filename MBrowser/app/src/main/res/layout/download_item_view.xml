@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<android.support.design.widget.TextInputLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/download_item_view_name_layout">
+
+		<EditText
+			android:id="@+id/download_item_view_name"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:singleLine="true"
+			android:hint="文件名称"
+			android:textColor="@color/textColor"/>
+
+	</android.support.design.widget.TextInputLayout>
+
+	<android.support.design.widget.TextInputLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/download_item_view_path_layout">
+
+		<EditText
+			android:id="@+id/download_item_view_path"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:singleLine="true"
+			android:hint="保存路径"
+			android:focusable="false"
+			android:textColor="@color/textColor"/>
+
+	</android.support.design.widget.TextInputLayout>
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal">
+
+		<Button
+			android:id="@+id/download_item_view_sure"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/sure"
+			android:layout_weight="1.0"
+			android:background="?android:attr/selectableItemBackground"/>
+
+		<Button
+			android:id="@+id/download_item_view_cancel"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/cancel"
+			android:background="?android:attr/selectableItemBackground"
+			android:layout_weight="1.0"/>
+
+	</LinearLayout>
+
+</LinearLayout>
+
