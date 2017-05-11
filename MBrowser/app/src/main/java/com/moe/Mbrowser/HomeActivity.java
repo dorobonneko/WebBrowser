@@ -19,6 +19,7 @@ import android.content.Intent;
 import com.moe.bean.DownloadItem;
 import com.moe.dialog.DownloadDialog;
 import com.moe.dialog.AlertDialog;
+import com.moe.download.DownloadTask;
 
 public class HomeActivity extends FragmentActivity
 {
@@ -87,7 +88,15 @@ private DownloadDialog dd;
 				break;
 		}
 	}
-
+	@Subscribe
+	public void download(DownloadTask dt){
+		if(dt.getStateOfTask()==DownloadTask.State.DNS){
+		AlertDialog ad=new AlertDialog(this);
+		ad.setMessage(dt.getTaskInfo().getTaskname()+"/n程序已终止下载");
+		ad.setTitle("疑似网络劫持");
+		ad.show();
+		}
+	}
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{

@@ -2,9 +2,32 @@ package com.moe.entity;
 
 public class DownloadInfo
 {
+	private int no;
 	private int id;
-	private String taskurl;
 	private long start,current,end;
+
+	public void setNo(int no)
+	{
+		this.no=no;
+	}
+
+	
+	public void setTaskId(int url)
+	{
+		this.id=url;
+	}
+
+	public int getNo()
+	{
+		// TODO: Implement this method
+		return no;
+	}
+
+	public int getTaskId()
+	{
+		// TODO: Implement this method
+		return id;
+	}
 	 
 
 	public void setId(int id)
@@ -17,15 +40,7 @@ public class DownloadInfo
 		return id;
 	}
 
-	public void setTaskurl(String taskurl)
-	{
-		this.taskurl = taskurl;
-	}
-
-	public String getTaskurl()
-	{
-		return taskurl;
-	}
+	
 
 	public void setStart(long start)
 	{

@@ -14,12 +14,13 @@ import com.moe.bean.TaskBean;
 import de.greenrobot.event.Subscribe;
 import android.app.ActivityManager;
 import com.moe.bean.NetworkState;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResourceService extends Service
 {
-	public static String dir=Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download";
 	private Network network=new Network();
-	
+	private List<TaskBean> lt=new ArrayList<>();
 	@Override
 	public IBinder onBind(Intent p1)
 	{
@@ -43,8 +44,18 @@ public class ResourceService extends Service
 	}
 	@Subscribe
 	public void task(TaskBean tb){
-		if(!isRunning())
+		
+		if(!isRunning()){
+			if(!lt.contains(tb))lt.add(tb);
 			startService(new Intent(this,DownloadService.class));
+			}
+	}
+	@Subscribe
+	public void cannBack(DownloadService ds){
+		int size=lt.size();
+		for(int i=0;i<size;i++){
+			EventBus.getDefault().post(lt.remove(0));
+		}
 	}
 	private boolean isRunning(){
 		ActivityManager am=getSystemService(ActivityManager.class);
@@ -73,17 +84,17 @@ public class ResourceService extends Service
 			NetworkInfo ni=(NetworkInfo)p2.getExtras().get("networkInfo");
 				switch(ni.getType()){//判断网络类型，决定是否下载
 					case ConnectivityManager.TYPE_WIFI:
-						EventBus.getDefault().post(new NetworkState(true,ni.isConnected(),true));
+						EventBus.getDefault().postSticky(new NetworkState(true,ni.isConnected(),true));
 						break;
 					case ConnectivityManager.TYPE_MOBILE:
 					case ConnectivityManager.TYPE_MOBILE_DUN:
 					case ConnectivityManager.TYPE_MOBILE_HIPRI:
 					case ConnectivityManager.TYPE_MOBILE_MMS:
 					case ConnectivityManager.TYPE_MOBILE_SUPL:
-						EventBus.getDefault().post(new NetworkState(false,ni.isConnected(),true));
+						EventBus.getDefault().postSticky(new NetworkState(false,ni.isConnected(),true));
 						break;
 					default:
-						EventBus.getDefault().post(new NetworkState(false,ni.isConnected(),false));
+						EventBus.getDefault().postSticky(new NetworkState(false,ni.isConnected(),false));
 						break;
 				}
 				//未联网，作相关处理

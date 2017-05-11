@@ -20,11 +20,33 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 {
 
 	@Override
+	public void updateTaskInfoData(TaskInfo ti)
+	{
+		ContentValues cv=new ContentValues();
+		cv.put("url",ti.getTaskurl());
+		cv.put("dir",ti.getDir());
+		cv.put("name",ti.getTaskname());
+		cv.put("pause",ti.getSupport());
+		cv.put("multithread",ti.isMultiThread());
+		cv.put("cookie",ti.getCookie());
+		cv.put("success",ti.isSuccess());
+		cv.put("useragent",ti.getUserAgent());
+		cv.put("mime",ti.getType());
+		cv.put("sourceurl",ti.getSourceUrl());
+		cv.put("length",ti.getLength());
+		sql.update("download",cv,"id=?",new String[]{ti.getId()+""});
+		deleteDownloadInfoWithId(ti.getId());
+		insertDownloadInfo(ti);
+	}
+
+
+	@Override
 	public void updateTaskInfo(TaskInfo ti)
 	{
-		Cursor c=sql.query("download", null, "length=? and sourceurl=?", new String[]{ti.getLength() + "",ti.getSourceUrl()}, null, null, null);
-		if (c.getCount() == 1){
-			String url=c.getString(c.getColumnIndex("url"));
+		Cursor c=sql.query("download", null, "id=?", new String[]{ti.getId()+ ""}, null, null, null);
+		if (c.moveToFirst()&&c.getCount() == 1){
+			int id=c.getInt(c.getColumnIndex("id"));
+			
 			c.close();
 			ContentValues cv=new ContentValues();
 			cv.put("url", ti.getTaskurl());
@@ -34,19 +56,19 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 			//cv.put("multithread",ti.isMultiThread());
 			cv.put("cookie", ti.getCookie());
 			//cv.put("success",ti.isSuccess());
-			cv.put("useragent", ti.getUseragent());
+			cv.put("useragent", ti.getUserAgent());
 			cv.put("mime", ti.getType());
 			//cv.put("sourceurl",ti.getSourceUrl());
 			//cv.put("length",ti.getLength());
-			sql.update("download", cv, "url=?", new String[]{url});
-		List<DownloadInfo> ldi=getDownloadInfoWithUrl(url);
-		if (ldi.size() > 0){
-			deleteDownloadInfoWithUrl(url);
-			for (DownloadInfo di:ldi)
-				di.setTaskurl(ti.getTaskurl());
-			insertDownloadInfo(ldi);
-		}
-		EventBus.getDefault().postSticky(new TaskBean(queryTaskInfoWithUrl(ti.getTaskurl()), TaskBean.State.UPDATE));
+			sql.update("download", cv, "id=?", new String[]{id+""});
+//		List<DownloadInfo> ldi=getDownloadInfoWithId(id);
+//		if (ldi.size() > 0){
+//			deleteDownloadInfoWithId(ti.getId());
+//			for (DownloadInfo di:ldi)
+//				di.setTaskId(id);
+//			insertDownloadInfo(ldi);
+//		}
+		EventBus.getDefault().post(new TaskBean(queryTaskInfoWithId(ti.getId()), TaskBean.State.UPDATE));
 		}else{
 		c.close();
 		}
@@ -60,21 +82,19 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 		Cursor c=sql.query("download",null,"length=? and sourceurl=? or url=? or name=?",new String[]{ti.getLength()+"",ti.getSourceUrl(),ti.getTaskurl(),ti.getTaskname()},null,null,null);
 		if(c.getCount()>0){
 				while(c.moveToNext()){
-					if(c.getLong(c.getColumnIndex("length"))==ti.getLength()&&c.getString(c.getColumnIndex("sourceurl")).equals(ti.getSourceUrl())){
-						c.close();
-						return Download.State.UPDATE;
-					}else if(c.getString(c.getColumnIndex("url")).equals(ti.getTaskurl())){
+					if(c.getString(c.getColumnIndex("url")).equals(ti.getTaskurl())){
 						c.close();
 						return Download.State.SAMEURL;
 					}else if(c.getString(c.getColumnIndex("name")).equals(ti.getTaskname())){
 						c.close();
-						return Download.State.SAMENAME;
+						return Download.State.UPDATE;
 					}
 				}
 				c.close();
 				return Download.State.SUCCESS;
 		}else{
 			ContentValues cv=new ContentValues();
+			cv.put("id",ti.getId());
 			cv.put("url",ti.getTaskurl());
 			cv.put("dir",ti.getDir());
 			cv.put("name",ti.getTaskname());
@@ -82,23 +102,23 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 			cv.put("multithread",ti.isMultiThread());
 			cv.put("cookie",ti.getCookie());
 			cv.put("success",ti.isSuccess());
-			cv.put("useragent",ti.getUseragent());
+			cv.put("useragent",ti.getUserAgent());
 			cv.put("mime",ti.getType());
 			cv.put("sourceurl",ti.getSourceUrl());
 			cv.put("length",ti.getLength());
 			sql.insert("download",null,cv);
-			EventBus.getDefault().postSticky(new TaskBean(ti,TaskBean.State.ADD));
+			EventBus.getDefault().post(new TaskBean(ti,TaskBean.State.ADD));
 			return Download.State.SUCCESS;
 		}
 	}
 
 	@Override
-	public void deleteTaskInfoWithUrl(String url)
+	public void deleteTaskInfoWithId(int url)
 	{
-		TaskInfo ti=queryTaskInfoWithUrl(url);
-		sql.delete("download","url=?",new String[]{url});
-		deleteDownloadInfoWithUrl(url);
-		EventBus.getDefault().postSticky(new TaskBean(ti,TaskBean.State.DELETE));
+		TaskInfo ti=queryTaskInfoWithId(url);
+		sql.delete("download","id=?",new String[]{url+""});
+		deleteDownloadInfoWithId(url);
+		EventBus.getDefault().post(new TaskBean(ti,TaskBean.State.DELETE));
 	}
 
 	@Override
@@ -108,6 +128,7 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 		Cursor cursor=sql.query("download",null,null,null,null,null,null);
 		while(cursor.moveToNext()){
 			TaskInfo ti=new TaskInfo();
+			ti.setId(cursor.getInt(cursor.getColumnIndex("id")));
 			ti.setTaskurl(cursor.getString(cursor.getColumnIndex("url")));
 			ti.setTaskname(cursor.getString(cursor.getColumnIndex("name")));
 			ti.setCookie(cursor.getString(cursor.getColumnIndex("cookie")));
@@ -115,12 +136,12 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 			ti.setSupport(cursor.getInt(cursor.getColumnIndex("pause")));
 			ti.setMultiThread(cursor.getInt(cursor.getColumnIndex("multithread"))==1);
 			ti.setSuccess(cursor.getInt(cursor.getColumnIndex("success"))==1);
-			ti.setUseragent(cursor.getString(cursor.getColumnIndex("useragent")));
+			ti.setUserAgent(cursor.getString(cursor.getColumnIndex("useragent")));
 			ti.setType(cursor.getString(cursor.getColumnIndex("mime")));
 			ti.setSourceUrl(cursor.getString(cursor.getColumnIndex("sourceurl")));
 			ti.setLength(cursor.getLong(cursor.getColumnIndex("length")));
 			if(!ti.isSuccess()){
-				ti.setDownloadinfo(getDownloadInfoWithUrl(ti.getTaskurl()));
+				ti.setDownloadinfo(getDownloadInfoWithId(ti.getId()));
 
 			}
 			at.add(ti);
@@ -138,6 +159,7 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 		Cursor cursor=sql.query("download",null,"success",new String[]{(state==true?1:0)+""},null,null,null);
 		while(cursor.moveToNext()){
 			TaskInfo ti=new TaskInfo();
+			ti.setId(cursor.getInt(cursor.getColumnIndex("id")));
 			ti.setTaskurl(cursor.getString(cursor.getColumnIndex("url")));
 			ti.setTaskname(cursor.getString(cursor.getColumnIndex("name")));
 			ti.setCookie(cursor.getString(cursor.getColumnIndex("cookie")));
@@ -145,12 +167,12 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 			ti.setSupport(cursor.getInt(cursor.getColumnIndex("pause")));
 			ti.setMultiThread(cursor.getInt(cursor.getColumnIndex("multithread"))==1);
 			ti.setSuccess(cursor.getInt(cursor.getColumnIndex("success"))==1);
-			ti.setUseragent(cursor.getString(cursor.getColumnIndex("useragent")));
+			ti.setUserAgent(cursor.getString(cursor.getColumnIndex("useragent")));
 			ti.setType(cursor.getString(cursor.getColumnIndex("mime")));
 			ti.setSourceUrl(cursor.getString(cursor.getColumnIndex("sourceurl")));
 			ti.setLength(cursor.getLong(cursor.getColumnIndex("length")));
 			if(!ti.isSuccess()){
-				ti.setDownloadinfo(getDownloadInfoWithUrl(ti.getTaskurl()));
+				ti.setDownloadinfo(getDownloadInfoWithId(ti.getId()));
 
 			}
 			at.add(ti);
@@ -160,11 +182,12 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 	}
 
 	@Override
-	public TaskInfo queryTaskInfoWithUrl(String url)
+	public TaskInfo queryTaskInfoWithId(int url)
 	{
 		TaskInfo ti=new TaskInfo();
-		Cursor cursor=sql.query("download",null,"url=?",new String[]{url},null,null,null);
+		Cursor cursor=sql.query("download",null,"id=?",new String[]{url+""},null,null,null);
 		if(cursor.moveToFirst()){
+			ti.setId(cursor.getInt(cursor.getColumnIndex("id")));
 			ti.setTaskurl(cursor.getString(cursor.getColumnIndex("url")));
 			ti.setTaskname(cursor.getString(cursor.getColumnIndex("name")));
 			ti.setCookie(cursor.getString(cursor.getColumnIndex("cookie")));
@@ -173,7 +196,7 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 			ti.setMultiThread(cursor.getInt(cursor.getColumnIndex("multithread"))==1);
 			ti.setSuccess(cursor.getInt(cursor.getColumnIndex("success"))==1);
 			if(!ti.isSuccess()){
-				ti.setDownloadinfo(getDownloadInfoWithUrl(url));
+				ti.setDownloadinfo(getDownloadInfoWithId(url));
 				
 			}
 		}
@@ -182,13 +205,13 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 	}
 	
 	@Override
-	public List<DownloadInfo> getDownloadInfoWithUrl(String url){
+	public List<DownloadInfo> getDownloadInfoWithId(int url){
 		ArrayList<DownloadInfo> ad=new ArrayList<>();
-		Cursor c=sql.query("downloadinfo",null,"url",new String[]{url},null,null,null);
+		Cursor c=sql.query("downloadinfo",null,"id=?",new String[]{url+""},null,null,null);
 		while(c.moveToNext()){
 			DownloadInfo di=new DownloadInfo();
-			di.setTaskurl(url);
-			di.setId(c.getInt(c.getColumnIndex("id")));
+			di.setTaskId(url);
+			di.setNo(c.getInt(c.getColumnIndex("no")));
 			di.setStart(c.getLong(c.getColumnIndex("start")));
 			di.setCurrent(c.getLong(c.getColumnIndex("current")));
 			di.setEnd(c.getLong(c.getColumnIndex("end")));
@@ -207,21 +230,29 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 	public void insertDownloadInfo(List<DownloadInfo> ld)
 	{
 		for(DownloadInfo di:ld){
-			ContentValues cv=new ContentValues();
-			cv.put("url",di.getTaskurl());
-			cv.put("id",di.getId());
-			cv.put("start",di.getStart());
-			cv.put("current",di.getCurrent());
-			cv.put("end",di.getEnd());
-			sql.insert("downloadinfo",null,cv);
-		}
+			insertDownloadInfo(di);
+			}
+	}
+
+	@Override
+	public void insertDownloadInfo(DownloadInfo di)
+	{
+		ContentValues cv=new ContentValues();
+		cv.put("id",di.getTaskId());
+		cv.put("no",di.getNo());
+		cv.put("start",di.getStart());
+		cv.put("current",di.getCurrent());
+		cv.put("end",di.getEnd());
+		sql.insert("downloadinfo",null,cv);
+		
 	}
 
 
+
 	@Override
-	public void deleteDownloadInfoWithUrl(String url)
+	public void deleteDownloadInfoWithId(int id)
 	{
-		sql.delete("downloadinfo","url=?",new String[]{url});
+		sql.delete("downloadinfo","id=?",new String[]{id+""});
 	}
 
 	@Override
@@ -237,7 +268,7 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 	{
 		ContentValues cv=new ContentValues();
 		cv.put("current",di.getCurrent());
-		sql.update("downloadinfo",cv,"url=? and id=?",new String[]{di.getTaskurl(),di.getId()+""});
+		sql.update("downloadinfo",cv,"id=? and no=?",new String[]{di.getTaskId()+"",di.getId()+""});
 	}
 
 
@@ -598,8 +629,8 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 		p1.execSQL("CREATE TABLE bookmarksgroup(name TEXT primary key,no INTEGER)");
 		p1.execSQL("CREATE TABLE blacklist(url TEXT primary key,flag INTEGER)");
 		p1.execSQL("CREATE TABLE homepage(url TEXT PRIMARY KEY,title TEXT,no INTEGER)");
-		p1.execSQL("CREATE TABLE download(url TEXT PRIMARY KEY,name TEXT UNIQUE,dir TEXT,cookie TEXT,multithread INTEGER,pause INTEGER,success INTEGER,useragent TEXT,mime TEXT,sourceurl TEXT,length INTEGER)");
-		p1.execSQL("CREATE TABLE downloadinfo(url TEXT,id INTEGER,start INTEGER,current INTEGER,end INTEGER)");
+		p1.execSQL("CREATE TABLE download(id INTEGER PRIMARY KEY,url TEXT UNIQUE,name TEXT UNIQUE,dir TEXT,cookie TEXT,multithread INTEGER,pause INTEGER,success INTEGER,useragent TEXT,mime TEXT,sourceurl TEXT,length INTEGER)");
+		p1.execSQL("CREATE TABLE downloadinfo(id INTEGER,no INTEGER,start INTEGER,current INTEGER,end INTEGER)");
 		ContentValues cv=new ContentValues();
 		cv.put("name","默认");
 		cv.put("no",0);

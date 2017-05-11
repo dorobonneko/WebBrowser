@@ -11,11 +11,23 @@ public class TaskInfo
 	private boolean multiThread=false;
 	private int support=Pause.UNKNOW;
 	private boolean success=false;
-	private String useragent;
+	private String userAgent;
 	private String type;
 	private String sourceUrl;
 	private long length;
+	private int id;
 
+	public void setId(int id)
+	{
+		this.id = id;
+	}
+
+	public int getId()
+	{
+		if(id==0)
+			return taskname.hashCode();
+		return id;
+	}
 	public void setLength(long length)
 	{
 		this.length = length;
@@ -44,14 +56,14 @@ public class TaskInfo
 	{
 		return type;
 	}
-	public void setUseragent(String useragent)
+	public void setUserAgent(String useragent)
 	{
-		this.useragent = useragent;
+		this.userAgent = useragent;
 	}
 
-	public String getUseragent()
+	public String getUserAgent()
 	{
-		return useragent;
+		return userAgent;
 	}
 	public void setSuccess(boolean success)
 	{

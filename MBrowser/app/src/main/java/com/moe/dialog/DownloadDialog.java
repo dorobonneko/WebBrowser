@@ -30,6 +30,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 	private Download download;
 	private DownloadItem di;
 	private Context context;
+	private TaskInfo ti;
 	private AlertDialog ad;
 	public DownloadDialog(Context context){
 		super(context);
@@ -50,6 +51,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 				@Override
 				public void onClick(DialogInterface p1, int p2)
 				{
+					download.updateTaskInfo(ti);
 					p1.dismiss();
 				}
 			})
@@ -58,6 +60,8 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 				@Override
 				public void onClick(DialogInterface p1, int p2)
 				{
+					download.deleteTaskInfoWithId(ti.getId());
+					download.addTaskInfo(ti);
 					p1.dismiss();
 				}
 			}).create();
@@ -89,7 +93,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 			case R.id.download_item_view_sure:
 				String taskname=name.getText().toString().trim().replaceAll("[*|/\\\"<>?]*","");
 				if(taskname.length()>1){
-				TaskInfo ti=new TaskInfo();
+				ti=new TaskInfo();
 				ti.setTaskname(taskname);
 				ti.setTaskurl(di.getUrl());
 				ti.setCookie(di.getCookie());
@@ -97,7 +101,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 				ti.setLength(di.getLength());
 				ti.setSourceUrl(di.getSourceUrl());
 				ti.setType(di.getMime());
-				ti.setUseragent(di.getUserAgent());
+				ti.setUserAgent(di.getUserAgent());
 				switch(download.addTaskInfo(ti)){
 					case SUCCESS:
 						dismiss();
@@ -131,7 +135,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 		namelayout.setErrorEnabled(false);
 		name.setText(di.getFileName());
 		setTitle("文件大小"+new DecimalFormat("#.00").format(di.getLength()/1024.0/1024)+"MB");
-		dir.setText(shared.getString("dir",ResourceService.dir));
+		dir.setText(shared.getString(Download.Setting.DIR,Download.Setting.DIR_DEFAULT));
 	}
 	
 	/*public String getName(DownloadItem di){
