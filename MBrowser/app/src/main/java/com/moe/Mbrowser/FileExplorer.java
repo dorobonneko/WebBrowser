@@ -21,6 +21,11 @@ import com.moe.adapter.FolderAdapter;
 import java.io.InputStreamReader;
 import android.os.storage.StorageManager;
 import com.moe.utils.StorageHelper;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.app.ActivityCompat;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.widget.TextView;
 public class FileExplorer extends Activity implements View.OnClickListener,ListView.OnItemClickListener{
 private ArrayList<String> list=new ArrayList<>();
 	private HashMap<String,File> folder=new HashMap<>();
@@ -35,36 +40,65 @@ private ArrayList<String> list=new ArrayList<>();
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		lv=new ListView(this);
-		LinearLayout l=new LinearLayout(this);
-		l.setFitsSystemWindows(true);
-		l.setOrientation(LinearLayout.VERTICAL);
-		l.addView(lv,ll);
-		LinearLayout l1=new LinearLayout(this);
-		l1.setOrientation(LinearLayout.HORIZONTAL);
-		l.addView(l1,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-		Button b1=new Button(this);
-		Button b2=new Button(this);
-		l1.addView(b1,ll);
-		l1.addView(b2,ll);
-		b1.setText("取消");
-		b2.setText("确定");
-		setContentView(l,vl);
-		fa=new FolderAdapter(this,list);
-		lv.setAdapter(fa);
-		b1.setOnClickListener(this);
-		b2.setOnClickListener(this);
-		lv.setOnItemClickListener(this);
-		b1.setId(464978);
-		b2.setId(467676);
-		index.addAll(StorageHelper.getAllPath(this));
-		String s=getIntent().getStringExtra("path");
-		if(s!=null)
-			Folder(new File(s));
-			else
-		openIndex();
+		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED&&ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+		{
+			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 55);
+			TextView tv=new TextView(this);
+			tv.setText("请授予权限！");
+			setContentView(tv);
+			isindex=true;
+			return;
+		}
+		init();
 	}
 
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+	{
+		if(requestCode==55){
+			for(int i:grantResults){
+				if(i!=PackageManager.PERMISSION_GRANTED){
+					TextView tv=new TextView(this);
+					tv.setText("无权限！");
+					setContentView(tv);
+					return;
+				}
+			}
+		}
+			init();
+	}
+
+	
+private void init(){
+	lv=new ListView(this);
+	LinearLayout l=new LinearLayout(this);
+	l.setFitsSystemWindows(true);
+	l.setOrientation(LinearLayout.VERTICAL);
+	l.addView(lv,ll);
+	LinearLayout l1=new LinearLayout(this);
+	l1.setOrientation(LinearLayout.HORIZONTAL);
+	l.addView(l1,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+	Button b1=new Button(this);
+	Button b2=new Button(this);
+	l1.addView(b1,ll);
+	l1.addView(b2,ll);
+	b1.setText("取消");
+	b2.setText("确定");
+	setContentView(l,vl);
+	fa=new FolderAdapter(this,list);
+	lv.setAdapter(fa);
+	b1.setOnClickListener(this);
+	b2.setOnClickListener(this);
+	lv.setOnItemClickListener(this);
+	b1.setId(464978);
+	b2.setId(467676);
+	index.addAll(StorageHelper.getAllPath(this));
+	String s=getIntent().getStringExtra("path");
+	if(s!=null)
+		Folder(new File(s));
+	else
+		openIndex();
+}
 	@Override
 	public void onClick(View p1)
 	{
@@ -176,10 +210,11 @@ private void loadFolder(){
 	
 private void Folder(File f){
 	if(!f.exists())f.mkdirs();
-	if(f.isDirectory()&&f.canRead()){
+	if(f.isDirectory()){
 		currentFile=f;
 		folder.clear();
 		File[] ff=f.listFiles();
+		if(ff!=null)
 		for(File temp:ff){
 			if(temp.isDirectory()){
 				folder.put(temp.getName(),temp);

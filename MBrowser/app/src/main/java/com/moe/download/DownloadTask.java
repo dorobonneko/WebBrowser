@@ -18,6 +18,7 @@ import com.moe.entity.DownloadInfo;
 import java.util.ArrayList;
 import java.util.List;
 import com.moe.database.DataBase;
+import android.content.Context;
 
 public class DownloadTask extends Thread
 {
@@ -51,6 +52,9 @@ public class DownloadTask extends Thread
 		download.updateTaskInfoData(ti);
 		EventBus.getDefault().post(this);
 		ds.taskItemFinish(ti.getId(),true);
+	}
+	public Context getContext(){
+		return ds;
 	}
 	public OkHttpClient getOkHttpCliebt(){
 		return okhttp;
@@ -168,7 +172,7 @@ public class DownloadTask extends Thread
 								if(i==size-1)
 									di.setEnd(length);
 									else
-								di.setEnd((i+1)*blocksize+1);
+								di.setEnd((i+1)*blocksize);
 								di.setTaskId(ti.getId());
 								di.setNo(i);
 								download.insertDownloadInfo(di);

@@ -32,7 +32,7 @@ public interface Download
 		public final static String DIR_DEFAULT=Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download";
 		//默认下载任务数
 		public final static String SIZE="size";
-		public final static int SIZE_DEFAULE=3;
+		public final static int SIZE_DEFAULT=1;
 		//默认多线程数
 		public final static String THREADSIZE="threadSize";
 		public final static int THREADSIZE_DEFAULE=Runtime.getRuntime().availableProcessors();
@@ -41,6 +41,6 @@ public interface Download
 		public final static boolean MULTITHREAD_DEFAULT=false;
 		//缓冲
 		public final static String BUFFER="buffer";
-		public final static int BUFFER_DEFAULT=8092;
+		public final static int BUFFER_DEFAULT=2;
 	}
 }

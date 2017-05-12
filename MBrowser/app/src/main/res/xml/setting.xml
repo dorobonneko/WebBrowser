@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    android:clipToPadding="false"
+    android:fitsSystemWindows="true">
+    <PreferenceCategory
+        android:title="更多设置"
+        >
+	<Preference
+		android:key="setting_web"
+			android:title="网页浏览"/>
+		<Preference
+			android:key="setting_ad"
+			android:title="广告过滤"/>
+	<Preference
+		android:key="setting_download"
+		android:title="下载设置"/>
+		<Preference
+			android:key="setting_data"
+			android:title="清除记录">
+			<intent
+				android:targetClass="com.moe.Mbrowser.DataManager"
+				android:targetPackage="com.moe.Mbrowser"/>
+		</Preference>
+		<Preference
+			android:key="setting_about"
+			android:title="关于"/>
+    </PreferenceCategory>
+</PreferenceScreen>

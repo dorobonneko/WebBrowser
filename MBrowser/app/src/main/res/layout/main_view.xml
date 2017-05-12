@@ -184,6 +184,7 @@
 				android:layout_width="match_parent">
 
 				<ImageButton
+					android:id="@+id/main_view_skin"
 					android:layout_height="match_parent"
 					android:layout_width="match_parent"
 					android:src="@drawable/ic_tshirt_v"
@@ -191,23 +192,14 @@
 					android:layout_weight="1.0"
 					android:scaleType="centerInside"/>
 
-				<View
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:layout_weight="1.0"/>
-
 				<ImageButton
+					android:id="@+id/main_view_setting"
 					android:layout_height="match_parent"
 					android:layout_width="match_parent"
 					android:src="@drawable/ic_cog"
 					android:background="?android:attr/selectableItemBackground"
 					android:layout_weight="1.0"
 					android:scaleType="centerInside"/>
-
-				<View
-					android:layout_height="match_parent"
-					android:layout_width="match_parent"
-					android:layout_weight="1.0"/>
 
 				<ImageButton
 					android:id="@+id/main_view_exit"

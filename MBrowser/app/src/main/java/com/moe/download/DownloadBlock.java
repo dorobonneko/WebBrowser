@@ -7,6 +7,7 @@ import java.io.RandomAccessFile;
 import java.io.InputStream;
 import com.moe.database.Download;
 import java.io.File;
+import com.moe.Mbrowser.R;
 
 public class DownloadBlock extends Thread
 {
@@ -40,7 +41,7 @@ public class DownloadBlock extends Thread
 		{
 			response = dt.getOkHttpCliebt().newCall(request.build()).execute();
 			is=response.body().byteStream();
-			byte[] b=new byte[dt.getSharedPreferences().getInt(Download.Setting.BUFFER,Download.Setting.BUFFER_DEFAULT)];
+			byte[] b=new byte[Integer.parseInt(dt.getContext().getResources().getTextArray(R.array.buffer)[dt.getSharedPreferences().getInt(Download.Setting.BUFFER,Download.Setting.BUFFER_DEFAULT)].toString())];
 			raf=new RandomAccessFile(new File(dt.getTaskInfo().getDir(),dt.getTaskInfo().getTaskname()),"rw");
 			int len;
 			switch(response.code()){

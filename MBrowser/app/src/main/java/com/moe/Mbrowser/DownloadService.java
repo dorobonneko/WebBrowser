@@ -82,7 +82,7 @@ public class DownloadService extends Service
 		
 	}
 	private void checkSize(){
-		for(int i=downloadinglist.size();i<shared.getInt(Download.Setting.SIZE,Download.Setting.SIZE_DEFAULE);i++){
+		for(int i=downloadinglist.size();i<Integer.parseInt(getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.SIZE,Download.Setting.SIZE_DEFAULT)].toString());i++){
 			for(Integer key:downloadlist.keySet()){
 				if(!downloadinglist.containsKey(key))
 			downloadinglist.put(key,new DownloadTask(this,downloadlist.get(key),okhttp));

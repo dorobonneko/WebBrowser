@@ -29,7 +29,6 @@ public abstract class FragmentPop extends Fragment
        super.onHiddenChanged(hidden);
    }
 
-
     @Override
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim)
     {

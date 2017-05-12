@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    android:clipToPadding="false"
+    android:fitsSystemWindows="true">
+    <PreferenceCategory
+        android:title="下载设置"
+	>
+		<com.moe.preference.DropDownPreference
+			android:key="size"
+			android:title="下载任务数"
+			android:entries="@array/size"
+			android:value="@array/size"
+			android:defaultValue="1"/>
+		<SwitchPreference
+			android:key="multiThread"
+			android:title="是否启用多线程下载"
+			android:defaultValue="false"/>
+		<com.moe.preference.SeekBarPreference
+			android:key="threadSize"
+			android:title="线程数"/>
+		<com.moe.preference.DropDownPreference
+			android:key="buffer"
+			android:title="缓冲大小"
+			android:summary="单位(byte)"
+			android:entries="@array/buffer"
+			android:defaultValue="2"/>
+		<Preference
+			android:key="dir"
+			android:title="下载保存路径"
+			/>
+    </PreferenceCategory>
+</PreferenceScreen>

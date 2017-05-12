@@ -394,9 +394,10 @@ public String getCookie(String url){
 					{
 						if (v.getId() == 0)
 						{
-							if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-								ActivityCompat.requestPermissions((Activity)getContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-							else
+							if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED&&ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+							{ActivityCompat.requestPermissions((Activity)getContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, 49);
+							EventBus.getDefault().post(new com.moe.bean.Message(49,new Object[]{origin,callback}));
+							}else
 								callback.invoke(origin, true, false);
 						}
 					}
@@ -457,7 +458,7 @@ public String getCookie(String url){
 		webSetting.setDatabaseEnabled(true);
         webSetting.setDomStorageEnabled(true);
         webSetting.setGeolocationEnabled(true);
-        webSetting.setGeolocationDatabasePath(getContext().getDir("database", Context.MODE_PRIVATE).getPath());
+        //webSetting.setGeolocationDatabasePath(getContext().getDir("database", Context.MODE_PRIVATE).getPath());
         webSetting.setAppCacheMaxSize(Long.MAX_VALUE);
         // webSetting.setPageCacheCapacity(IX5WebSettings.DEFAULT_CACHE_CAPACITY);
         //webSetting.setPluginState(WebSettings.PluginState.ON_DEMAND);

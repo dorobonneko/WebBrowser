@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<resources>
+		<string-array name="size">
+			<item>1</item>
+			<item>3</item>
+			<item>5</item>
+		</string-array>
+		<string-array name="buffer">
+			<item>2048</item>
+			<item>4096</item>
+			<item>8092</item>
+			<item>10240</item>
+			<item>14336</item>
+		</string-array>
+	</resources>

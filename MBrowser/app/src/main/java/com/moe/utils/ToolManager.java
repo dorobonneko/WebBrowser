@@ -28,7 +28,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	private SearchDialog search;
 	private TextView title;
 	private ProgressBar pb;
-	private ImageButton back,forward,home,win,menu,exit;
+	private ImageButton back,forward,home,win,menu;
 	private ImageView bookmark,refresh;
 	private View toolbar;
 	private ViewFlipper content;
@@ -64,8 +64,9 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		abl=(AppBarLayout)v.findViewById(R.id.main_view_appbarlayout);
 		bookmark=(ImageView)v.findViewById(R.id.mainview_fav);
 		bookmark.setOnClickListener(this);
-		exit=(ImageButton)v.findViewById(R.id.main_view_exit);
-		exit.setOnClickListener(this);
+		v.findViewById(R.id.main_view_exit).setOnClickListener(this);
+		v.findViewById(R.id.main_view_setting).setOnClickListener(this);
+		v.findViewById(R.id.main_view_skin).setOnClickListener(this);
 	}
 
 	public void refresh()
@@ -153,6 +154,14 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 				break;
 			case R.id.main_view_exit:
 				EventBus.getDefault().post(MenuOptions.EXIT);
+				break;
+			case R.id.main_view_setting:
+				EventBus.getDefault().post(MenuOptions.SETTING);
+				EventBus.getDefault().post(MenuFragment.SHUTDOWN);
+				break;
+			case R.id.main_view_skin:
+				EventBus.getDefault().post(MenuOptions.SKIN);
+				EventBus.getDefault().post(MenuFragment.SHUTDOWN);
 				break;
         }
     }
