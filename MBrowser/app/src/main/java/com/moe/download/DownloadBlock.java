@@ -8,6 +8,7 @@ import java.io.InputStream;
 import com.moe.database.Download;
 import java.io.File;
 import com.moe.Mbrowser.R;
+import de.greenrobot.event.EventBus;
 
 public class DownloadBlock extends Thread
 {
@@ -21,6 +22,7 @@ public class DownloadBlock extends Thread
 	public DownloadBlock(DownloadTask dt,DownloadInfo di){
 		this.dt=dt;
 		this.di=di;
+		setPriority(Thread.MIN_PRIORITY);
 		start();
 	}
 	public boolean isSuccess(){
@@ -62,19 +64,36 @@ public class DownloadBlock extends Thread
 				if(response.code()==206){
 					di.setCurrent(di.getCurrent()+len);
 					dt.getDownload().updateDownloadInfo(di);
+					EventBus.getDefault().post(dt.getTaskInfo());
 					}
+				if(pause==true)return;
 			}
-			raf.close();
-			is.close();
-			response.close();
 		}
 		catch (IOException e)
 		{
 			if(!pause)
 			dt.itemFinish(this);
-			response.close();
+			
 			return;
-		}}
+		}finally{
+			try
+			{
+				if(raf!=null)
+				raf.close();
+			}
+			catch (IOException e)
+			{}
+			try
+			{
+				if(is!=null)
+					is.close();
+			}
+			catch (IOException e1)
+			{}
+			if(response!=null)
+				response.close();
+		}
+		}
 		success=true;
 		dt.itemFinish(this);
 	}
@@ -83,20 +102,12 @@ public class DownloadBlock extends Thread
 		if(!success){
 			try
 			{
-				if (is != null)
-					is.close();
-			}
-			catch (IOException e)
-			{}
-			if (response != null)
-				response.close();
-			try
-			{
 				if (raf != null)
 					raf.close();
 			}
 			catch (IOException e)
 			{}
+			
 		}
 	}
 }

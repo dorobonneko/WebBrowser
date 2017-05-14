@@ -67,7 +67,7 @@ public class SeekBarPreference extends Preference implements SeekBar.OnSeekBarCh
 		content.addView(sb);
 		//View v=super.onCreateView(parent);
 		//content.setPadding(0,6,0,6);
-		content.setPaddingRelative((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,getContext().getResources().getDisplayMetrics()),0,(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,6,getContext().getResources().getDisplayMetrics()),0);
+		content.setPaddingRelative((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,getContext().getResources().getDisplayMetrics()),0,(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,getContext().getResources().getDisplayMetrics()),0);
 		//content.setLayoutParams());
 		TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.R.attr.listPreferredItemHeight});
 		content.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,(int)ta.getDimension(0,0)));

@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 import com.moe.database.DataBase;
 import android.content.Context;
+import java.util.Iterator;
 
 public class DownloadTask extends Thread
 {
 	private List<DownloadBlock> ldb=new ArrayList<>();
-	private State state=State.WAITING;
 	private TaskInfo ti;
 	private DownloadService ds;
 	private OkHttpClient okhttp;
@@ -38,19 +38,27 @@ public class DownloadTask extends Thread
 		this.download = DataBase.getInstance(ds);
 		okhttp = ok;
 		shared = ds.getSharedPreferences("download", 0);
+		setPriority(Thread.MIN_PRIORITY);
 		start();
 	}
 
 	public void itemFinish(DownloadBlock p0)
 	{
+		if(p0.isSuccess()&&ldb.size()>0)
 		for(DownloadBlock db:ldb){
 			if(!db.isSuccess())
 				return;
 		}
-		state=State.SUCCESS;
+		else{
+			pause();
+			ti.setState(State.FAIL);
+			EventBus.getDefault().post(ti);
+			ds.taskItemFinish(ti.getId(),false);
+			return;
+		}
 		ti.setSuccess(true);
 		download.updateTaskInfoData(ti);
-		EventBus.getDefault().post(this);
+		EventBus.getDefault().post(ti);
 		ds.taskItemFinish(ti.getId(),true);
 	}
 	public Context getContext(){
@@ -69,7 +77,7 @@ public class DownloadTask extends Thread
 	}
 	public State getStateOfTask()
 	{
-		return state;
+		return ti.getState();
 	}
 	public TaskInfo getTaskInfo()
 	{
@@ -78,7 +86,7 @@ public class DownloadTask extends Thread
 	public void pause()
 	{
 		//暂停任务
-		switch(state){
+		switch(ti.getState()){
 			case QUERY:
 				if(response!=null){
 					response.close();
@@ -92,22 +100,39 @@ public class DownloadTask extends Thread
 				}
 				catch (IOException e)
 				{}
+				response.close();
 				break;
 			case DOWNLOADING:
-				for(DownloadBlock db: ldb){
-					db.pause();
-				}
+				Iterator<DownloadBlock> i=ldb.iterator();
+				while(i.hasNext()){
+					DownloadBlock db=i.next();
+					if(db!=null)
+					db.pause();}
 				ldb.clear();
 				break;
 		}
-		state = State.PAUSE;
-		EventBus.getDefault().post(this);
+		
 	}
 
 	@Override
 	public void run()
 	{
-		state = State.QUERY;
+		//判断任务是否已经存在，如果不存在则创建查询
+		List<DownloadInfo> ldi=ti.getDownloadinfo();
+		if(ldi!=null&&ldi.size()>0){
+			File f=new File(ti.getDir(), ti.getTaskname());
+			if(!f.exists()){
+				download.deleteDownloadInfoWithId(ti.getId());ti.setDownloadinfo(null); start();return;//下载的文件已被删除，删除下载信息并重启任务
+			}
+			//循环遍历并加载任务
+			ti.setState(State.DOWNLOADING);
+			EventBus.getDefault().post(ti);
+			for(DownloadInfo di:ldi){
+				ldb.add(new DownloadBlock(this,di));
+			}
+		}else{
+		ti.setState(State.QUERY);
+		EventBus.getDefault().post(ti);
 		Request.Builder request=new Request.Builder();
 		if (ti.getCookie() != null)
 			request.addHeader("Cookie", ti.getCookie());
@@ -138,26 +163,26 @@ public class DownloadTask extends Thread
 					else
 					{
 						ti.setSupport(TaskInfo.Pause.SUPPORT);
-						ti.setMultiThread(true && shared.getBoolean(Download.Setting.MULTITHREAD, Download.Setting.MULTITHREAD_DEFAULT));
+					ti.setMultiThread("close".equalsIgnoreCase(response.header("Connection"))?false:true&& shared.getBoolean(Download.Setting.MULTITHREAD, Download.Setting.MULTITHREAD_DEFAULT));
 					}
 					File f=new File(ti.getDir());
 					if (!f.exists())f.mkdirs();
 					if (!f.canWrite())
 					{
-						state = State.NOPERMISSION;
-						EventBus.getDefault().post(this);
+						ti.setState(State.NOPERMISSION);
+						EventBus.getDefault().post(ti);
 						return;
 					}
 					else
 					{
 						if(f.getFreeSpace()>length){
 						raf=new RandomAccessFile(new File(f, ti.getTaskname()), "rw");
-						state = state.TEMPFILE;
-						EventBus.getDefault().post(this);
+						ti.setState(State.TEMPFILE);
+						EventBus.getDefault().post(ti);
 						raf.setLength(length);
 						raf.close();
-						state = State.DOWNLOADING;
-						EventBus.getDefault().post(this);
+						ti.setState(State.DOWNLOADING);
+						EventBus.getDefault().post(ti);
 						int size=0;
 						if (ti.isMultiThread())
 							size=shared.getInt(Download.Setting.THREADSIZE, Download.Setting.THREADSIZE_DEFAULE);
@@ -175,7 +200,8 @@ public class DownloadTask extends Thread
 								di.setEnd((i+1)*blocksize);
 								di.setTaskId(ti.getId());
 								di.setNo(i);
-								download.insertDownloadInfo(di);
+								//download.insertDownloadInfo(di);
+								ad.add(di);
 								ldb.add(new DownloadBlock(this, di));
 							}//循环
 							ti.setDownloadinfo(ad);
@@ -186,8 +212,8 @@ public class DownloadTask extends Thread
 					}//剩余空间
 					else{
 						//空间不足
-						state=State.DISKLESS;
-						EventBus.getDefault().post(this);
+						ti.setState(State.DISKLESS);
+						EventBus.getDefault().post(ti);
 						return;
 					}
 					}//是否可以读写
@@ -196,14 +222,17 @@ public class DownloadTask extends Thread
 			else
 			{
 				//链接无效
-				state = State.INVALIDE;
+				ti.setState(State.INVALIDE);
 			}
 		}
 		catch (IOException e)
 		{
-			state = State.FAIL;
+			ti.setState(State.FAIL);
+			EventBus.getDefault().post(ti);
+			ds.taskItemFinish(ti.getId(),false);
 		}finally{
 			response.close();
+		}
 		}
 	}
 	private Notification.Builder getNotificafion()

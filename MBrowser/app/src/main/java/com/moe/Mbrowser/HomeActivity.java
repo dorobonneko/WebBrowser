@@ -26,11 +26,12 @@ import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.app.ActivityCompat;
 import android.Manifest;
+import com.moe.fragment.DownloadFragment;
 
 public class HomeActivity extends FragmentActivity
 {
 private SharedPreferences shared;
-private Fragment current,main=new MainFragment(),bookmark=new BookmarksFragment();
+private Fragment current,main=new MainFragment(),bookmark=new BookmarksFragment(),download=new DownloadFragment();
 private SettingFragment setting=new SettingFragment();
 private DownloadDialog dd;
 	private Message callback;
@@ -104,6 +105,11 @@ private DownloadDialog dd;
 				break;
 			case DOWNLOAD:
 				//startService(new Intent(this,DownloadService.class));
+				if(download.isAdded())
+					getSupportFragmentManager().beginTransaction().hide(current).show(download).commit();
+				else
+					getSupportFragmentManager().beginTransaction().hide(current).add(R.id.main,download).commit();
+				current=download;
 				break;
 			case HOME:
 				if(current!=main){

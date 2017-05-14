@@ -1,5 +1,6 @@
 package com.moe.entity;
 import java.util.List;
+import com.moe.download.DownloadTask;
 
 public class TaskInfo
 {
@@ -16,7 +17,40 @@ public class TaskInfo
 	private String sourceUrl;
 	private long length;
 	private int id;
+	private DownloadTask.State state=DownloadTask.State.PAUSE;
+	private long time;
+	private long[] tag=null;
 
+	public void setTag(long time,long size)
+	{
+		if(tag==null)tag=new long[2];
+		tag[0]=time;
+		tag[1]=size;
+	}
+
+	public long[] getTag()
+	{
+		return tag;
+	}
+	public void setState(DownloadTask.State state)
+	{
+		this.state = state;
+	}
+
+	public DownloadTask.State getState()
+	{
+		return state;
+	}
+
+	public void setTime(long time)
+	{
+		this.time = time;
+	}
+
+	public long getTime()
+	{
+		return time;
+	}
 	public void setId(int id)
 	{
 		this.id = id;
@@ -142,6 +176,17 @@ public class TaskInfo
 	public List<DownloadInfo> getDownloadinfo()
 	{
 		return downloadinfo;
+	}
+	public boolean isDownloading(){
+		switch(state){
+			case WAITING:
+			case QUERY:
+			case TEMPFILE:
+			case DOWNLOADING:
+				return true;
+			default:
+			return false;
+		}
 	}
 	public class Pause{
 		public final static int UNKNOW=0;

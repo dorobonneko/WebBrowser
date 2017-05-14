@@ -35,11 +35,12 @@ import javax.net.ssl.SSLSession;
 import java.security.NoSuchAlgorithmException;
 import java.security.KeyManagementException;
 import java.security.cert.CertificateException;
+import com.moe.bean.Message;
 
 public class DownloadService extends Service
 {
 	//下载队列
-	private LinkedHashMap<Integer,TaskInfo> downloadlist=new LinkedHashMap<>();
+	public static LinkedHashMap<Integer,TaskInfo> downloadlist=new LinkedHashMap<>();
 	//正在下载队列
 	private LinkedHashMap<Integer,DownloadTask> downloadinglist=new LinkedHashMap<>();
 	private SharedPreferences shared;
@@ -93,12 +94,14 @@ public class DownloadService extends Service
 		downloadinglist.remove(url);
 		downloadlist.remove(url);
 		checkSize();
+		EventBus.getDefault().post(Message.obitMessage(88888));
 	}
 	@Subscribe
 	public void onTask(TaskBean tb)
 	{
 		switch(tb.getState()){
 			case ADD:
+				tb.getTaskInfo().setState(DownloadTask.State.WAITING);
 				downloadlist.put(tb.getTaskInfo().getId(),tb.getTaskInfo());
 				break;
 			case UPDATE:
@@ -106,7 +109,16 @@ public class DownloadService extends Service
 					downloadinglist.remove(tb.getTaskInfo().getId()).pause();
 					downloadlist.remove(tb.getTaskInfo().getId());
 					}
+				tb.getTaskInfo().setState(DownloadTask.State.WAITING);
 				downloadlist.put(tb.getTaskInfo().getId(),tb.getTaskInfo());
+				break;
+			case PAUSE:
+				if(downloadinglist.containsKey(tb.getTaskInfo().getId())){
+					downloadinglist.remove(tb.getTaskInfo().getId()).pause();
+					downloadlist.remove(tb.getTaskInfo().getId());
+				}
+				tb.getTaskInfo().setState(DownloadTask.State.PAUSE);
+				EventBus.getDefault().post(tb.getTaskInfo());
 				break;
 			case DELETE:
 				if(downloadinglist.containsKey(tb.getTaskInfo().getId())){

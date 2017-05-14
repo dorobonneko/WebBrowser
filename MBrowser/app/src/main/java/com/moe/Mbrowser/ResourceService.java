@@ -45,7 +45,7 @@ public class ResourceService extends Service
 	@Subscribe
 	public void task(TaskBean tb){
 		
-		if(!isRunning()){
+		if(!isRunning(this)){
 			if(!lt.contains(tb))lt.add(tb);
 			startService(new Intent(this,DownloadService.class));
 			}
@@ -57,10 +57,10 @@ public class ResourceService extends Service
 			EventBus.getDefault().post(lt.remove(0));
 		}
 	}
-	private boolean isRunning(){
-		ActivityManager am=getSystemService(ActivityManager.class);
+	public static boolean isRunning(Context context){
+		ActivityManager am=context.getSystemService(ActivityManager.class);
 		for(ActivityManager.RunningServiceInfo ar:am.getRunningServices(Integer.MAX_VALUE)){
-			if(ar.service.getClassName().equals("com.moe.MBrowser.DownloadService")){
+			if(ar.service.getClassName().equals("com.moe.Mbrowser.DownloadService")){
 				return true;
 			}
 		}

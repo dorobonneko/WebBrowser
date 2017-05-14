@@ -43,7 +43,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 	}
 
 	public boolean onBackPressed(){
-		if(current!=this){
+		if(current!=null&&current!=this){
 			getFragmentManager().beginTransaction().hide(current).show(this).commit();
 			current=this;
 		return true;
