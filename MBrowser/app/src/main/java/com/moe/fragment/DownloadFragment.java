@@ -61,7 +61,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 				}
 			});
 		rv.addItemDecoration(new CustomDecoration(1));
-		rv.setItemAnimator(new DefaultItemAnimator());
+		//rv.setItemAnimator(new DefaultItemAnimator());
 		rv.setAdapter(dia=new DownloadItemAdapter(l1,l2));
 		dia.notifyDataSetChanged();
 		dia.setOnClickListener(this);

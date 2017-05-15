@@ -5,10 +5,11 @@ import com.moe.Mbrowser.R;
 import android.preference.Preference;
 import com.moe.fragment.preference.PreferenceFragment;
 import com.moe.fragment.preference.DownloadFragment;
+import com.moe.fragment.preference.WebFragment;
 
 public class SettingFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener
 {
-	private PreferenceFragment current,download=new DownloadFragment();
+	private PreferenceFragment current,download=new DownloadFragment(),web=new WebFragment();
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
@@ -37,6 +38,13 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 					else
 					getFragmentManager().beginTransaction().hide(this).add(R.id.main,download).commit();
 				current=download;
+				break;
+			case "setting_web":
+				if(web.isAdded())
+					getFragmentManager().beginTransaction().hide(this).show(web).commit();
+				else
+					getFragmentManager().beginTransaction().hide(this).add(R.id.main,web).commit();
+				current=web;
 				break;
 		}
 		return false;

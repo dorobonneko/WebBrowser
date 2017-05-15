@@ -14,6 +14,7 @@ import com.moe.database.Download;
 import android.widget.AdapterView;
 import android.widget.Adapter;
 import java.util.HashMap;
+import android.preference.Preference.OnPreferenceChangeListener;
 
 public class DropDownPreference extends Preference implements Spinner.OnItemSelectedListener
 {
@@ -87,6 +88,7 @@ public class DropDownPreference extends Preference implements Spinner.OnItemSele
 	{
 		index=p3;
 		persistInt(p3);
+		if(opcl!=null)opcl.onPreferenceChange(this,p3);
 	}
 
 	@Override
@@ -95,6 +97,13 @@ public class DropDownPreference extends Preference implements Spinner.OnItemSele
 		// TODO: Implement this method
 	}
 
+	@Override
+	public void setOnPreferenceChangeListener(Preference.OnPreferenceChangeListener onPreferenceChangeListener)
+	{
+		opcl=onPreferenceChangeListener;
+		
+			}
+private OnPreferenceChangeListener opcl;
 
 	
 }

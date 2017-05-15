@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    android:clipToPadding="false"
+    android:fitsSystemWindows="true">
+    <PreferenceCategory
+        android:title="网页浏览设置">
+		<com.moe.preference.SeekBarPreference
+			android:key="textSize"
+			android:title="文字大小"/>
+		<SwitchPreference
+			android:key="multiWindows"
+			android:title="多窗口模式"
+			android:defaultValue="true"/>
+		<SwitchPreference
+			android:key="javaScript"
+			android:title="是否启用js"
+			android:defaultValue="true"/>
+		<SwitchPreference
+			android:key="alertDialog"
+			android:title="弹出对话框"
+			android:defaultValue="false"/>
+		<SwitchPreference
+			android:key="overView"
+			android:title="预览模式加载"
+			android:defaultValue="true"/>
+		<com.moe.preference.DropDownPreference
+			android:key="ua"
+			android:title="浏览器标识"
+			android:entries="@array/ua"
+			android:value="@array/uavalue"/>
+		<EditTextPreference
+			android:key="customUa"
+			android:title="自定义UA"
+		/>
+    </PreferenceCategory>
+</PreferenceScreen>

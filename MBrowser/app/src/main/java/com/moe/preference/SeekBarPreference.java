@@ -154,9 +154,11 @@ public void add(int add){
 	notifyCustomChanged();
 }
 public void notifyCustomChanged(){
+	if(start!=null){
 	start.setText(0+add+"");
 	current.setText(sb.getProgress()+add+"");
 	end.setText(sb.getMax()+add+"");
+	}
 }
 
 

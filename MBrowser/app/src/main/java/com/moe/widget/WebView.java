@@ -75,7 +75,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 	private boolean state=false;
 	private final String homepage="file:///android_asset/homepage.html";
 	private WebHistory wh;
-	private GestureDetector gd=new GestureDetector(this);
+	//private GestureDetector gd=new GestureDetector(this);
 	private BlackList bl;
 	private AlertDialog gps;
 	private HomePage hp;
@@ -370,7 +370,10 @@ public String getCookie(String url){
 //			ad.setTitle("网页提示");
 //			ad.setMessage(message);
 //			ad.show();
+			if(shared.getBoolean(Setting.ALERTDIALOG,false))
             result.confirm();
+			else
+			result.cancel();
             return super.onJsAlert(view, url, message, result);
         }
 
@@ -451,7 +454,7 @@ public String getCookie(String url){
         //启用缓存
         webSetting.setMediaPlaybackRequiresUserGesture(true);
         //媒体手势播放
-        webSetting.setTextZoom(shared.getInt(Setting.TEXTSIZE,100));
+        webSetting.setTextZoom(shared.getInt(Setting.TEXTSIZE,50)+50);
         //设置文字缩放
 		webSetting.setPluginState(WebSettings.PluginState.ON);
         //启用flash插件
@@ -476,7 +479,7 @@ public String getCookie(String url){
 	public void onSharedPreferenceChanged(SharedPreferences p1, String key)
 	{
 		if(key.equals(Setting.TEXTSIZE))
-			getSettings().setTextZoom(shared.getInt(Setting.TEXTSIZE,100));
+			getSettings().setTextZoom(shared.getInt(Setting.TEXTSIZE,50)+50);
 		else if(key.equals(Setting.JAVASCRIPT))
 			getSettings().setJavaScriptEnabled(shared.getBoolean(Setting.JAVASCRIPT,true));
 		else if(key.equals(Setting.MULTIWINDOWS))
@@ -682,5 +685,7 @@ public String getCookie(String url){
 		public final static String BLOCKIMAGES="blockImages";
 		//设置ua
 		public final static String USERAGENT="userAgent";
+		//是否允许弹出对话框
+		public final static String ALERTDIALOG="alertDialog";
 	}
 }
