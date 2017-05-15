@@ -30,7 +30,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
-import com.moe.Mbrowser.BuildConfig;
 import android.webkit.MimeTypeMap;
 import java.net.URL;
 

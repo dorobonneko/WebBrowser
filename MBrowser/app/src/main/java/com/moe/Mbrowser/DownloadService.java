@@ -80,7 +80,7 @@ public class DownloadService extends Service
 			}).build();
 		startForeground(0, new Notification());
 		EventBus.getDefault().post(this);
-		
+		registerReceiver(new stateChange(),new IntentFilter("com.moe.notification.state"));
 	}
 	private void checkSize(){
 		for(int i=downloadinglist.size();i<Integer.parseInt(getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.SIZE,Download.Setting.SIZE_DEFAULT)].toString());i++){
@@ -94,7 +94,7 @@ public class DownloadService extends Service
 		downloadinglist.remove(url);
 		downloadlist.remove(url);
 		checkSize();
-		EventBus.getDefault().post(Message.obitMessage(88888));
+		EventBus.getDefault().post(Message.obitMessage(88888,url));
 	}
 	@Subscribe
 	public void onTask(TaskBean tb)
@@ -183,5 +183,24 @@ public class DownloadService extends Service
 			}
 		}
 
+	class stateChange extends BroadcastReceiver
+	{
 
+		@Override
+		public void onReceive(Context p1, Intent p2)
+		{
+			int id=p2.getIntExtra("id",-1);
+			if(id!=-1&&downloadlist.containsKey(id)){
+				TaskInfo ti= downloadlist.get(id);
+				if(ti.isDownloading())
+					EventBus.getDefault().post(new TaskBean(ti,TaskBean.State.PAUSE));
+				else
+					EventBus.getDefault().post(new TaskBean(ti,TaskBean.State.ADD));
+				
+				
+			}
+		}
+
+	
+}
 }

@@ -145,6 +145,8 @@ public DownloadItemAdapter(List<TaskInfo> l1,List<TaskInfo> l2){
 			summary=(TextView)((ViewGroup)v).getChildAt(1);
 			title.setTextAppearance(android.R.style.TextAppearance_Large);
 			summary.setTextAppearance(android.R.style.TextAppearance_Small);
+			title.setSingleLine();
+			summary.setSingleLine();
 			ta.recycle();
 			v.setPaddingRelative((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0,(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0);
 			itemView.setOnClickListener(new View.OnClickListener(){

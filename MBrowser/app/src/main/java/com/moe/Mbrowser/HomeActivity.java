@@ -43,8 +43,14 @@ private DownloadDialog dd;
         long i=System.currentTimeMillis();
 		shared=getSharedPreferences("moe",0);
         setContentView(R.layout.main);
+		String path=getIntent().getStringExtra("activity");
+		if("download".equals(path)){
+			getSupportFragmentManager().beginTransaction().add(R.id.main,download).commit();
+			current=download;
+		}else{
         getSupportFragmentManager().beginTransaction().add(R.id.main,main).commit();
 		current=main;
+		}
 		dd=new DownloadDialog(this);
 		if(shared.getBoolean("full",false))
 		{
@@ -188,10 +194,36 @@ private DownloadDialog dd;
 				}
 		}
 		if(!current.onBackPressed()){
-		if(current!=main){getSupportFragmentManager().beginTransaction().hide(current).show(main).commit();current=main;}
+		if(current!=main){
+			if(main.isAdded())
+			getSupportFragmentManager().beginTransaction().hide(current).show(main).commit();
+			else
+			getSupportFragmentManager().beginTransaction().hide(current).add(R.id.main,main).commit();
+			current=main;
+			}
 		else if(!main.onBackPressed())
         super.onBackPressed();
 		}
     }
+
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		super.onNewIntent(intent);
+		String path=intent.getStringExtra("activity");
+		if("download".equals(path)){
+			if(download.isAdded())
+				getSupportFragmentManager().beginTransaction().hide(current).show(download).commit();
+				else
+			getSupportFragmentManager().beginTransaction().add(R.id.main,download).commit();
+			current=download;
+		}else{
+			if(main.isAdded())
+				getSupportFragmentManager().beginTransaction().hide(current).show(main).commit();
+				else
+			getSupportFragmentManager().beginTransaction().add(R.id.main,main).commit();
+			current=main;
+		}
+	}
         
 }
