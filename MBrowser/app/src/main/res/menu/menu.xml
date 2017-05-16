@@ -25,6 +25,7 @@
 	<!--分组-->
 	<group>
 	<item
+		android:icon="@drawable/menu_auto"
         android:id="@+id/menu_autoscreen"
         android:title="适应屏幕"/>
 	<item
@@ -36,8 +37,9 @@
 		android:icon="@drawable/menu_toolbox"
         android:title="@string/toolbox"/>
 	<item
-        android:id="@+id/item"
-        android:title="Item"/>
+		android:icon="@drawable/menu_desktop"
+        android:id="@+id/menu_desktop"
+        android:title="桌面模式"/>
 		<item
 			android:id="@+id/item"
 			android:title="Item"/>

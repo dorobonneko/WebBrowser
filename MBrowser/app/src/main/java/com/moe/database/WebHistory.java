@@ -6,4 +6,6 @@ public interface WebHistory
 	void insertOrUpdateWebHistory(String url,String title);
 	List getWebHistory();
 	void clearWebHistory();
+	List queryWebHistory(String key);
+	
 }

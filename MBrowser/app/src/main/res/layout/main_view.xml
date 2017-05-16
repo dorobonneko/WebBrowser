@@ -10,12 +10,12 @@
 	<android.support.design.widget.AppBarLayout
 		android:id="@+id/main_view_appbarlayout"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="?attr/actionBarSize"
 		android:fitsSystemWindows="true">
 		<LinearLayout
 			android:fitsSystemWindows="true"
 			android:layout_width="match_parent"
-			android:layout_height="?attr/actionBarSize"
+			android:layout_height="match_parent"
 			android:id="@+id/mainview_searchbar"
 			app:elevation="2dp"
 			android:gravity="center"
@@ -106,7 +106,7 @@
 		android:orientation="vertical"
 		android:layout_height="match_parent"
 		android:layout_width="match_parent"
-		android:background="#70000000"
+		android:background="#35000000"
 		android:id="@+id/mainview_popwin"
 		android:visibility="invisible"
 		android:gravity="bottom|center"
@@ -125,7 +125,7 @@
 			android:orientation="horizontal"
 			android:background="@color/border"/>
 
-		<com.moe.widget.ViewFlipper
+		<ViewFlipper
 			android:layout_height="match_parent"
 			android:layout_width="match_parent"
 			android:id="@+id/mainview_ViewFlipper">
@@ -212,7 +212,7 @@
 
 			</LinearLayout>
 
-		</com.moe.widget.ViewFlipper>
+		</ViewFlipper>
 
 	</LinearLayout>
 

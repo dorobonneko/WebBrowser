@@ -9,27 +9,54 @@ import com.moe.database.*;
 import android.util.*;
 import android.support.v4.content.*;
 import android.app.*;
+import android.os.Handler;
+import android.os.Message;
 
 public class SearchHistoryAdapter extends RecyclerView.Adapter
 {
 	private Context context;
 	private SearchHistory sh;
+	private WebHistory wh;
 	private EditText et;
 	private Dialog d;
+	private List list=new ArrayList<>();
+	
 	public SearchHistoryAdapter(Context context,EditText et,Dialog d){
 		this.context=context;
 		this.et=et;
 		this.d=d;
 		sh=DataBase.getInstance(context);
+		wh=DataBase.getInstance(context);
 		refresh();
 	}
-	private List<String> list=new ArrayList<>();
+private Handler handler=new Handler(){
 
-	public void query(String url)
+		@Override
+		public void handleMessage(Message msg)
+		{
+			switch(msg.what){
+				case 0:
+					list.addAll((List)msg.obj);
+					notifyDataSetChanged();
+					break;
+			}
+		}
+	
+};
+	public void query(final String url)
 	{
-		list.clear();
-		list.addAll(sh.querySearchHistory(url));
-		notifyDataSetChanged();
+		new Thread(){
+			public void run(){
+				list.clear();
+				List list=sh.querySearchHistory(url);
+				List tmp=wh.queryWebHistory(url);
+				if(tmp!=null)
+					list.addAll(tmp);
+				handler.removeMessages(0);
+				handler.sendMessageDelayed(handler.obtainMessage(0,list),300);
+			}
+		}.start();
+		
 	}
 	@Override
 	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup p1, int p2)
@@ -47,38 +74,21 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter
 			vh.add.setVisibility(ImageButton.GONE);
 			vh.title.setGravity(Gravity.CENTER);
 			vh.title.setText(R.string.clear_search_history);
-			vh.title.setOnClickListener(new View.OnClickListener(){
-
-					@Override
-					public void onClick(View p1)
-					{
-						sh.clearSearchHistory();
-						refresh();
-					}
-				});
+			vh.url.setVisibility(View.GONE);
 		}else{
 		vh.title.setGravity(Gravity.LEFT|Gravity.CENTER);
-			vh.title.setOnClickListener(new View.OnClickListener(){
-
-					@Override
-					public void onClick(View p1)
-					{
-						LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra("text", ((TextView)p1).getText().toString()));
-						d.dismiss();
-						
-					}
-				});
 		vh.add.setVisibility(ImageButton.VISIBLE);
-		vh.title.setText(list.get(p2));
-		vh.add.setOnClickListener(new View.OnClickListener(){
-
-				@Override
-				public void onClick(View p1)
-				{
-					et.setText(vh.title.getText());
-				}
-			});
+		if(list.get(p2) instanceof String){
+		vh.title.setText(list.get(p2).toString());
+		vh.url.setVisibility(View.GONE);
+		vh.url.setText(list.get(p2).toString());
+		}else{
+			String[] data=(String[])list.get(p2);
+			vh.title.setText(data[1]);
+			vh.url.setVisibility(View.VISIBLE);
+			vh.url.setText(data[0]);
 			}
+		}
 	}
 
 	@Override
@@ -92,7 +102,7 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter
 		notifyDataSetChanged();
 	}
 	class ViewHolder extends RecyclerView.ViewHolder{
-		TextView title;
+		TextView title,url;
 		ImageButton add;
 		public ViewHolder(View v){
 			super(v);
@@ -100,7 +110,31 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter
 			
 			if(!(v instanceof TextView)){
 			title=(TextView)v.findViewById(R.id.searchitem_title);
-			add=(ImageButton)v.findViewById(R.id.searchitem_add);}
+			add=(ImageButton)v.findViewById(R.id.searchitem_add);
+			url=(TextView)v.findViewById(R.id.searchitem_url);
+			add.setOnClickListener(new View.OnClickListener(){
+
+						@Override
+						public void onClick(View p1)
+						{
+							et.setText(title.getText());
+						}
+					});
+				itemView.setOnClickListener(new View.OnClickListener(){
+
+						@Override
+						public void onClick(View p1)
+						{
+							if(getPosition()==list.size()){
+								sh.clearSearchHistory();
+								refresh();
+							}else{
+							LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra("text", url.getText().toString()));
+							d.dismiss();}
+
+						}
+					});	
+			}
 		}
 	}
 }

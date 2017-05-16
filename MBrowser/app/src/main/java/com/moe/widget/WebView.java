@@ -76,7 +76,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 	private boolean state=false;
 	private final String homepage="file:///android_asset/homepage.html";
 	private WebHistory wh;
-	//private GestureDetector gd=new GestureDetector(this);
+	private GestureDetector gd=new GestureDetector(this);
 	private BlackList bl;
 	private AlertDialog gps;
 	private HomePage hp;
@@ -500,7 +500,7 @@ public String getCookie(String url){
         webSetting.setSavePassword(true);
         // this.getSettingsExtension().setPageCacheCapacity(IX5WebSettings.DEFAULT_CACHE_CAPACITY);//extension
         // settings 的设计
-		webSetting.setUserAgentString(shared.getString(Setting.USERAGENT,webSetting.getUserAgentString()));
+		webSetting.setUserAgentString(shared.getBoolean(Setting.DESKTOP,false)==true?getResources().getTextArray(R.array.uavalue)[1].toString():shared.getString(Setting.USERAGENT,webSetting.getUserAgentString()));
 	}
 
 	@Override
@@ -520,24 +520,25 @@ public String getCookie(String url){
 			getSettings().setUseWideViewPort(shared.getBoolean(Setting.WIDEVIEW,true));
 		else if(key.equals(Setting.BLOCKIMAGES))
 			getSettings().setBlockNetworkImage(shared.getBoolean(Setting.BLOCKIMAGES,false));
-		else if(key.equals(Setting.USERAGENT))
-			getSettings().setUserAgentString(shared.getString(Setting.USERAGENT,getSettings().getUserAgentString()));
+		else if(key.equals(Setting.USERAGENT)||key.equals(Setting.DESKTOP))
+			getSettings().setUserAgentString(shared.getBoolean(Setting.DESKTOP,false)==true?getResources().getTextArray(R.array.uavalue)[1].toString():shared.getString(Setting.USERAGENT,getSettings().getUserAgentString()));
 		
+			
 		
 	}
 
 
-  /**  @Override
+    @Override
     public boolean onTouchEvent(MotionEvent event)
     {
         return gd.onTouchEvent(event) == true ?true: super.onTouchEvent(event);
-    }*/
+    }
 	@Override
 	public boolean onDown(MotionEvent p1)
 	{
-		if (getContentHeight() * getScale() > getHeight() - getResources().getDimension(R.dimen.actionBarSize))
-			canScroll = startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);
-		y = (int)p1.getRawY();
+		//if (getContentHeight() * getScale() > getHeight() - getResources().getDimension(R.dimen.actionBarSize))
+		//	canScroll = startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);
+		//y = (int)p1.getRawY();
 		return false;
 	}
 
@@ -606,10 +607,7 @@ public String getCookie(String url){
 	}
 
 
-    public boolean onLongClick(MotionEvent event)
-    {
-		return true;
-    }
+    
 
 //    public void startTextSelection()
 //	{
@@ -715,5 +713,7 @@ public String getCookie(String url){
 		public final static String USERAGENT="userAgent";
 		//是否允许弹出对话框
 		public final static String ALERTDIALOG="alertDialog";
+		//桌面模式
+		public final static String DESKTOP="desktop";
 	}
 }

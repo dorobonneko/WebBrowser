@@ -54,7 +54,8 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 	private HomePage hp;
 	private AddDialog ad;
     private ViewGroup pop;
-    private ViewFlipper content,menutool;
+    private ViewFlipper content;
+	private android.widget.ViewFlipper menutool;
 	private FragmentPop current,menu=new MenuFragment(),window=new WindowFragment();
 	private boolean isfull=false;
 	public void setPadding(boolean p0)
@@ -78,7 +79,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 		catch (IllegalAccessException e)
 		{}
         content = (ViewFlipper)v.findViewById(R.id.main_content);
-		menutool = (ViewFlipper)v.findViewById(R.id.mainview_ViewFlipper);
+		menutool = (android.widget.ViewFlipper)v.findViewById(R.id.mainview_ViewFlipper);
 		pop=(ViewGroup)v.findViewById(R.id.mainview_popwin);
         Theme.registerTheme(v.findViewById(R.id.mainview_searchbar));
                 return v;

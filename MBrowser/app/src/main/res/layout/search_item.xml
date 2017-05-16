@@ -15,11 +15,18 @@
 		android:layout_marginLeft="5dp">
 
 		<TextView
-			android:layout_height="match_parent"
+			android:layout_height="wrap_content"
 			android:layout_width="match_parent"
 			android:id="@+id/searchitem_title"
 			android:singleLine="true"
 			android:gravity="left|center"/>
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:id="@+id/searchitem_url"
+			android:singleLine="true"
+			android:gravity="left|center"/>
+		
 
 	</LinearLayout>
 

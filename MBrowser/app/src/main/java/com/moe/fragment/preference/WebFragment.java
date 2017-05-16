@@ -32,8 +32,10 @@ public class WebFragment extends PreferenceFragment implements Preference.OnPref
 			case "ua":
 				switch((Integer)p2){
 					case 0:
-						getPreferenceManager().getSharedPreferences().edit().putString(WebView.Setting.USERAGENT,null).commit();
+						android.webkit.WebView wv=new android.webkit.WebView(getActivity());
+						getPreferenceManager().getSharedPreferences().edit().putString(WebView.Setting.USERAGENT,wv.getSettings().getUserAgentString()).commit();
 						findPreference("customUa").setEnabled(false);
+						wv.destroy();
 						break;
 					case 1:
 						getPreferenceManager().getSharedPreferences().edit().putString(WebView.Setting.USERAGENT,getResources().getTextArray(R.array.uavalue)[1].toString()).commit();	

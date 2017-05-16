@@ -110,7 +110,8 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
 		tet.setText(url);
 		if (url != null && url.length() > 0){
 			tet.selectAll();
-			sha.query(url);}
+			sha.query(url);
+			}
 		tet.requestFocusFromTouch();
     }
 }

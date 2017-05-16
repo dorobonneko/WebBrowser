@@ -29,6 +29,7 @@ import com.moe.bean.MenuOptions;
 import com.moe.utils.ToolManager;
 import android.content.SharedPreferences;
 import com.moe.widget.WebView;
+import com.moe.dialog.ToolboxDialog;
 
 public class MenuFragment extends FragmentPop implements MenuAdapter.OnItemClickListener
 {
@@ -40,7 +41,7 @@ private ArrayList<View> av=new ArrayList<>();
 private int groupSize=0;//计算几组
 private SharedPreferences shared,moe;
 private final static String xmlns="http://schemas.android.com/apk/res/android";
-	
+private ToolboxDialog td;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -68,6 +69,7 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
         super.onActivityCreated(savedInstanceState);
 		shared=getContext().getSharedPreferences("webview",0);
 		moe=getContext().getSharedPreferences("moe",0);
+		td=new ToolboxDialog(getActivity());
 		updateBlockImage();
 		updateFull();
     }
@@ -97,6 +99,21 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 				break;
 			case R.id.menu_download:
 				EventBus.getDefault().post(MenuOptions.DOWNLOAD);
+				EventBus.getDefault().post(SHUTDOWN);
+				break;
+			case R.id.menu_autoscreen:
+				shared.edit().putBoolean(WebView.Setting.WIDEVIEW,!shared.getBoolean(WebView.Setting.WIDEVIEW,true)).commit();
+				Toast.makeText(getActivity(),shared.getBoolean(WebView.Setting.WIDEVIEW,true)==true?"自适应布局已开启":"自适应布局已关闭",Toast.LENGTH_SHORT).show();
+				EventBus.getDefault().post(HIDE);
+				break;
+			case R.id.menu_desktop:
+				shared.edit().putBoolean(WebView.Setting.DESKTOP,!shared.getBoolean(WebView.Setting.DESKTOP,false)).commit();
+				Toast.makeText(getActivity(),shared.getBoolean(WebView.Setting.DESKTOP,true)==true?"桌面模式已开启":"桌面模式已关闭",Toast.LENGTH_SHORT).show();
+				ToolManager.getInstance().refresh();
+				EventBus.getDefault().post(HIDE);
+				break;
+			case R.id.menu_toolbox:
+				td.show();
 				EventBus.getDefault().post(SHUTDOWN);
 				break;
 			default:

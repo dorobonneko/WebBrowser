@@ -602,14 +602,35 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 	}
 
 	@Override
+	public List queryWebHistory(String key)
+	{
+		if(key==null)throw new NullPointerException("key is not null!");
+		if(key.isEmpty())return null;
+		StringBuffer sb=new StringBuffer();
+		//sb.append("'");
+		for(String str:key.split(""))
+			sb.append(str).append("%");
+			//sb.append("'");
+		List<String[]> ls=new ArrayList<>();
+		key=sb.toString();
+		Cursor c=sql.query("webhistory",null,"url like ? OR title like ?",new String[]{key,key},null,null,"time desc");
+		while(c.moveToNext()){
+			ls.add(new String[]{c.getString(c.getColumnIndex("url")),c.getString(c.getColumnIndex("title"))});
+		}
+		c.close();
+		return ls;
+	}
+
+	
+	@Override
 	public List querySearchHistory(String key)
 	{
 		if(key==null)throw new NullPointerException("key is not null!");
 		StringBuffer sb=new StringBuffer();
-		sb.append("%");
+		//sb.append("%");
 		for(String str:key.split(""))
 		sb.append(str).append("%");
-		List<String> ls=new ArrayList<>();
+		List ls=new ArrayList<>();
 		Cursor c=sql.query("searchhistory",null,"data like ?",new String[]{sb.toString()},null,null,"time desc");
 		while(c.moveToNext()){
 			ls.add(c.getString(c.getColumnIndex("data")));
