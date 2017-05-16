@@ -61,6 +61,7 @@ import android.content.SharedPreferences;
 import android.webkit.DownloadListener;
 import com.moe.bean.DownloadItem;
 import android.webkit.CookieManager;
+import android.webkit.JsPromptResult;
 
 
 public class WebView extends WebView implements NestedScrollingChild,GestureDetector.OnGestureListener,SharedPreferences.OnSharedPreferenceChangeListener,DownloadListener,AlertDialog.OnClickListener
@@ -349,8 +350,35 @@ public String getCookie(String url){
 		@Override
 		public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams)
 		{
-			// TODO: Implement this method
-			return super.onShowFileChooser(webView, filePathCallback, fileChooserParams);
+			EventBus.getDefault().post(new com.moe.bean.Message(2888,new Object[]{filePathCallback,fileChooserParams}));
+			return true;
+		}
+
+		@Override
+		public boolean onJsConfirm(WebView view, String url, String message, JsResult result)
+		{
+			if(shared.getBoolean(Setting.ALERTDIALOG,false))
+				result.confirm();
+			else
+				result.cancel();
+			return super.onJsConfirm(view, url, message, result);
+		}
+		
+		@Override
+		public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result)
+		{
+			if(shared.getBoolean(Setting.ALERTDIALOG,false))
+				result.confirm();
+			else
+				result.cancel();
+			return super.onJsPrompt(view, url, message, defaultValue, result);
+		}
+
+		@Override
+		public void onCloseWindow(WebView window)
+		{
+			
+			EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_JS_CLOSE_WINDOW,this));
 		}
 
         @Override

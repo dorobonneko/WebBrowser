@@ -53,6 +53,14 @@ public class ViewFlipper extends ViewFlipper
 			EventBus.getDefault().post(WindowFragment.CLOSE);}
     }
 
+	@Override
+	public void onViewRemoved(View child)
+	{
+		super.onViewRemoved(child);
+		if(child instanceof WebView)
+			((WebView)child).destroy();
+	}
+
     @Override
     public void setDisplayedChild(int whichChild)
     {

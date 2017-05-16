@@ -56,14 +56,17 @@
 		android:gravity="center">
 
 		<Button
+			android:clickable="true"
+			android:checkable="true"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:layout_weight="1"
-			android:background="?android:attr/selectableItemBackground"
+			android:foreground="?attr/selectableItemBackground"
 			android:text="@string/add"
 			android:padding="5dp"
 			android:textSize="15sp"
 			android:layout_margin="5dp"
+			android:background="?attr/selectableItemBackground"
 			android:id="@+id/dialogaddview_add"/>
 
 		<TextView
@@ -72,14 +75,17 @@
 			android:layout_width="wrap_content"/>
 
 		<Button
+			android:clickable="true"
+			android:checkable="true"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:layout_weight="1"
-			android:background="?android:attr/selectableItemBackground"
+			android:foreground="?attr/selectableItemBackground"
 			android:text="@string/cancel"
 			android:padding="5dp"
 			android:textSize="15sp"
 			android:layout_margin="5dp"
+			android:background="?attr/selectableItemBackground"
 			android:id="@+id/dialogaddview_cancel"/>
 
 	</LinearLayout>

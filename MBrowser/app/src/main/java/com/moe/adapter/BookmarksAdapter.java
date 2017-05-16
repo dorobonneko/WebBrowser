@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.support.v4.util.LruCache;
 import android.graphics.Bitmap;
 import com.moe.utils.ImageDraw;
+import android.content.res.TypedArray;
 
 public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.ViewHolder>
 {
@@ -98,6 +99,11 @@ public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.View
 		private View more;
 		public ViewHolder(View v){
 			super(v);
+			TypedArray ta=v.getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.listPreferredItemHeightSmall,android.support.v7.appcompat.R.attr.selectableItemBackground});
+			v.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,(int)ta.getDimension(0,0)));
+			v.setClickable(true);
+			v.setForeground(ta.getDrawable(1));
+			ta.recycle();
 			icon=(ImageView)v.findViewById(R.id.bookmarkitem_icon);
 			title=(TextView)v.findViewById(R.id.bookmarkitem_title);
 			url=(TextView)v.findViewById(R.id.bookmarkitem_url);

@@ -37,7 +37,7 @@
 				android:layout_margin="3dp">
 
 				<ImageButton
-					android:background="?android:attr/selectableItemBackgroundBorderless"
+					android:background="?attr/selectableItemBackgroundBorderless"
 					android:layout_height="wrap_content"
 					android:layout_width="wrap_content"
 					android:src="@drawable/ic_star_outline"
@@ -74,7 +74,7 @@
 					android:layout_marginRight="10dp"/>
 
 				<ImageButton
-					android:background="?android:attr/selectableItemBackgroundBorderless"
+					android:background="?attr/selectableItemBackgroundBorderless"
 					android:layout_height="wrap_content"
 					android:layout_width="wrap_content"
 					android:src="@drawable/menu_refresh"
@@ -141,7 +141,7 @@
 					android:layout_width="wrap_content"
 					android:src="@drawable/bar_back_normal"
 					android:layout_weight="1.0"
-					android:background="?android:attr/selectableItemBackground"
+					android:background="?attr/selectableItemBackground"
 					android:id="@+id/mainview_bar_pre"/>
 
 				<ImageButton
@@ -149,7 +149,7 @@
 					android:layout_width="wrap_content"
 					android:src="@drawable/bar_next_normal"
 					android:layout_weight="1.0"
-					android:background="?android:attr/selectableItemBackground"
+					android:background="?attr/selectableItemBackground"
 					android:id="@+id/mainview_bar_next"/>
 
 				<ImageButton
@@ -157,7 +157,7 @@
 					android:layout_width="wrap_content"
 					android:src="@drawable/bar_home"
 					android:layout_weight="1.0"
-					android:background="?android:attr/selectableItemBackground"
+					android:background="?attr/selectableItemBackground"
 					android:id="@+id/mainview_bar_home"/>
 
 				<ImageButton
@@ -165,7 +165,7 @@
 					android:layout_width="wrap_content"
 					android:src="@android:drawable/ic_menu_close_clear_cancel"
 					android:layout_weight="1.0"
-					android:background="?android:attr/selectableItemBackground"
+					android:background="?attr/selectableItemBackground"
 					android:id="@+id/mainview_bar_win"/>
 
 				<ImageButton
@@ -173,7 +173,7 @@
 					android:layout_width="wrap_content"
 					android:src="@drawable/bar_menu"
 					android:layout_weight="1.0"
-					android:background="?android:attr/selectableItemBackground"
+					android:background="?attr/selectableItemBackground"
 					android:id="@+id/mainview_bar_menu"/>
 
 			</LinearLayout>
@@ -188,7 +188,7 @@
 					android:layout_height="match_parent"
 					android:layout_width="match_parent"
 					android:src="@drawable/ic_tshirt_v"
-					android:background="?android:attr/selectableItemBackground"
+					android:background="?attr/selectableItemBackground"
 					android:layout_weight="1.0"
 					android:scaleType="centerInside"/>
 
@@ -197,7 +197,7 @@
 					android:layout_height="match_parent"
 					android:layout_width="match_parent"
 					android:src="@drawable/ic_cog"
-					android:background="?android:attr/selectableItemBackground"
+					android:background="?attr/selectableItemBackground"
 					android:layout_weight="1.0"
 					android:scaleType="centerInside"/>
 
@@ -206,7 +206,7 @@
 					android:layout_height="match_parent"
 					android:layout_width="match_parent"
 					android:src="@drawable/ic_power"
-					android:background="?android:attr/selectableItemBackground"
+					android:background="?attr/selectableItemBackground"
 					android:layout_weight="1.0"
 					android:scaleType="centerInside"/>
 

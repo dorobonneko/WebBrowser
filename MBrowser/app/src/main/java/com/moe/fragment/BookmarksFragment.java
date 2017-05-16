@@ -63,12 +63,12 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		bookmark.setMode(BookmarksAdapter.Mode.FOLDER);
 		av.get(0).setItemAnimator(new DefaultItemAnimator());
 		av.get(0).setLayoutManager(new LinearLayoutManager(getActivity()));
-		av.get(0).addItemDecoration(new CustomDecoration(8));
+		av.get(0).addItemDecoration(new CustomDecoration(2));
 		av.get(1).setAdapter(history = new BookmarksAdapter(getActivity(), history_data));
 		history.setMode(BookmarksAdapter.Mode.HISTORY);
 		av.get(1).setItemAnimator(new DefaultItemAnimator());
 		av.get(1).setLayoutManager(new LinearLayoutManager(getActivity()));
-		av.get(1).addItemDecoration(new CustomDecoration(8, 0x00000000));
+		//av.get(1).addItemDecoration(new CustomDecoration(5, 0x00000000));
 		folder = (Button)view.findViewById(R.id.bookmarksview_newfolder);
 		edit = (Button)view.findViewById(R.id.bookmarksview_edit);
 		vp.setOnPageChangeListener(this);
@@ -160,6 +160,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	public void onAdd(String url, String title, String dir)
 	{
 		bm.insertBookmark(url,title,dir);
+		loadBookmarks(dir);
 	}
 
 	

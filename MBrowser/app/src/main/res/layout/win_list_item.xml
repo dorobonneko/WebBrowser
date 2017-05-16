@@ -50,7 +50,7 @@
 	<ImageButton
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
-		android:background="?android:attr/selectableItemBackground"
+		android:background="?attr/selectableItemBackground"
 		android:src="@drawable/ic_close"
 		android:scaleType="centerInside"
 		android:id="@+id/winlistitem_close"/>

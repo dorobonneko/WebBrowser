@@ -7,7 +7,6 @@
 	<ImageView
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
-		android:src="@android:drawable/ic_delete"
 		android:layout_centerInParent="true"
 		android:layout_alignParentLeft="true"
 		android:id="@+id/bookmarkitem_icon"
@@ -39,7 +38,7 @@
 	<ImageView
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
-		android:src="@drawable/item_more"
+		android:src="@drawable/bar_next_normal"
 		android:layout_centerInParent="true"
 		android:layout_alignParentRight="true"
 		android:id="@+id/bookmarkitem_more"

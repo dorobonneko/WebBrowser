@@ -29,15 +29,17 @@
 			android:text="@string/sure"
 			android:layout_weight="1.0"
 			android:id="@+id/addfolderview_sure"
-			android:background="?android:attr/selectableItemBackground"/>
+			android:clickable="true"
+			android:background="?attr/selectableItemBackground"/>
 
 		<Button
+			android:clickable="true"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:text="@string/cancel"
 			android:layout_weight="1.0"
 			android:id="@+id/addfolderview_cancel"
-			android:background="?android:attr/selectableItemBackground"/>
+			android:background="?attr/selectableItemBackground"/>
 
 	</LinearLayout>
 

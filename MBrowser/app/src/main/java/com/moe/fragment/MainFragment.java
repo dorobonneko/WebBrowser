@@ -136,6 +136,9 @@ public void onEvent(WindowEvent event){
 		case event.WHAT_URL_WINDOW:
 			openUrl(event.obj.toString());
 			break;
+		case event.WHAT_JS_CLOSE_WINDOW:
+			content.removeView((WebView)event.obj);
+			break;
     }
 }
 @Subscribe

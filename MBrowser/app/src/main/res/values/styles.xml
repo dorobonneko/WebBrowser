@@ -32,6 +32,7 @@
 		<item name="android:textColor">@color/textColor</item>
 		<item name="android:textColorHint">@color/primary_dark</item>
 		<item name="android:colorControlNormal">@color/primary_dark</item>
+		<item name="android:background">@null</item>
     </style>  
      <style name="searchDialog" parent="@style/Dialog">
          <item name="android:backgroundDimEnabled">true</item>

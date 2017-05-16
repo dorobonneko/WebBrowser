@@ -40,7 +40,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder>
 	@Override
 	public void onBindViewHolder(ViewHolder vh, int p2)
 	{
-		vh.icon.setId(lm.get(p2).getId());
+		vh.itemView.setId(lm.get(p2).getId());
 		vh.summary.setText(lm.get(p2).getSummory());
 		vh.icon.setImageDrawable(lm.get(p2).getIcon());
 	}
@@ -58,7 +58,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder>
 			v.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,RecyclerView.LayoutParams.WRAP_CONTENT));
 			icon=(ImageView)v.findViewById(R.id.menuitem_icon);
 			summary=(TextView)v.findViewById(R.id.menuitem_summary);
-			icon.setOnClickListener(this);
+			v.setOnClickListener(this);
 		}
 
 		@Override

@@ -19,19 +19,21 @@
 		android:orientation="horizontal">
 
 		<Button
+			android:clickable="true"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:text="@string/sure"
 			android:layout_weight="1.0"
-			android:background="?android:attr/selectableItemBackground"
+			android:background="?attr/selectableItemBackground"
 			android:id="@+id/alertdialogview_sure"/>
 
 		<Button
+			android:clickable="true"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:text="@string/cancel"
 			android:layout_weight="1.0"
-			android:background="?android:attr/selectableItemBackground"
+			android:background="?attr/selectableItemBackground"
 			android:id="@+id/alertdialogview_cancel"/>
 
 	</LinearLayout>
