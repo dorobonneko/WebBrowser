@@ -12,6 +12,10 @@
 		android:layout_width="match_parent"
 		android:layout_height="?attr/actionBarSize"
 		android:fitsSystemWindows="true">
+		<ViewFlipper
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:id="@+id/main_view_toolbarToggle">
 		<LinearLayout
 			android:fitsSystemWindows="true"
 			android:layout_width="match_parent"
@@ -91,8 +95,37 @@
 				android:visibility="gone"/>
 			
 		</LinearLayout>
-
-	
+<LinearLayout
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="horizontal"
+>
+	<EditText
+		android:layout_weight="1"
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:id="@+id/main_view_findText"/>
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:gravity="center"
+		android:id="@+id/main_view_findCount"/>
+	<ImageButton
+		android:id="@+id/main_view_findup"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:scaleType="centerInside"
+		android:src="@drawable/find_up_none"/>
+	<ImageButton
+		android:id="@+id/main_view_finddown"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:layout_height="match_parent"
+		android:layout_width="wrap_content"
+		android:scaleType="centerInside"
+		android:src="@drawable/find_down_none"/>
+</LinearLayout>
+		</ViewFlipper>
 	</android.support.design.widget.AppBarLayout>
 
 	<com.moe.widget.ViewFlipper

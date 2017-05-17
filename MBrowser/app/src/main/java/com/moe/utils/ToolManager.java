@@ -20,8 +20,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import android.widget.ImageView;
 import com.moe.bean.MenuOptions;
+import android.widget.EditText;
+import android.text.TextWatcher;
+import android.text.Editable;
+import java.lang.reflect.Method;
 
-public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeListener,WebView.OnStateListener
+public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeListener,WebView.OnStateListener,TextWatcher,WebView.FindListener
 {
 
 	private int index=0;
@@ -36,6 +40,11 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	private AppBarLayout abl;
 	private BookMarks bm;
 	public static final int HOME = 0xff0007;
+	private android.widget.ViewFlipper findToggle;
+	private EditText findKey;
+	private ImageView findup,finddown;
+	private TextView findCount;
+	private int active,count;
 	private ToolManager(View v){
 		search=new SearchDialog(v.getContext());
 		bm=DataBase.getInstance(v.getContext());
@@ -67,8 +76,76 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		v.findViewById(R.id.main_view_exit).setOnClickListener(this);
 		v.findViewById(R.id.main_view_setting).setOnClickListener(this);
 		v.findViewById(R.id.main_view_skin).setOnClickListener(this);
+		findToggle=(android.widget.ViewFlipper)v.findViewById(R.id.main_view_toolbarToggle);
+		findKey=(EditText)v.findViewById(R.id.main_view_findText);
+		findup=(ImageView)v.findViewById(R.id.main_view_findup);
+		finddown=(ImageView)v.findViewById(R.id.main_view_finddown);
+		findCount=(TextView)v.findViewById(R.id.main_view_findCount);
+		findKey.addTextChangedListener(this);
+		findup.setOnClickListener(this);
+		finddown.setOnClickListener(this);
 	}
 
+	@Override
+	public void onTextChanged(CharSequence p1, int p2, int p3, int p4)
+	{
+		// TODO: Implement this method
+	}
+
+	@Override
+	public void afterTextChanged(Editable p1)
+	{
+		((WebView)content.getCurrentView()).findAllAsync(p1.toString());
+	}
+
+	@Override
+	public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4)
+	{
+		// TODO: Implement this method
+	}
+
+	@Override
+	public void onFindResultReceived(int p1, int p2, boolean p3)
+	{
+		active=p1;
+		count=p2;
+		findCount.setText(p1+"/"+p2);
+		if(!canForward())
+			findup.setImageResource(R.drawable.find_up_none);
+			else
+			findup.setImageResource(R.drawable.find_up);
+		if(!canNext())
+			finddown.setImageResource(R.drawable.find_down_none);
+			else
+			finddown.setImageResource(R.drawable.find_down);
+	}
+
+	private boolean canNext(){
+		if(count-active>1)
+			return true;
+			return false;
+	}
+	private boolean canForward(){
+		if(active==0)
+			return false;
+			return true;
+	}
+	public void findToggle(boolean toggle){
+		if(toggle){
+			findToggle.setDisplayedChild(1);
+			((WebView)content.getCurrentView()).setFindListener(this);
+			findKey.setText(null);
+			active=0;
+			count=0;
+			}
+			else{
+			findToggle.setDisplayedChild(0);
+				((WebView)content.getCurrentView()).setFindListener(null);
+				((WebView)content.getCurrentView()).clearMatches();
+				findCount.setText(null);
+			}
+	}
+	
 	public void refresh()
 	{
 		((WebView)content.getCurrentView()).reload();
@@ -99,6 +176,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
                 //搜索
                 break;
             case R.id.mainview_bar_menu:
+				checkToggle();
                 EventBus.getDefault().post(MenuFragment.SHOW);
 				abl.setExpanded(true,true);
                 break;
@@ -108,19 +186,23 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
                 abl.setExpanded(true,true);
 				break;
             case R.id.mainview_bar_home:
+				checkToggle();
                 EventBus.getDefault().post(WindowFragment.CLOSE);
 				EventBus.getDefault().post(HOME);
                 //((WebView)content.getCurrentView()).loadUrl();
                 break;
             case R.id.mainview_bar_pre:
+				checkToggle();
                 EventBus.getDefault().post(WindowFragment.CLOSE);
                 ((WebView)content.getCurrentView()).goBack();
                 break;
             case R.id.mainview_bar_next:
+				checkToggle();
                 EventBus.getDefault().post(WindowFragment.CLOSE);
                 ((WebView)content.getCurrentView()).goForward();
                 break;
             case R.id.mainview_bar_win:
+				checkToggle();
                 EventBus.getDefault().post(WindowFragment.OPEN);
                 break;
 			case R.id.mainview_refresh:
@@ -163,8 +245,20 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 				EventBus.getDefault().post(MenuOptions.SKIN);
 				EventBus.getDefault().post(MenuFragment.SHUTDOWN);
 				break;
+			case R.id.main_view_finddown:
+				if(canNext())
+				((WebView)content.getCurrentView()).findNext(true);
+				break;
+			case R.id.main_view_findup:
+				if(canForward())
+				((WebView)content.getCurrentView()).findNext(false);
+				break;
         }
     }
+	private void checkToggle(){
+		if(findToggle.getDisplayedChild()==1)
+			findToggle(false);
+	}
 	@Override
 	public void onAdd(WebView vf, int index)
 	{
@@ -208,6 +302,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	@Override
 	public void onStart(String url)
 	{
+		checkToggle();
 		pb.setProgress(0);
 		pb.setVisibility(pb.VISIBLE);
 		refresh.setImageResource(R.drawable.ic_close);

@@ -6,14 +6,32 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.GridLayoutManager;
-import com.moe.adapter.ToolboxAdapter;
+import com.moe.bean.MenuItem;
+import java.util.ArrayList;
+import java.util.List;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import java.io.IOException;
+import com.moe.adapter.MenuAdapter;
+import android.view.View;
+import com.moe.utils.ToolManager;
 
-public class ToolboxDialog extends android.app.Dialog
+public class ToolboxDialog extends android.app.Dialog implements MenuAdapter.OnItemClickListener
 {
 	private RecyclerView rv;
-	private ToolboxAdapter ta;
+	private MenuAdapter ta;
+	private List<MenuItem> lmi=new ArrayList<>();
+	private final static String xmlns="http://schemas.android.com/apk/res/android";
 	public ToolboxDialog(Context context){
 		super(context,R.style.searchDialog);
+		try
+		{
+			parser(R.menu.toolbox);
+		}
+		catch (XmlPullParserException e)
+		{}
+		catch (IOException e)
+		{}
 	}
 
 	@Override
@@ -25,8 +43,50 @@ public class ToolboxDialog extends android.app.Dialog
 		setContentView(rv=new RecyclerView(getContext()),new ViewGroup.LayoutParams(getWindow().getWindowManager().getDefaultDisplay().getWidth(),ViewGroup.LayoutParams.WRAP_CONTENT));
 		GridLayoutManager glm=new GridLayoutManager(getContext(),5);
 		glm.setAutoMeasureEnabled(true);
+		rv.setBackgroundResource(R.color.window_background);
 		rv.setLayoutManager(glm);
-		rv.setAdapter(ta=new ToolboxAdapter());
+		rv.setAdapter(ta=new MenuAdapter(getContext(),lmi));
+		rv.setOverScrollMode(rv.OVER_SCROLL_NEVER);
 		ta.notifyDataSetChanged();
+		ta.setOnItemClickListener(this);
+	}
+
+	@Override
+	public void onItemClick(View v)
+	{
+		switch(v.getId()){
+			case R.id.webpageSarch:
+				ToolManager.getInstance().findToggle(true);
+				break;
+		}
+		dismiss();
+	}
+
+	
+	private void parser(int resId) throws XmlPullParserException, IOException{
+		XmlPullParser xml=getContext().getResources().getXml(resId);
+		int type;
+		while((type=xml.next())!=xml.END_DOCUMENT){
+			switch(type){
+				case xml.START_TAG:
+					if(xml.getName().equals("item")){
+						MenuItem mi=new MenuItem();
+						mi.setId(Integer.parseInt(xml.getAttributeValue(xmlns,"id").substring(1)));
+						String icon=xml.getAttributeValue(xmlns,"icon");
+						if(icon!=null)
+							mi.setIcon(getContext().getResources().getDrawable(Integer.parseInt(icon.substring(1))));
+						String title=xml.getAttributeValue(xmlns,"title");
+						if(title.startsWith("@"))
+							title=getContext().getResources().getString(Integer.parseInt(title.substring(1)));
+						mi.setSummory(title);
+						lmi.add(mi);
+					}
+					break;
+				case xml.END_TAG:
+					
+					break;
+			}
+		}
+
 	}
 }

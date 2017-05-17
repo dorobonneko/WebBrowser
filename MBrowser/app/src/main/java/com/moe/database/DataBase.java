@@ -625,7 +625,8 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 	@Override
 	public List querySearchHistory(String key)
 	{
-		if(key==null)throw new NullPointerException("key is not null!");
+		if(key==null)
+			throw new NullPointerException("key is not null!");
 		StringBuffer sb=new StringBuffer();
 		//sb.append("%");
 		for(String str:key.split(""))
@@ -680,7 +681,7 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 	}
 
 	private DataBase(Context context){
-		super(context,"seaechhistory",null,3);
+		super(context,"moedatabase",null,3);
 		sql=getWritableDatabase();
 	}
 	public static DataBase getInstance(Context context){
