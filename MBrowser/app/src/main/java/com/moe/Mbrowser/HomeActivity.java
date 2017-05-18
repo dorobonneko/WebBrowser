@@ -34,6 +34,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import java.io.File;
 import android.os.Environment;
+import com.moe.utils.Theme;
+import com.moe.utils.ToolManager;
 
 public class HomeActivity extends FragmentActivity
 {
@@ -47,34 +49,38 @@ public class HomeActivity extends FragmentActivity
     {
         // TODO: Implement this method
         super.onCreate(savedInstanceState);
-        long i=System.currentTimeMillis();
-		shared = getSharedPreferences("moe", 0);
-        setContentView(R.layout.main);
-		String path=getIntent().getStringExtra("activity");
-		if ("download".equals(path))
-		{
-			getSupportFragmentManager().beginTransaction().add(R.id.main, download).commit();
-			current = download;
-		}
-		else
-		{
-			getSupportFragmentManager().beginTransaction().add(R.id.main, main).commit();
-			current = main;
-		}
-		dd = new DownloadDialog(this);
-		if (shared.getBoolean("full", false))
-		{
-			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			((MainFragment)main).setPadding(true);
-		}
-		startService(new Intent(this, ResourceService.class));
-        Toast.makeText(this, "启动耗时：" + (System.currentTimeMillis() - i), 300).show();
-		EventBus.getDefault().register(this);
-		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-		{
-			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 55);
-		}
-    }
+		init();
+         }
+		   private void init(){
+			   long i=System.currentTimeMillis();
+			   shared = getSharedPreferences("moe", 0);
+			   setContentView(R.layout.main);
+			   String path=getIntent().getStringExtra("activity");
+			   if ("download".equals(path))
+			   {
+				   getSupportFragmentManager().beginTransaction().add(R.id.main, download).commit();
+				   current = download;
+			   }
+			   else
+			   {
+				   getSupportFragmentManager().beginTransaction().add(R.id.main, main).commit();
+				   current = main;
+			   }
+			   dd = new DownloadDialog(this);
+			   if (shared.getBoolean("full", false))
+			   {
+				   getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+				   ((MainFragment)main).setPadding(true);
+			   }
+			   startService(new Intent(this, ResourceService.class));
+			   Toast.makeText(this, "启动耗时：" + (System.currentTimeMillis() - i), 300).show();
+			   EventBus.getDefault().register(this);
+			   if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+			   {
+				   ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 55);
+			   }
+			   
+		   }
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
 	{
@@ -271,6 +277,7 @@ public class HomeActivity extends FragmentActivity
 		}
 	}
 
+
 	@Override
 	public void finish()
 	{
@@ -324,6 +331,7 @@ public class HomeActivity extends FragmentActivity
 	{
 		super.onNewIntent(intent);
 		String path=intent.getStringExtra("activity");
+		getIntent().putExtra("activity",path);
 		if ("download".equals(path))
 		{
 			if (download.isAdded())
@@ -340,6 +348,7 @@ public class HomeActivity extends FragmentActivity
 				getSupportFragmentManager().beginTransaction().add(R.id.main, main).commit();
 			current = main;
 		}
+		//init();
 	}
 
 }

@@ -216,7 +216,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 				String url=((WebView)content.getCurrentView()).getUrl();
 				if(bm.isBookmark(url))
 				{
-					bm.deleteBookmark(new String[]{url});
+					bm.deleteBookmark(url);
 					bookmark.setImageResource(R.drawable.ic_star_outline);
 				}
 				else if(url!=null&&url.length()>0){

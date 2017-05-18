@@ -16,9 +16,18 @@ public class AddFolderDialog extends Dialog implements View.OnClickListener
 	private EditText et;
 	private TextInputLayout til;
 	private BookMarks bm;
+	private String dir=null;
 	public AddFolderDialog(Context context){
 		super(context);
 		bm=DataBase.getInstance(context);
+	}
+
+	public void show(Object get)
+	{
+		dir=get.toString();
+		super.show();
+		til.setErrorEnabled(false);
+		et.setText(dir);
 	}
 
 	@Override
@@ -46,7 +55,10 @@ public class AddFolderDialog extends Dialog implements View.OnClickListener
 				if(str.length()==0){
 					til.setError("内容不能为空");
 					}else if(str.length()<=10){
+						if(dir==null)
 						bm.createFolder(str);
+						else
+						bm.changeFolder(str,dir);
 						if(osl!=null)osl.OnSuccess(str);
 						dismiss();
 					}
@@ -60,8 +72,9 @@ public class AddFolderDialog extends Dialog implements View.OnClickListener
 	@Override
 	public void show()
 	{
+		dir=null;
 		super.show();
-		til.setError(null);
+		til.setErrorEnabled(false);
 		et.setText("");
 	}
 public void setOnSuccessListener(OnSuccessListener o){

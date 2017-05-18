@@ -27,23 +27,79 @@ import com.moe.bean.WindowEvent;
 import android.os.Vibrator;
 import android.content.Context;
 import com.moe.dialog.AddDialog;
+import com.moe.view.PopupBookmarkMenu;
+import com.moe.dialog.BookmarkEditDialog;
+import com.moe.database.HomePage;
+import com.moe.dialog.SendToHomepageDialog;
 
 public class BookmarksFragment extends Fragment implements View.OnClickListener,ViewPager.OnPageChangeListener,AddFolderDialog.OnSuccessListener,AlertDialog.OnClickListener,BookmarksAdapter.OnItemClickListener,BookmarksAdapter.OnItemLongClickListener,AddDialog.OnAddListener
 {
 	private ViewPager vp;
 	private ViewPagerAdapter vpa;
+	//数据
 	private ArrayList<RecyclerView> av=new ArrayList<>();
 	private ArrayList bookmark_data=new ArrayList(),history_data=new ArrayList();
+	//适配器
 	private BookmarksAdapter bookmark,history;
+	//数据库
 	private BookMarks bm;
 	private WebHistory wh;
+	//下方按钮
 	private Button folder,edit;
+	//新建文件夹对话框
 	private AddFolderDialog afd;
+	//是否编辑模式
 	private boolean drag=false;
+	//历史记录清空提示
 	private AlertDialog ad;
+	//添加书签
 	private AddDialog aid;
+	//震动
 	private Vibrator vibrator;
+	//当前打开的文件夹
 	private String dir;
+	//长按弹出窗口
+	private PopupBookmarkMenu pbm;
+	//编辑书签
+	private BookmarkEditDialog bed;
+	//发送至桌面前改名dialog
+	private SendToHomepageDialog sthd;
+	public void sendToHomepage(boolean isBookmark, int index)
+	{
+		if(isBookmark)
+			sthd.show((String[])bookmark_data.get(index));
+			else
+			sthd.show((String[])history_data.get(index));
+	}
+	public void delete(int index)
+	{
+		if(bookmark.getMode()==BookmarksAdapter.Mode.FOLDER){
+			if(!bookmark_data.get(index).equals("默认"))
+				bm.deleteFolder(bookmark_data.get(index).toString());
+				loadFolder();
+		}else{
+			bm.deleteBookmark(((String[])bookmark_data.get(index))[0]);
+			loadBookmarks(dir);
+		}
+	}
+
+	public void edit(int index)
+	{
+		if(bookmark.getMode()==BookmarksAdapter.Mode.FOLDER){
+			if(!bookmark_data.get(index).equals("默认"))
+			afd.show(bookmark_data.get(index));
+		}else{
+			bed.show(((String[])bookmark_data.get(index))[0]);
+		}
+	}
+	public void openInBackground(boolean isBookmark, int index)
+	{
+		if(isBookmark){
+			EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_WINDOW,((String[])bookmark_data.get(index))[0]));
+		}else{
+			EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_WINDOW,((String[])history_data.get(index))[0]));
+		}
+	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -97,11 +153,14 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		ad.setTitle("是否清空历史记录？");
 		ad.setOnClickListener(this);
 		history.setOnItemClickListener(this);
-		//history.setOnItemLongClickListener(this);
+		history.setOnItemLongClickListener(this);
 		bookmark.setOnItemClickListener(this);
 		bookmark.setOnItemLongClickListener(this);
 		aid.setTitle("添加书签");
 		aid.setButtonText(0,"添加");
+		pbm=new PopupBookmarkMenu(this);
+		bed=new BookmarkEditDialog(this);
+		sthd=new SendToHomepageDialog(this);
 	}
 	@Override
 	public void onPageScrolled(int p1, float p2, int p3)
@@ -153,7 +212,10 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	@Override
 	public boolean OnItemLongClick(BookmarksAdapter ba, com.moe.adapter.BookmarksAdapter.ViewHolder vh)
 	{
-		return drag;
+		if(!drag){
+			pbm.show(vh.itemView,ba==bookmark,bookmark.getMode()==BookmarksAdapter.Mode.FOLDER,vh.getPosition());
+		}
+		return !drag;
 	}
 
 	@Override
@@ -170,6 +232,9 @@ private void loadFolder(){
 	bookmark.setMode(BookmarksAdapter.Mode.FOLDER);
 	bookmark.notifyDataSetChanged();
 	folder.setText("新建文件夹");
+}
+public void loadBookmarks(){
+	loadBookmarks(this.dir);
 }
 private void loadBookmarks(String dir){
 	this.dir=dir;
@@ -256,7 +321,7 @@ private void loadBookmarks(String dir){
 		public boolean isLongPressDragEnabled()
 		{
 			vibrator.vibrate(50);
-			return !drag;
+			return drag;
 		}
 		
 		@Override

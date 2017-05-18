@@ -1,0 +1,44 @@
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	android:background="@drawable/conners_border">
+	<Button
+		android:id="@+id/bookmark_menu_openInBackground"
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:text="后台打开"
+		android:background="?attr/selectableItemBackground"/>
+	<Button
+		android:id="@+id/bookmark_menu_edit"
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:text="编辑"
+		android:background="?attr/selectableItemBackground"/>
+	<Button
+		android:id="@+id/bookmark_menu_deleteBookmark"
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:text="删除"
+		android:background="?attr/selectableItemBackground"/>
+	<Button
+		android:id="@+id/bookmark_menu_sendToHomepage"
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:text="发至主页图标"
+		android:background="?attr/selectableItemBackground"/>
+	
+</LinearLayout>

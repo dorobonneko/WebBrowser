@@ -82,7 +82,8 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 		menutool = (android.widget.ViewFlipper)v.findViewById(R.id.mainview_ViewFlipper);
 		pop=(ViewGroup)v.findViewById(R.id.mainview_popwin);
         Theme.registerTheme(v.findViewById(R.id.mainview_searchbar));
-                return v;
+		Theme.registerTheme(v.findViewById(R.id.mainview_bar));
+		return v;
     }
 
     @Override
@@ -272,20 +273,40 @@ public void close(Integer close){
     @Override
     public void onDestroyView()
     {
-        Theme.unRegisterTheme(getView().findViewById(R.id.mainview_searchbar));
+		Theme.unRegisterTheme(getView().findViewById(R.id.mainview_searchbar));
         Theme.unRegisterTheme(getView().findViewById(R.id.mainview_bar));
-        super.onDestroyView();
+		ToolManager.destroy();
+		Theme.clear();
+		EventBus.getDefault().unregister(this);
+		
+                super.onDestroyView();
     }
 
 	@Override
 	public void onDetach()
 	{
-		ToolManager.destroy();
-		Theme.clear();
-		EventBus.getDefault().unregister(this);
-		super.onDetach();
+				super.onDetach();
 	}
-	
+
+//	@Override
+//	public void onSaveInstanceState(Bundle outState)
+//	{
+//		ToolManager.destroy();
+//		super.onSaveInstanceState(outState);
+//	}
+//
+//	@Override
+//	public void onViewStateRestored(Bundle savedInstanceState)
+//	{
+//		try
+//		{
+//			ToolManager.init(getView());
+//		}
+//		catch (IllegalAccessException e)
+//		{}
+//		super.onViewStateRestored(savedInstanceState);
+//	}
+//	
     class TextQuery extends BroadcastReceiver
     {
 
