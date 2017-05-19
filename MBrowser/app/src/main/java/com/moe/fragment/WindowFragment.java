@@ -31,7 +31,6 @@ public class WindowFragment extends FragmentPop implements WinListAdapter.OnItem
 
 	public static final int CLOSE=0xff0001;
 	public static final int OPEN=0XFF0004;
-	private ViewFlipper vf;
 	private RecyclerView rv;
 	
 	
@@ -57,11 +56,6 @@ public class WindowFragment extends FragmentPop implements WinListAdapter.OnItem
     }
 
 private WinListAdapter wla;
-    public void setViewFlipper(ViewFlipper content)
-    {
-        vf=content;
-		vf.registerOnChangeListener(this);
-            }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -73,7 +67,7 @@ private WinListAdapter wla;
 		rv.setHasFixedSize(false);
         rv.setLayoutManager(llm);
         rv.setNestedScrollingEnabled(false);
-        rv.setAdapter(wla=new WinListAdapter(getActivity(),vf));
+        rv.setAdapter(wla=new WinListAdapter(getActivity(),ToolManager.getInstance().getContent()));
         rv.setItemAnimator(new DefaultItemAnimator());
         v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
         v.findViewById(R.id.windowview_add).setOnClickListener(this);
@@ -94,8 +88,9 @@ private WinListAdapter wla;
         EventBus.getDefault().register(this);
         super.onActivityCreated(savedInstanceState);
         wla.setOnItemClickListener(this);
+		ToolManager.getInstance().getContent().registerOnChangeListener(this);
         //初始化数据加监听
-		wla.selected(vf.getDisplayedChild());
+		wla.selected(ToolManager.getInstance().getContent().getDisplayedChild());
        }
 
     @Override
@@ -109,6 +104,13 @@ private WinListAdapter wla;
     }
 
 	@Override
+	public void onDestroy()
+	{
+		ToolManager.getInstance().getContent().unRegisterOnChangeListener(this);
+		super.onDestroy();
+	}
+
+	@Override
 	public void onDetach()
 	{
 		EventBus.getDefault().unregister(this);
@@ -119,7 +121,7 @@ private WinListAdapter wla;
     @Override
     public void onItemClick(int index)
     {
-        vf.removeViewAt(index);
+        ToolManager.getInstance().getContent().removeViewAt(index);
     }
 
 
@@ -153,7 +155,7 @@ private WinListAdapter wla;
 		@Override
 		public void onSwiped(RecyclerView.ViewHolder p1, int p2)
 		{
-			vf.removeViewAt(p1.getPosition());
+			ToolManager.getInstance().getContent().removeViewAt(p1.getPosition());
 		}
 
 		@Override

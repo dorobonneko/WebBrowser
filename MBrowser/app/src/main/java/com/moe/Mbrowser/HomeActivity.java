@@ -40,7 +40,7 @@ import com.moe.utils.ToolManager;
 public class HomeActivity extends FragmentActivity
 {
 	private SharedPreferences shared;
-	private Fragment current,main=new MainFragment(),bookmark=new BookmarksFragment(),download=new DownloadFragment();
+	private Fragment current,main,bookmark,download;
 	private SettingFragment setting=new SettingFragment();
 	private DownloadDialog dd;
 	private Message callback;
@@ -58,11 +58,13 @@ public class HomeActivity extends FragmentActivity
 			   String path=getIntent().getStringExtra("activity");
 			   if ("download".equals(path))
 			   {
+				   download=new DownloadFragment();
 				   getSupportFragmentManager().beginTransaction().add(R.id.main, download).commit();
 				   current = download;
 			   }
 			   else
 			   {
+				   main=new MainFragment();
 				   getSupportFragmentManager().beginTransaction().add(R.id.main, main).commit();
 				   current = main;
 			   }
@@ -190,6 +192,7 @@ public class HomeActivity extends FragmentActivity
 		switch (mo)
 		{
 			case BOOKMARKS:
+				if(bookmark==null)bookmark=new BookmarksFragment();
 				if (bookmark.isAdded())
 					getSupportFragmentManager().beginTransaction().hide(current).show(bookmark).commit();
 				else
@@ -198,6 +201,7 @@ public class HomeActivity extends FragmentActivity
 				break;
 			case DOWNLOAD:
 				//startService(new Intent(this,DownloadService.class));
+				if(download==null)download=new DownloadFragment();
 				if (download.isAdded())
 					getSupportFragmentManager().beginTransaction().hide(current).show(download).commit();
 				else

@@ -48,6 +48,7 @@ import android.os.Message;
 import com.moe.dialog.AddDialog;
 import com.moe.database.HomePage;
 import com.moe.database.DataBase;
+import android.widget.Toast;
 
 public class MainFragment extends Fragment implements FragmentPop.OnHideListener,AddDialog.OnAddListener
 {
@@ -72,23 +73,25 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View v= inflater.inflate(R.layout.main_view, null);
-		try
-		{
-			ToolManager.init(v);
-		}
-		catch (IllegalAccessException e)
-		{}
-        content = (ViewFlipper)v.findViewById(R.id.main_content);
-		menutool = (android.widget.ViewFlipper)v.findViewById(R.id.mainview_ViewFlipper);
-		pop=(ViewGroup)v.findViewById(R.id.mainview_popwin);
         Theme.registerTheme(v.findViewById(R.id.mainview_searchbar));
 		Theme.registerTheme(v.findViewById(R.id.mainview_bar));
-		return v;
+ 		return v;
     }
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState)
+	{
+		ToolManager.init(view);
+		content = (ViewFlipper)getView().findViewById(R.id.main_content);
+		menutool = (android.widget.ViewFlipper)getView().findViewById(R.id.mainview_ViewFlipper);
+		pop=(ViewGroup)getView().findViewById(R.id.mainview_popwin);
+		super.onViewCreated(view, savedInstanceState);
+	}
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {
+		hp=DataBase.getInstance(getActivity());
 		ad=new AddDialog(getActivity());
         EventBus.getDefault().register(this);
         super.onActivityCreated(savedInstanceState);
@@ -97,7 +100,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
         //注册fragment隐藏监听
         menu.setOnHideListener(this);
         window.setOnHideListener(this);
-        ((WindowFragment)window).setViewFlipper(content);
+        //((WindowFragment)window).setViewFlipper(content);
         menutool.setInAnimation(getActivity(),R.anim.bottom_up);
 		menutool.setOutAnimation(getActivity(),R.anim.up_up);
         Theme.updateTheme(0xff66ffcc);
@@ -105,7 +108,6 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
         openNewWindow();
        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(new TextQuery(),new IntentFilter("com.moe.search"));
 	  ad.setOnAddLostener(this);
-	  hp=DataBase.getInstance(getActivity());
     }
 
 	@Override
@@ -270,43 +272,9 @@ public void close(Integer close){
         return true;
     }
 
-    @Override
-    public void onDestroyView()
-    {
-		Theme.unRegisterTheme(getView().findViewById(R.id.mainview_searchbar));
-        Theme.unRegisterTheme(getView().findViewById(R.id.mainview_bar));
-		ToolManager.destroy();
-		Theme.clear();
-		EventBus.getDefault().unregister(this);
-		
-                super.onDestroyView();
-    }
+  
 
-	@Override
-	public void onDetach()
-	{
-				super.onDetach();
-	}
-
-//	@Override
-//	public void onSaveInstanceState(Bundle outState)
-//	{
-//		ToolManager.destroy();
-//		super.onSaveInstanceState(outState);
-//	}
-//
-//	@Override
-//	public void onViewStateRestored(Bundle savedInstanceState)
-//	{
-//		try
-//		{
-//			ToolManager.init(getView());
-//		}
-//		catch (IllegalAccessException e)
-//		{}
-//		super.onViewStateRestored(savedInstanceState);
-//	}
-//	
+	
     class TextQuery extends BroadcastReceiver
     {
 

@@ -85,7 +85,9 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		findup.setOnClickListener(this);
 		finddown.setOnClickListener(this);
 	}
-
+	public ViewFlipper getContent(){
+		return content;
+	}
 	@Override
 	public void onTextChanged(CharSequence p1, int p2, int p3, int p4)
 	{
@@ -153,11 +155,11 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 
 	public static void destroy()
 	{
+		getInstance().getContent().unRegisterOnChangeListener(getInstance());
 		tm=null;
 	}
-	public static void init(View v) throws IllegalAccessException{
-		if(tm!=null)throw new IllegalAccessException("禁止多次初始化工具管理器"); 
-		tm=new ToolManager(v);
+	public static void init(View v){
+			tm=new ToolManager(v);
 	}
 	public static ToolManager getInstance(){
 		if(tm==null)throw new NullPointerException("工具管理器未初始化");

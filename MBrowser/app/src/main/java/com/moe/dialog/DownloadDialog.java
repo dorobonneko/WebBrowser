@@ -134,7 +134,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 		super.show();
 		namelayout.setErrorEnabled(false);
 		name.setText(di.getFileName());
-		setTitle("文件大小"+new DecimalFormat("#.00").format(di.getLength()/1024.0/1024)+"MB");
+		setTitle("文件大小"+new DecimalFormat("0.00").format(di.getLength()/1024.0/1024)+"MB");
 		dir.setText(shared.getString(Download.Setting.DIR,Download.Setting.DIR_DEFAULT));
 	}
 	
