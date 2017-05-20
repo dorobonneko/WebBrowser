@@ -76,19 +76,19 @@ public class AddDialog extends Dialog implements View.OnClickListener
         dismiss();
     }
 private boolean validate(){
-    boolean flag1 = true,flag2 = true;
+    boolean flag = true;
     
-    if(name.getText().toString().trim().length()==0){
-        t_name.setError(getContext().getResources().getString(R.string.site_name_null));
-      flag1=false;
+    if(name.getText().toString().trim().isEmpty()){
+	t_name.setError(getContext().getResources().getString(R.string.site_name_null));
+      flag=false;
     }else t_name.setErrorEnabled(false);
-    if(url.getText().toString().trim().length()==0){
+    if(url.getText().toString().trim().isEmpty()){
         t_url.setError(getContext().getResources().getString(R.string.site_url_null));
-       flag2=false;
+       flag=false;
     }else t_url.setErrorEnabled(false);
     
     
-    return flag1==true&&flag2==true;
+    return flag==true;
 }
 
 @Override
@@ -100,13 +100,11 @@ public void show(String dir)
 {
 	this.dir=dir;
     super.show();
-	if(name!=null){
 		url.setText(null);
 		name.setText(null);
 		t_url.setErrorEnabled(false);
 		t_name.setErrorEnabled(false);
-		t_name.requestFocus();
-		}
+		name.requestFocus();
 }
 
 public void setOnAddLostener(OnAddListener o){

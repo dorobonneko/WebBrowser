@@ -41,6 +41,7 @@ import com.moe.dialog.BottomDialog;
 import android.content.DialogInterface;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.content.ClipboardManager;
+import com.moe.dialog.DownloadNewDialog;
 
 public class DownloadFragment extends Fragment implements DownloadItemAdapter.OnClickListener,DownloadItemAdapter.OnLongClickListener,View.OnClickListener
 {
@@ -258,6 +259,15 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 					}).show();
 			break;
 			case R.id.download_view_new://新建任务
+				new DownloadNewDialog(getActivity(), new DownloadNewDialog.Callback(){
+
+						@Override
+						public void Added(TaskInfo ti)
+						{
+							l1.add(ti);
+							dia.notifyItemInserted(l1.size());
+						}
+					}).show();
 			break;
 			case R.id.download_view_edit://编辑模式
 			edit=true;

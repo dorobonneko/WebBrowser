@@ -14,8 +14,8 @@ public class TaskInfo
 	private boolean success=false;
 	private String userAgent;
 	private String type;
-	private String sourceUrl;
-	private long length;
+	private String sourceUrl="";
+	private long length=0;
 	private int id;
 	private DownloadTask.State state=DownloadTask.State.PAUSE;
 	private long time;
