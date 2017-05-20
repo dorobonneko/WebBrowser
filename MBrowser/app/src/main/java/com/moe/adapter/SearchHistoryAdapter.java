@@ -95,19 +95,23 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter
 		{
 			switch(msg.what){
 				case 0:
+					list.clear();
 					list.addAll((List)msg.obj);
 					notifyDataSetChanged();
 					break;
 				case 1:
 					final String key=msg.obj.toString();
 					new Thread(){
+						List l;
 						public void run(){
-							list.clear();
-							List list=sh.querySearchHistory(key);
+							try{
+							l=sh.querySearchHistory(key);
 							List tmp=wh.queryWebHistory(key);
 							if(tmp!=null)
-								list.addAll(tmp);
-							handler.sendMessage(handler.obtainMessage(0,list));
+								l.addAll(tmp);
+								}
+								catch(Exception E){}
+							handler.sendMessage(handler.obtainMessage(0,l));
 						}
 					}.start();
 					break;

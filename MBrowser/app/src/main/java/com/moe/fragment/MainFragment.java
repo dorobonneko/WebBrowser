@@ -72,7 +72,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View v= inflater.inflate(R.layout.main_view, null);
+        View v= inflater.inflate(R.layout.main_view, container,false);
         Theme.registerTheme(v.findViewById(R.id.mainview_searchbar));
 		Theme.registerTheme(v.findViewById(R.id.mainview_bar));
  		return v;
@@ -176,7 +176,7 @@ public void close(Integer close){
 							getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).show(menu).commit();
 						else{
 							getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).add(R.id.mainview_popwin, menu).show(menu).commit();}
-						menutool.showNext();
+						menutool.setDisplayedChild(1);
 
 					}
 				}, time);
@@ -187,6 +187,7 @@ public void close(Integer close){
 			break;
 		case MenuFragment.SHUTDOWN:
 			getFragmentManager().beginTransaction().hide(menu).commit();
+			menutool.setDisplayedChild(0);
 			break;
 		case ToolManager.HOME:
 			((WebView)content.getCurrentView()).goHome();
@@ -199,7 +200,9 @@ public void close(Integer close){
         if (current != null && !current.isHidden())
         {
             getFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).hide(current).commit();
-            return true;
+            if(current==menu)
+			menutool.setDisplayedChild(0);
+			return true;
         }
         return false;
     }
@@ -213,8 +216,7 @@ public void close(Integer close){
         {
 
             current = null;
-            if (f == menu)menutool.showNext();
-            pop.setVisibility(pop.INVISIBLE);
+			pop.setVisibility(pop.INVISIBLE);
         }
         else
             current = f;

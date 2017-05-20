@@ -31,6 +31,7 @@ import com.moe.view.PopupBookmarkMenu;
 import com.moe.dialog.BookmarkEditDialog;
 import com.moe.database.HomePage;
 import com.moe.dialog.SendToHomepageDialog;
+import android.content.res.TypedArray;
 
 public class BookmarksFragment extends Fragment implements View.OnClickListener,ViewPager.OnPageChangeListener,AddFolderDialog.OnSuccessListener,AlertDialog.OnClickListener,BookmarksAdapter.OnItemClickListener,BookmarksAdapter.OnItemLongClickListener,AddDialog.OnAddListener
 {
@@ -104,6 +105,15 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View view=inflater.inflate(R.layout.bookmarks_view, container, false);
+				return view;
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState)
+	{
+		TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.colorPrimaryDark});
+		view.setBackgroundColor(ta.getColor(0,R.color.primary_dark));
+		ta.recycle();
 		TabLayout tl=(TabLayout)view.findViewById(R.id.bookmarks_tablayout);
 		vp = (ViewPager)view.findViewById(R.id.bookmarks_viewpager);
 		vp.setAdapter(vpa = new ViewPagerAdapter(av));
@@ -132,9 +142,9 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		edit.setOnClickListener(this);
 		ItemTouchHelper ith=new ItemTouchHelper(new ItemTouch());
 		ith.attachToRecyclerView(av.get(0));
-		return view;
+		super.onViewCreated(view, savedInstanceState);
 	}
-
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
@@ -305,12 +315,14 @@ private void loadBookmarks(String dir){
 	@Override
 	public boolean onBackPressed()
 	{
+		if(!isHidden()){
 		if(drag){
 			toggleMode(false);
 			return true;
 		}else if(bookmark.getMode()==BookmarksAdapter.Mode.ITEM){
 			loadFolder();
 			return true;
+		}
 		}
 		return false;
 	}

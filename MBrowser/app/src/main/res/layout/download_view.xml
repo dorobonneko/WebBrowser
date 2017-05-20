@@ -1,13 +1,121 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical">
-    <android.support.v7.widget.RecyclerView
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="match_parent"
+	android:layout_width="match_parent"
+	android:orientation="vertical"
+	android:fitsSystemWindows="true">
+
+	<TextView
+		android:textColor="?attr/colorAccent"
+		android:layout_height="?attr/actionBarSize"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:id="@+id/download_view_recyclerview"/>
-	<ImageView
-		android:id="@+id/download_view_header"
+		android:text="下载中心"
+		android:textSize="24sp"
+		android:paddingStart="5dp"
+		android:gravity="left|center_vertical"/>
+
+	<FrameLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"/>
-</FrameLayout>
+		android:layout_height="fill_parent"
+		android:orientation="vertical"
+		android:layout_weight="1.0"
+		android:background="#30000000">
+
+		<android.support.v7.widget.RecyclerView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:id="@+id/download_view_recyclerview"/>
+
+		<ImageView
+			android:id="@+id/download_view_header"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"/>
+
+	</FrameLayout>
+
+	<ViewFlipper
+		android:id="@+id/download_view_toggle"
+		android:layout_width="match_parent"
+		android:layout_height="?attr/actionBarSize">
+
+		<RelativeLayout
+			android:layout_height="match_parent"
+			android:layout_width="match_parent"
+			android:orientation="horizontal">
+
+			<Button
+				android:id="@+id/download_view_clear"
+				android:background="?android:attr/selectableItemBackground"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="清空"
+				android:layout_alignParentLeft="true"
+				android:layout_centerVertical="true"/>
+
+			<Button
+				android:id="@+id/download_view_new"
+				android:background="?android:attr/selectableItemBackgroundBorderless"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="新建"
+				android:layout_centerInParent="true"/>
+
+			<Button
+				android:id="@+id/download_view_edit"
+				android:background="?android:attr/selectableItemBackground"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="编辑"
+				android:layout_alignParentRight="true"
+				android:layout_centerVertical="true"/>
+
+		</RelativeLayout>
+
+		<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:gravity="center_vertical">
+
+			<Button
+				android:enabled="false"
+				android:id="@+id/download_view_redownload"
+				android:background="?android:attr/selectableItemBackground"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="重新下载"
+				android:layout_weight="1.0"/>
+
+			<Button
+				android:enabled="false"
+				android:id="@+id/download_view_delete"
+				android:background="?android:attr/selectableItemBackground"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="删除"
+				android:layout_weight="1.0"/>
+
+			<Button
+				android:enabled="false"
+				android:id="@+id/download_view_more"
+				android:background="?android:attr/selectableItemBackground"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="更多"
+				android:layout_weight="1.0"/>
+
+			<Button
+				android:id="@+id/download_view_cancel"
+				android:background="?android:attr/selectableItemBackground"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="@string/cancel"
+				android:layout_weight="1.0"/>
+
+		</LinearLayout>
+
+	</ViewFlipper>
+
+</LinearLayout>
+

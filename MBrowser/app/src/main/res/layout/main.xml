@@ -4,11 +4,27 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
-	android:id="@+id/main"
 	android:background="?attr/colorPrimaryDark"
 	android:fitsSystemWindows="true"
-    android:fillViewport="true"
-    >
+	android:fillViewport="true">
+
+	<LinearLayout
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:id="@+id/main1"/>
+
+	<LinearLayout
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:id="@+id/main2"/>
+
+	<LinearLayout
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:id="@+id/main3"/>
 
 </FrameLayout>
 

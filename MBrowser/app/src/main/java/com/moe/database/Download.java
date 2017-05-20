@@ -7,6 +7,9 @@ import android.os.Environment;
 
 public interface Download
 {
+	void clearAllTask(Object[] id,boolean file);
+	public void clearAllSuccessTask(boolean file);
+
 	State addTaskInfo(TaskInfo ti);
 	void deleteTaskInfoWithId(int id);
 	void updateTaskInfo(TaskInfo ti);

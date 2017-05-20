@@ -15,9 +15,47 @@ import com.moe.download.DownloadTask;
 import com.moe.entity.DownloadInfo;
 import de.greenrobot.event.EventBus;
 import com.moe.bean.TaskBean;
+import java.io.File;
 
 public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,BookMarks,BlackList,HomePage,Download
 {
+
+	@Override
+	public void clearAllTask(final Object[] id, final boolean file)
+	{
+		//new Thread(){
+		//	public void run(){
+				synchronized(sql){
+					for(Object tii:id){
+						TaskInfo ti=(TaskInfo)tii;
+						deleteTaskInfoWithId(ti.getId());
+						if(file)
+							new File(ti.getDir(),ti.getTaskname()).delete();
+					}
+				}
+		//	}
+		//}.start();
+	}
+
+
+	@Override
+	public void clearAllSuccessTask(final boolean file)
+	{
+		new Thread(){
+			public void run(){
+				synchronized(sql){
+				Cursor c=sql.query("download",new String[]{"id","dir","name"},"success=?",new String[]{1+""},null,null,null);
+				while(c.moveToNext()){
+					deleteTaskInfoWithId(c.getInt(c.getColumnIndex("id")));
+					if(file)
+						new File(c.getString(c.getColumnIndex("dir")),c.getString(c.getColumnIndex("name"))).delete();
+				}
+				c.close();
+				}
+			}
+		}.start();
+	}
+
 
 	@Override
 	public void updataBookmark(String url, String name, String dir, String currenturl)
@@ -94,7 +132,7 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 			//cv.put("pause",ti.getSupport());
 			//cv.put("multithread",ti.isMultiThread());
 			cv.put("cookie", ti.getCookie());
-			//cv.put("success",ti.isSuccess());
+			cv.put("success",ti.isSuccess());
 			cv.put("useragent", ti.getUserAgent());
 			cv.put("mime", ti.getType());
 			//cv.put("sourceurl",ti.getSourceUrl());
@@ -717,28 +755,31 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 	@Override
 	public List queryWebHistory(String key)
 	{
+		synchronized(sql){
 		if (key == null)throw new NullPointerException("key is not null!");
 		if (key.isEmpty())return null;
-		StringBuffer sb=new StringBuffer();
-		//sb.append("'");
-		for (String str:key.split(""))
-			sb.append(str).append("%");
-		//sb.append("'");
+//		StringBuffer sb=new StringBuffer();
+//		//sb.append("'");
+//		for (String str:key.split(""))
+//			sb.append(str).append("%");
+//		//sb.append("'");
 		List<String[]> ls=new ArrayList<>();
-		key = sb.toString();
-		Cursor c=sql.query("webhistory", null, "url like ? OR title like ?", new String[]{key,key}, null, null, "time desc");
+		key = "%"+key+"%";
+		Cursor c=sql.query(false,"webhistory", null, "url like ? OR title like ?", new String[]{key,key}, null, null, "time desc","0,10");
 		while (c.moveToNext())
 		{
 			ls.add(new String[]{c.getString(c.getColumnIndex("url")),c.getString(c.getColumnIndex("title"))});
 		}
 		c.close();
 		return ls;
+		}
 	}
 
 
 	@Override
 	public List querySearchHistory(String key)
 	{
+		synchronized(sql){
 		if (key == null)
 			throw new NullPointerException("key is not null!");
 		StringBuffer sb=new StringBuffer();
@@ -747,12 +788,14 @@ public class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHisto
 			sb.append(str).append("%");
 		List ls=new ArrayList<>();
 		Cursor c=sql.query("searchhistory", null, "data like ?", new String[]{sb.toString()}, null, null, "time desc");
+		if(c.getCount()>0)
 		while (c.moveToNext())
 		{
 			ls.add(c.getString(c.getColumnIndex("data")));
 		}
 		c.close();
 		return ls;
+		}
 	}
 
 	@Override

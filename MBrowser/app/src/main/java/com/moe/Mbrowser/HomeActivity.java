@@ -50,39 +50,39 @@ public class HomeActivity extends FragmentActivity
         // TODO: Implement this method
         super.onCreate(savedInstanceState);
 		init();
-         }
-		   private void init(){
-			   long i=System.currentTimeMillis();
-			   shared = getSharedPreferences("moe", 0);
-			   setContentView(R.layout.main);
-			   String path=getIntent().getStringExtra("activity");
-			   if ("download".equals(path))
-			   {
-				   download=new DownloadFragment();
-				   getSupportFragmentManager().beginTransaction().add(R.id.main, download).commit();
-				   current = download;
-			   }
-			   else
-			   {
-				   main=new MainFragment();
-				   getSupportFragmentManager().beginTransaction().add(R.id.main, main).commit();
-				   current = main;
-			   }
-			   dd = new DownloadDialog(this);
-			   if (shared.getBoolean("full", false))
-			   {
-				   getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-				   ((MainFragment)main).setPadding(true);
-			   }
-			   startService(new Intent(this, ResourceService.class));
-			   Toast.makeText(this, "启动耗时：" + (System.currentTimeMillis() - i), 300).show();
-			   EventBus.getDefault().register(this);
-			   if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-			   {
-				   ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 55);
-			   }
-			   
-		   }
+	}
+	private void init()
+	{
+		long i=System.currentTimeMillis();
+		shared = getSharedPreferences("moe", 0);
+		setContentView(R.layout.main);
+		String path=getIntent().getStringExtra("activity");
+		if ("download".equals(path))
+		{
+			download = new DownloadFragment();
+			getSupportFragmentManager().beginTransaction().add(R.id.main2, download).commit();
+			current = download;
+		}
+		else
+		{
+			main = new MainFragment();
+			getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
+		}
+		dd = new DownloadDialog(this);
+		if (shared.getBoolean("full", false))
+		{
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			((MainFragment)main).setPadding(true);
+		}
+		startService(new Intent(this, ResourceService.class));
+		Toast.makeText(this, "启动耗时：" + (System.currentTimeMillis() - i), 300).show();
+		EventBus.getDefault().register(this);
+		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+		{
+			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 55);
+		}
+
+	}
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
 	{
@@ -164,9 +164,9 @@ public class HomeActivity extends FragmentActivity
 						else
 							intent.setType(wf.getAcceptTypes()[0]);
 					}
-						
+
 				}
-				if(intent.getType().trim().isEmpty())
+				if (intent.getType().trim().isEmpty())
 					intent.setType("*/*");
 				try
 				{
@@ -176,7 +176,7 @@ public class HomeActivity extends FragmentActivity
 				{
 					ValueCallback<Uri[]> vu=(ValueCallback<Uri[]>)((Object[])callback.obj)[0];
 					vu.onReceiveValue(null);
-					this.callback=null;
+					this.callback = null;
 				}
 				break;
 		}
@@ -192,28 +192,25 @@ public class HomeActivity extends FragmentActivity
 		switch (mo)
 		{
 			case BOOKMARKS:
-				if(bookmark==null)bookmark=new BookmarksFragment();
+				if (bookmark == null)bookmark = new BookmarksFragment();
 				if (bookmark.isAdded())
-					getSupportFragmentManager().beginTransaction().hide(current).show(bookmark).commit();
+					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(bookmark).commit();
 				else
-					getSupportFragmentManager().beginTransaction().hide(current).add(R.id.main, bookmark).commit();
+					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, bookmark).commit();
 				current = bookmark;
 				break;
 			case DOWNLOAD:
 				//startService(new Intent(this,DownloadService.class));
-				if(download==null)download=new DownloadFragment();
+				if (download == null)download = new DownloadFragment();
 				if (download.isAdded())
-					getSupportFragmentManager().beginTransaction().hide(current).show(download).commit();
+					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(download).commit();
 				else
-					getSupportFragmentManager().beginTransaction().hide(current).add(R.id.main, download).commit();
+					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, download).commit();
 				current = download;
 				break;
 			case HOME:
-				if (current != main)
-				{
-					getSupportFragmentManager().beginTransaction().hide(current).show(main).commit();
-					current = main;
-				}
+				getSupportFragmentManager().beginTransaction().setCustomAnimations(0,R.anim.right_out).hide(current).commit();
+					//current = main;
 				break;
 			case FULLSCREEN:
 				if (!shared.getBoolean("full", false))
@@ -234,14 +231,15 @@ public class HomeActivity extends FragmentActivity
 				super.onBackPressed();
 				break;
 			case SETTING:
-				getSupportFragmentManager().beginTransaction().hide(current).commit();
+				//if(current!=null&&!current.isHidden())
+				//getSupportFragmentManager().beginTransaction().hide(current).commit();
 				if (setting.isAdded())
 				{
-					getFragmentManager().beginTransaction().show(setting).commit();
+					getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).show(setting).commit();
 				}
 				else
 				{
-					getFragmentManager().beginTransaction().add(R.id.main, setting).commit();
+					getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).add(R.id.main2, setting).commit();
 				}
 				break;
 		}
@@ -260,24 +258,24 @@ public class HomeActivity extends FragmentActivity
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
-			switch (requestCode)
-			{
-				case 233:
-					if(resultCode==RESULT_OK)
+		switch (requestCode)
+		{
+			case 233:
+				if (resultCode == RESULT_OK)
 					dd.setPath(data.getStringExtra("dir"));
-					break;
-				case 2888:
-					if (callback != null)
-					{
-						ValueCallback<Uri[]> vu=(ValueCallback<Uri[]>)((Object[])callback.obj)[0];
-						if(resultCode==RESULT_OK)
+				break;
+			case 2888:
+				if (callback != null)
+				{
+					ValueCallback<Uri[]> vu=(ValueCallback<Uri[]>)((Object[])callback.obj)[0];
+					if (resultCode == RESULT_OK)
 						vu.onReceiveValue(new Uri[]{data.getData()});
-						else
+					else
 						vu.onReceiveValue(null);
-						callback = null;
-					}
-					break;
-			
+					callback = null;
+				}
+				break;
+
 		}
 	}
 
@@ -302,32 +300,27 @@ public class HomeActivity extends FragmentActivity
     @Override
     public void onBackPressed()
     {
-		if (setting.onBackPressed())
-		{
-			return;
-		}
-		else
+		if (!setting.onBackPressed())
 		{
 			if (setting.isAdded() && !setting.isHidden())
 			{
-				getFragmentManager().beginTransaction().hide(setting).commit();
-				getSupportFragmentManager().beginTransaction().show(current).commit();
+				getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).hide(setting).commit();
 				return;
 			}
-		}
-		if (!current.onBackPressed())
+		}else return;
+		if (current != null && current.onBackPressed())return;
+		else
+		if(!current.isHidden())
 		{
-			if (current != main)
-			{
-				if (main.isAdded())
-					getSupportFragmentManager().beginTransaction().hide(current).show(main).commit();
-				else
-					getSupportFragmentManager().beginTransaction().hide(current).add(R.id.main, main).commit();
-				current = main;
-			}
-			else if (!main.onBackPressed())
-				super.onBackPressed();
-		}
+				getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).commit();
+				if (main == null)
+				{
+					main = new MainFragment();
+					getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
+				}
+		}else if (!main.onBackPressed())
+			super.onBackPressed();
+
     }
 
 	@Override
@@ -335,13 +328,13 @@ public class HomeActivity extends FragmentActivity
 	{
 		super.onNewIntent(intent);
 		String path=intent.getStringExtra("activity");
-		getIntent().putExtra("activity",path);
+		getIntent().putExtra("activity", path);
 		if ("download".equals(path))
 		{
 			if (download.isAdded())
 				getSupportFragmentManager().beginTransaction().hide(current).show(download).commit();
 			else
-				getSupportFragmentManager().beginTransaction().add(R.id.main, download).commit();
+				getSupportFragmentManager().beginTransaction().add(R.id.main2, download).commit();
 			current = download;
 		}
 		else
@@ -349,8 +342,7 @@ public class HomeActivity extends FragmentActivity
 			if (main.isAdded())
 				getSupportFragmentManager().beginTransaction().hide(current).show(main).commit();
 			else
-				getSupportFragmentManager().beginTransaction().add(R.id.main, main).commit();
-			current = main;
+				getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
 		}
 		//init();
 	}

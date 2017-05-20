@@ -10,7 +10,7 @@ public class CustomDecoration extends RecyclerView.ItemDecoration
 	private Paint p=new Paint();
 	public CustomDecoration(int width){
 		this(width,Color.GRAY);
-		p.setAlpha(0xaa);
+		//p.setAlpha(0xa);
 	}
 	public CustomDecoration(int width,int color){
 		this.width=width;

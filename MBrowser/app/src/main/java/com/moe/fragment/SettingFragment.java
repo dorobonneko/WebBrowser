@@ -6,10 +6,23 @@ import android.preference.Preference;
 import com.moe.fragment.preference.PreferenceFragment;
 import com.moe.fragment.preference.DownloadFragment;
 import com.moe.fragment.preference.WebFragment;
+import android.view.View;
+import android.content.res.TypedArray;
+import android.app.FragmentTransaction;
 
 public class SettingFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener
 {
 	private PreferenceFragment current,download=new DownloadFragment(),web=new WebFragment();
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState)
+	{
+		TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.colorPrimaryDark});
+		view.setBackgroundColor(ta.getColor(0,R.color.primary_dark));
+		ta.recycle();
+		super.onViewCreated(view, savedInstanceState);
+	}
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
@@ -36,14 +49,14 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 				if(download.isAdded())
 					getFragmentManager().beginTransaction().hide(this).show(download).commit();
 					else
-					getFragmentManager().beginTransaction().hide(this).add(R.id.main,download).commit();
+					getFragmentManager().beginTransaction().hide(this).add(R.id.main2,download).commit();
 				current=download;
 				break;
 			case "setting_web":
 				if(web.isAdded())
 					getFragmentManager().beginTransaction().hide(this).show(web).commit();
 				else
-					getFragmentManager().beginTransaction().hide(this).add(R.id.main,web).commit();
+					getFragmentManager().beginTransaction().hide(this).add(R.id.main2,web).commit();
 				current=web;
 				break;
 		}

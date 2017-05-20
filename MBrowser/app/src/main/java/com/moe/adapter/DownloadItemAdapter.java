@@ -17,13 +17,28 @@ import android.widget.ImageView;
 import com.moe.entity.DownloadInfo;
 import com.moe.download.DownloadTask;
 import java.math.BigDecimal;
+import android.view.View.OnLongClickListener;
 
 public class DownloadItemAdapter extends RecyclerView.Adapter
 {
 	private List<TaskInfo> l1,l2;
-public DownloadItemAdapter(List<TaskInfo> l1,List<TaskInfo> l2){
+	private List<Integer> selected;
+public DownloadItemAdapter(List<TaskInfo> l1,List<TaskInfo> l2,List<Integer> selected){
 	this.l1=l1;
 	this.l2=l2;
+	this.selected=selected;
+}
+public TaskInfo getItem(int position){
+	switch(getItemViewType(position)){
+		case 0:
+			return null;
+			case 1:
+			return l1.get(position-1);
+			case 2:
+			return l2.get(position-l1.size()-2);
+	}
+		return null;
+		
 }
 	@Override
 	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup p1, int p2)
@@ -86,6 +101,10 @@ public DownloadItemAdapter(List<TaskInfo> l1,List<TaskInfo> l2){
 			((ViewHolder2)p1).title.setText(l2.get(p2-l1.size()-2).getTaskname());
 			((ViewHolder2)p1).summary.setText(new DecimalFormat("0.00").format(l2.get(p2-l1.size()-2).getLength()/1024.0/1024)+"MB");
 		}
+		if(selected.contains(p2))
+			p1.itemView.setBackgroundResource(R.color.accent);
+			else
+			p1.itemView.setBackgroundColor(0x00000000);
 	}
 
 	@Override
@@ -129,6 +148,15 @@ public DownloadItemAdapter(List<TaskInfo> l1,List<TaskInfo> l2){
 			itemView.setOnClickListener(vo);
 			state.setOnClickListener(vo);
 			pb.setMax(100);
+			itemView.setOnLongClickListener(new View.OnLongClickListener(){
+
+					@Override
+					public boolean onLongClick(View p1)
+					{
+						if(olcl!=null)return olcl.onLongClick(getPosition());
+						return false;
+					}
+				});
 		}
 	}
 	public class ViewHolder2 extends RecyclerView.ViewHolder{
@@ -157,6 +185,15 @@ public DownloadItemAdapter(List<TaskInfo> l1,List<TaskInfo> l2){
 						if(ocl!=null)ocl.onClick(getPosition());
 					}
 				});
+			itemView.setOnLongClickListener(new View.OnLongClickListener(){
+
+					@Override
+					public boolean onLongClick(View p1)
+					{
+						if(olcl!=null)return olcl.onLongClick(getPosition());
+						return false;
+					}
+				});
 		}
 	}
 	public class Header extends RecyclerView.ViewHolder{
@@ -177,5 +214,12 @@ public DownloadItemAdapter(List<TaskInfo> l1,List<TaskInfo> l2){
 	private OnClickListener ocl;
 	public abstract interface OnClickListener{
 		void onClick(int position);
+	}
+	public void setOnLongClickListener(OnLongClickListener o){
+		this.olcl=o;
+	}
+	private OnLongClickListener olcl;
+	public abstract interface OnLongClickListener{
+		boolean onLongClick(int position);
 	}
 }

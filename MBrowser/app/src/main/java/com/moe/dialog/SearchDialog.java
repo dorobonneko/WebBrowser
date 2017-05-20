@@ -85,8 +85,12 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
     {
         if (p2 == EditorInfo.IME_ACTION_GO)
 		{
-            LocalBroadcastManager.getInstance(getContext().getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra("text", tet.getText().toString()));
-			sh.insertSearchHistory(tet.getText().toString());
+          		new Thread(){
+				public void run(){
+					LocalBroadcastManager.getInstance(getContext().getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra("text", tet.getText().toString()));
+					sh.insertSearchHistory(tet.getText().toString());
+				}
+			}.start();
             dismiss();
         }
         return false;
