@@ -74,6 +74,8 @@ public class HomeActivity extends FragmentActivity
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			((MainFragment)main).setPadding(true);
 		}
+		if(shared.getBoolean("night",false))
+			findViewById(R.id.main3).setBackgroundColor(0x50000000);
 		startService(new Intent(this, ResourceService.class));
 		Toast.makeText(this, "启动耗时：" + (System.currentTimeMillis() - i), 300).show();
 		EventBus.getDefault().register(this);
@@ -241,6 +243,19 @@ public class HomeActivity extends FragmentActivity
 				{
 					getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).add(R.id.main2, setting).commit();
 				}
+				break;
+			case NIGHTMODE:
+				if (!shared.getBoolean("night", false))
+				{
+					shared.edit().putBoolean("night", true).commit();
+					findViewById(R.id.main3).setBackgroundColor(0x50000000);
+					}
+				else
+				{
+					shared.edit().putBoolean("night", false).commit();
+					findViewById(R.id.main3).setBackgroundColor(0x00000000);
+				}
+				
 				break;
 		}
 	}

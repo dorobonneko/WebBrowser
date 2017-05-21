@@ -79,6 +79,10 @@ private ToolboxDialog td;
 	{
 		
 		switch(v.getId()){
+			case R.id.menu_nightmode:
+				EventBus.getDefault().post(MenuOptions.NIGHTMODE);
+				EventBus.getDefault().post(HIDE);
+				break;
 			case R.id.menu_bookmark:
 				EventBus.getDefault().post(MenuOptions.BOOKMARKS);
 				EventBus.getDefault().post(SHUTDOWN);
