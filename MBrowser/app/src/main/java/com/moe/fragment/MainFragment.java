@@ -49,6 +49,7 @@ import com.moe.dialog.AddDialog;
 import com.moe.database.HomePage;
 import com.moe.database.DataBase;
 import android.widget.Toast;
+import android.graphics.Color;
 
 public class MainFragment extends Fragment implements FragmentPop.OnHideListener,AddDialog.OnAddListener
 {
@@ -73,8 +74,8 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View v= inflater.inflate(R.layout.main_view, container,false);
-        Theme.registerTheme(v.findViewById(R.id.mainview_searchbar));
-		Theme.registerTheme(v.findViewById(R.id.mainview_bar));
+        Theme.registerForeGround(v.findViewById(R.id.mainview_searchbar));
+		Theme.registerForeGround(v.findViewById(R.id.mainview_bar));
  		return v;
     }
 
@@ -103,11 +104,12 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
         //((WindowFragment)window).setViewFlipper(content);
         menutool.setInAnimation(getActivity(),R.anim.bottom_up);
 		menutool.setOutAnimation(getActivity(),R.anim.up_up);
-        Theme.updateTheme(0xff66ffcc);
         //默认启动一个空白窗口
         openNewWindow();
        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(new TextQuery(),new IntentFilter("com.moe.search"));
 	  ad.setOnAddLostener(this);
+	  //初始化颜色
+	  Theme.updateTheme(Color.parseColor(getResources().getTextArray(R.array.skin_color)[getContext().getSharedPreferences("moe",0).getInt("color",0)].toString()));
     }
 
 	@Override

@@ -18,6 +18,7 @@ import com.moe.entity.DownloadInfo;
 import com.moe.download.DownloadTask;
 import java.math.BigDecimal;
 import android.view.View.OnLongClickListener;
+import com.moe.utils.Theme;
 
 public class DownloadItemAdapter extends RecyclerView.Adapter
 {
@@ -102,7 +103,7 @@ public TaskInfo getItem(int position){
 			((ViewHolder2)p1).summary.setText(new DecimalFormat("0.00").format(l2.get(p2-l1.size()-2).getLength()/1024.0/1024)+"MB");
 		}
 		if(selected.contains(p2))
-			p1.itemView.setBackgroundResource(R.color.accent);
+			p1.itemView.setBackgroundColor(Theme.color);
 			else
 			p1.itemView.setBackgroundColor(0x00000000);
 	}

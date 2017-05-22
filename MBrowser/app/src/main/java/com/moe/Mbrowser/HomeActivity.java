@@ -36,14 +36,16 @@ import java.io.File;
 import android.os.Environment;
 import com.moe.utils.Theme;
 import com.moe.utils.ToolManager;
+import com.moe.fragment.SkinFragment;
 
 public class HomeActivity extends FragmentActivity
 {
 	private SharedPreferences shared;
-	private Fragment current,main,bookmark,download;
+	private Fragment current,main,bookmark,download,skin;
 	private SettingFragment setting=new SettingFragment();
 	private DownloadDialog dd;
 	private Message callback;
+	private boolean exit=false;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -56,6 +58,7 @@ public class HomeActivity extends FragmentActivity
 		long i=System.currentTimeMillis();
 		shared = getSharedPreferences("moe", 0);
 		setContentView(R.layout.main);
+		Theme.registerBackground(findViewById(R.id.main));
 		String path=getIntent().getStringExtra("activity");
 		if ("download".equals(path))
 		{
@@ -257,6 +260,14 @@ public class HomeActivity extends FragmentActivity
 				}
 				
 				break;
+			case SKIN:
+				if (skin == null)skin = new SkinFragment();
+				if (skin.isAdded())
+					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(skin).commit();
+				else
+					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, skin).commit();
+				current = skin;
+				break;
 		}
 	}
 	@Subscribe
@@ -325,7 +336,7 @@ public class HomeActivity extends FragmentActivity
 		}else return;
 		if (current != null && current.onBackPressed())return;
 		else
-		if(!current.isHidden())
+		if(current!=null&&!current.isHidden())
 		{
 				getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).commit();
 				if (main == null)
@@ -333,8 +344,24 @@ public class HomeActivity extends FragmentActivity
 					main = new MainFragment();
 					getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
 				}
-		}else if (!main.onBackPressed())
+		}else if (!main.onBackPressed()){
+			if(exit)
 			super.onBackPressed();
+			else{
+				exit=true;
+				Toast.makeText(this,"再点一次退出！",1000).show();
+				new Thread(){
+					public void run(){
+						try
+						{
+							Thread.sleep(1000);
+						}
+						catch (InterruptedException e)
+						{}exit=false;
+					}
+				}.start();
+			}
+			}
 
     }
 

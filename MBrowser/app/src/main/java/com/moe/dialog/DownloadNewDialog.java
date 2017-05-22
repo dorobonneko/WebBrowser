@@ -37,6 +37,8 @@ public class DownloadNewDialog extends Dialog implements View.OnClickListener
 		cancel.setOnClickListener(this);
 		t_name.setHint("文件名称");
 		t_url.setHint("下载地址");
+		add.setText("添加");
+		setTitle("新建任务");
 	}
 
 	@Override

@@ -60,7 +60,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
         win=(ImageButton)v.findViewById(R.id.mainview_bar_win);
         win.setOnClickListener(this);
         v.findViewById(R.id.mainview_bar_menu).setOnClickListener(this);
-        Theme.registerTheme(v.findViewById(R.id.mainview_bar));
+        Theme.registerForeGround(v.findViewById(R.id.mainview_bar));
         refresh=(ImageButton)v.findViewById(R.id.mainview_refresh);
 		refresh.setOnClickListener(this);
 		home=(ImageButton)v.findViewById(R.id.mainview_bar_home);

@@ -32,6 +32,7 @@ import com.moe.dialog.BookmarkEditDialog;
 import com.moe.database.HomePage;
 import com.moe.dialog.SendToHomepageDialog;
 import android.content.res.TypedArray;
+import com.moe.utils.Theme;
 
 public class BookmarksFragment extends Fragment implements View.OnClickListener,ViewPager.OnPageChangeListener,AddFolderDialog.OnSuccessListener,AlertDialog.OnClickListener,BookmarksAdapter.OnItemClickListener,BookmarksAdapter.OnItemLongClickListener,AddDialog.OnAddListener
 {
@@ -111,9 +112,10 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
-		TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.colorPrimaryDark});
+		/**TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.colorPrimaryDark});
 		view.setBackgroundColor(ta.getColor(0,R.color.primary_dark));
-		ta.recycle();
+		ta.recycle();*/
+		Theme.registerBackground(view);
 		TabLayout tl=(TabLayout)view.findViewById(R.id.bookmarks_tablayout);
 		vp = (ViewPager)view.findViewById(R.id.bookmarks_viewpager);
 		vp.setAdapter(vpa = new ViewPagerAdapter(av));

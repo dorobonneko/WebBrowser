@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.CheckBox;
 import com.moe.utils.DataUtils;
 import android.widget.Toast;
+import com.moe.utils.Theme;
+import android.graphics.Color;
 
 public class DataManager extends Activity implements View.OnClickListener
 {
@@ -22,6 +24,7 @@ private Button cancel,sure;
         super.onCreate(savedInstanceState);
 		shared=getSharedPreferences("moe",0);
 		setContentView(R.layout.datamanager_view);
+		findViewById(R.id.datamanager).setBackgroundColor(Color.parseColor(getResources().getTextArray(R.array.skin_color)[shared.getInt("color",0)].toString()));
 		searchHistory=(ViewGroup)findViewById(R.id.datamanager_view_searchhistory);
 		webHistory=(ViewGroup)findViewById(R.id.datamanager_view_webhistory);
 		form=(ViewGroup)findViewById(R.id.datamanager_view_form);

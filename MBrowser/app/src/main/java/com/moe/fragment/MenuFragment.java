@@ -147,7 +147,6 @@ private void updateBlockImage(){
     @Override
     public void onDestroyView()
     {
-        Theme.unRegisterTheme(getView());
         super.onDestroyView();
     }
 

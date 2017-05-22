@@ -6,7 +6,8 @@
 	android:layout_height="fill_parent"
 	android:orientation="vertical"
 	android:fitsSystemWindows="true"
-	android:background="?attr/colorPrimaryDark">
+	android:background="?attr/colorPrimaryDark"
+	android:id="@+id/datamanager">
 
 	<LinearLayout
 		android:layout_height="?attr/actionBarSize"

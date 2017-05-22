@@ -42,6 +42,7 @@ import android.content.DialogInterface;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.content.ClipboardManager;
 import com.moe.dialog.DownloadNewDialog;
+import com.moe.utils.Theme;
 
 public class DownloadFragment extends Fragment implements DownloadItemAdapter.OnClickListener,DownloadItemAdapter.OnLongClickListener,View.OnClickListener
 {
@@ -99,9 +100,10 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
-		TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.colorPrimaryDark});
+		/**TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.colorPrimaryDark});
 		view.setBackgroundColor(ta.getColor(0,R.color.primary_dark));
-		ta.recycle();
+		ta.recycle();*/
+		Theme.registerBackground(view);
 		header = (ImageView)view.findViewById(R.id.download_view_header);
 		rv = (RecyclerView)view.findViewById(R.id.download_view_recyclerview);
 		final LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getActivity());
