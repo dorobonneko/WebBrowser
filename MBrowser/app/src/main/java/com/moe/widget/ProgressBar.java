@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import com.moe.utils.Theme;
 
 public class ProgressBar extends View
 {
@@ -29,17 +30,18 @@ public class ProgressBar extends View
         this.max=max;
         postInvalidate();
     }
-    public void setColor(int color){
-        this.color=color;
-        paint.setColor(color);
-        postInvalidate();
-    }
+//    public void setColor(int color){
+//        this.color=color;
+//        paint.setColor(color);
+//        postInvalidate();
+//    }
 
     
     
     @Override
     protected void onDraw(Canvas canvas)
     {
+		paint.setColor(Theme.backgroundColor);
         rect.set(0,0,(int)((progress/(float)max)*getWidth()),getHeight());
         canvas.drawRect(rect,paint);
         super.onDraw(canvas);

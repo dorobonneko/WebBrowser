@@ -29,6 +29,8 @@ public class CircleImageView extends View
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
+		//canvas.drawColor(0x00000000);
+		paint.setStyle(Paint.Style.FILL);
 		paint.setColor(color);
 		canvas.drawCircle(getWidth()/2,getWidth()/2,getWidth()/3,paint);
 		if(selected)
@@ -43,7 +45,7 @@ public class CircleImageView extends View
 			rectf.bottom=rectf.right;
 			canvas.drawArc(rectf,0,360,false,paint);
 		}
-		super.onDraw(canvas);
+		//super.onDraw(canvas);
 	}
 
 	@Override

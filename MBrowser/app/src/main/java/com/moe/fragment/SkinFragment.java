@@ -49,8 +49,9 @@ public class SkinFragment extends Fragment implements SkinAdapter.OnItemSelected
 		int index=shared.getInt("color",0);
 		shared.edit().putInt("color",position).commit();
 		Theme.updateTheme(sa.getColor(position));
-		sa.notifyItemChanged(index);
-		sa.notifyItemChanged(position);
+		//sa.notifyItemChanged(index);
+		//sa.notifyItemChanged(position);
+		sa.notifyDataSetChanged();
 	}
 
 
