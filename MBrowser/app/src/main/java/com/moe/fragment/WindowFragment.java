@@ -24,6 +24,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.TypedValue;
 import com.moe.utils.CustomDecoration;
+import com.moe.utils.Theme;
 
 public class WindowFragment extends FragmentPop implements WinListAdapter.OnItemClickListener,ViewFlipper.OnChangeListener
 ,View.OnClickListener
@@ -38,13 +39,13 @@ public class WindowFragment extends FragmentPop implements WinListAdapter.OnItem
     public void onAdd(WebView vf, int index)
     {
 		if(wla!=null)
-        wla.notifyDataSetChanged();
+        wla.notifyItemInserted(index);
     }
 
     @Override
     public void onRemove(int index)
  {
-        wla.notifyDataSetChanged();
+        wla.notifyItemRemoved(index);
     }
 
     @Override
@@ -61,26 +62,35 @@ private WinListAdapter wla;
     {
         
         View v=inflater.inflate(R.layout.window_view,container,false);
-        rv=(RecyclerView)v.findViewById(R.id.windowview_list);
+        return v;
+    }
+
+	@Override
+	public void onViewCreated(View v, Bundle savedInstanceState)
+	{
+		rv=(RecyclerView)v.findViewById(R.id.windowview_list);
         LinearLayoutManager llm= new LinearLayoutManager(getActivity(),1,false);
         llm.setAutoMeasureEnabled(true);
 		rv.setHasFixedSize(false);
         rv.setLayoutManager(llm);
         rv.setNestedScrollingEnabled(false);
         rv.setAdapter(wla=new WinListAdapter(getActivity(),ToolManager.getInstance().getContent()));
-        rv.setItemAnimator(new DefaultItemAnimator());
+        //rv.setItemAnimator(new DefaultItemAnimator());
         v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
         v.findViewById(R.id.windowview_add).setOnClickListener(this);
 		ItemTouchHelper ith=new ItemTouchHelper(new Callback());
 		ith.attachToRecyclerView(rv);
-		rv.setBackgroundResource(R.color.window_background);
-		((ViewGroup)v).getChildAt(1).setBackgroundResource(R.color.window_background);
+		//rv.setBackgroundResource(R.color.window_background);
+		//((ViewGroup)v).getChildAt(1).setBackgroundResource(R.color.window_background);
 		int width=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,10,getResources().getDisplayMetrics());
 		rv.setPadding(width,width,width,0);
 		//v.setPadding(0,0,0,0);
 		rv.addItemDecoration(new CustomDecoration((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,5,getResources().getDisplayMetrics()),0x00000000));
-              return v;
-    }
+		super.onViewCreated(v, savedInstanceState);
+		Theme.unRegisterBackground(v);
+		Theme.registerBackground(rv);
+		Theme.registerBackground(((ViewGroup)v).getChildAt(1));
+	}
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState)

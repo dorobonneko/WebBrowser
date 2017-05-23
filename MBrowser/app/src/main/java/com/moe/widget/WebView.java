@@ -73,7 +73,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
     //private GestureDetector gesture=new GestureDetector(this);
     private OnStateListener osl;
     private PopupWindow pop;
-	private boolean state=false;
+	//private boolean state=false;
 	private final String homepage="file:///android_asset/homepage.html";
 	private WebHistory wh;
 	private GestureDetector gd=new GestureDetector(this);
@@ -190,7 +190,7 @@ public String getCookie(String url){
 	public boolean getState()
 	{
 
-		return state;
+		return getProgress()<100?true:false;
 	}
     public void setOnStateListener(OnStateListener osl)
 	{
@@ -277,18 +277,19 @@ public String getCookie(String url){
         @Override
         public void onPageStarted(WebView p1, String p2, Bitmap p3)
         {
-            // TODO: Implement this method
-            super.onPageStarted(p1, p2, p3);
             if (osl != null)
                 osl.onStart(p2);
-			state = true;
+            super.onPageStarted(p1, p2, p3);
+            
+			
         }
 
         @Override
         public void onPageFinished(WebView p1, String p2)
-        { if (osl != null)
+        {
+			if (osl != null)
 				osl.onEnd(p2, p1.getTitle());
-            	state = false;
+            	
 			//p1.loadUrl("javascript:document.body.style.marginTop=\""+getResources().getDimension(R.dimen.actionBarSize)+"px\";");
 	        //transParent();
 		}
@@ -311,7 +312,7 @@ public String getCookie(String url){
 
 
     };
-	private void transParent()
+	/**private void transParent()
 	{
 		loadUrl("javascript:" +
 				"function loopChild(node){" +
@@ -323,7 +324,7 @@ public String getCookie(String url){
 				"};" +
 				"loopChild(document.body);");
 
-	}
+	}*/
     WebChromeClient wcc=new WebChromeClient(){
 
 		@Override

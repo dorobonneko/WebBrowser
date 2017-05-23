@@ -59,10 +59,11 @@ private ToolboxDialog td;
 		{}
 		catch (IOException e)
 		{}
-		vp.setBackgroundResource(R.color.window_background);
+		//vp.setBackgroundResource(R.color.window_background);
         return vp;
     }
 
+	
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {

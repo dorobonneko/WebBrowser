@@ -13,12 +13,15 @@
 		android:layout_width="wrap_content"
 		android:orientation="horizontal"
 		android:layout_weight="1.0"
-		android:id="@+id/winlistitem_click">
+		android:id="@+id/winlistitem_click"
+		android:gravity="left|center">
 
-		<ProgressBar
+		<com.moe.widget.RotateImageView
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:id="@+id/winlistitem_progress"/>
+			android:id="@+id/winlistitem_state"
+			android:src="@drawable/ic_web"
+			android:scaleType="centerInside"/>
 
 		<LinearLayout
 			android:layout_height="match_parent"

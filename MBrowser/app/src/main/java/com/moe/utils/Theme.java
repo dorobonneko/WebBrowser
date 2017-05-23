@@ -34,13 +34,17 @@ public class Theme
 		v.setBackgroundColor(color);
 		av.add(v);
 	}
+	public static void unRegisterBackground(View v){
+		v.setBackground(null);
+		background.remove(v);
+	}
 	public static void updateTheme(int color)
 	{
 		Theme.color = color;
 		int red=Color.red(color);
 		int green=Color.green(color);
 		int blue=Color.blue(color);
-		Theme.backgroundColor=Color.rgb(red-50<0?0:red-50,green-50<0?0:green-50,blue-50<0?0:blue-50);
+		Theme.backgroundColor=Color.rgb(red-30<0?0:red-30,green-30<0?0:green-30,blue-30<0?0:blue-30);
 		Iterator<View> i=av.iterator();
 		while (i.hasNext())
 		{

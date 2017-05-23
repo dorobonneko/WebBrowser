@@ -25,7 +25,7 @@ public class SkinFragment extends Fragment implements SkinAdapter.OnItemSelected
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
-		Theme.registerBackground(view);
+		//Theme.registerBackground(view);
 		rv=(RecyclerView)view;
 		GridLayoutManager glm=new GridLayoutManager(getActivity(),5);
 		glm.setAutoMeasureEnabled(true);
@@ -49,9 +49,9 @@ public class SkinFragment extends Fragment implements SkinAdapter.OnItemSelected
 		int index=shared.getInt("color",0);
 		shared.edit().putInt("color",position).commit();
 		Theme.updateTheme(sa.getColor(position));
-		//sa.notifyItemChanged(index);
-		//sa.notifyItemChanged(position);
-		sa.notifyDataSetChanged();
+		sa.notifyItemChanged(index);
+		sa.notifyItemChanged(position);
+		//sa.notifyDataSetChanged();
 	}
 
 

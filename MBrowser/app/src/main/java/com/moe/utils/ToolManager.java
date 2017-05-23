@@ -311,6 +311,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		title.setText(url);
 		if(bm.isBookmark(url))bookmark.setImageResource(R.drawable.ic_star);
 		else bookmark.setImageResource(R.drawable.ic_star_outline);
+		EventBus.getDefault().post(Message.obitMessage(0,index));
 	}
 
 	@Override
@@ -320,6 +321,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		this.title.setText(title);
 		pb.setVisibility(pb.GONE);
 		checkButtonState((WebView)content.getCurrentView());
+		EventBus.getDefault().post(Message.obitMessage(0,index));
 		
 	}
 

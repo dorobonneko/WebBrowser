@@ -3,8 +3,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:layout_marginTop="?attr/actionBarSize"
-	>
+	android:layout_marginTop="?attr/actionBarSize">
 
 	<android.support.v7.widget.RecyclerView
 		android:layout_marginTop="?attr/actionBarSize"
@@ -19,12 +18,14 @@
 		android:layout_gravity="bottom">
 
 		<ImageButton
+			android:background="?attr/selectableItemBackground"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:src="@android:drawable/ic_menu_close_clear_cancel"
+			android:src="@drawable/ic_plus"
 			android:layout_centerInParent="true"
 			android:id="@+id/windowview_add"/>
 
 	</RelativeLayout>
+
 </FrameLayout>
 

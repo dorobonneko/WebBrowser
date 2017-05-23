@@ -103,7 +103,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 		/**TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.colorPrimaryDark});
 		view.setBackgroundColor(ta.getColor(0,R.color.primary_dark));
 		ta.recycle();*/
-		Theme.registerBackground(view);
+		//Theme.registerBackground(view);
 		header = (ImageView)view.findViewById(R.id.download_view_header);
 		rv = (RecyclerView)view.findViewById(R.id.download_view_recyclerview);
 		final LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getActivity());

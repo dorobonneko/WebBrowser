@@ -37,18 +37,18 @@ public class WinListAdapter extends RecyclerView.Adapter<WinListAdapter.ViewHold
         View v=LayoutInflater.from(context).inflate(R.layout.win_list_item, null);
         return new ViewHolder(v);
     }
-	
+
     @Override
     public void onBindViewHolder(ViewHolder vh, final int p2)
     {
-		
+
         if (position == p2)
             vh.itemView.setBackgroundResource(R.drawable.win_item_selected);
 		else
 			vh.itemView.setBackgroundResource(R.drawable.win_item_normal);
-			vh.setTitle(((WebView)vf.getChildAt(p2)).getTitle());
+		vh.setTitle(((WebView)vf.getChildAt(p2)).getTitle());
 		vh.setUrl(((WebView)vf.getChildAt(p2)).getUrl());
-		
+		vh.state.setState(((WebView)vf.getChildAt(p2)).getState());
     }
 
     @Override
@@ -59,16 +59,16 @@ public class WinListAdapter extends RecyclerView.Adapter<WinListAdapter.ViewHold
 
 
 
-    public WinListAdapter(Context context,ViewFlipper vf)
+    public WinListAdapter(Context context, ViewFlipper vf)
 	{
         this.context = context;
-		this.vf=vf;
+		this.vf = vf;
     }
     public class ViewHolder extends RecyclerView.ViewHolder
     {
         private TextView title,url;
-        private ProgressBar pb;
-        public View close,click;
+        public RotateImageView state;
+        private View close,click;
         public void setTitle(String title)
 		{
             if (title == null || title.equals(""))
@@ -86,10 +86,10 @@ public class WinListAdapter extends RecyclerView.Adapter<WinListAdapter.ViewHold
 			view.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, (int)context.getResources().getDimension(R.dimen.actionBarSize)));
             title = (TextView)view.findViewById(R.id.winlistitem_title);
             url = (TextView)view.findViewById(R.id.winlistitem_url);
-            pb = (ProgressBar)view.findViewById(R.id.winlistitem_progress);
+            state = (RotateImageView)view.findViewById(R.id.winlistitem_state);
             close = view.findViewById(R.id.winlistitem_close);
-			click=view.findViewById(R.id.winlistitem_click);
-            pb.setIndeterminate(true);
+			click = view.findViewById(R.id.winlistitem_click);
+            //pb.setIndeterminate(true);
  			title.setText(context.getResources().getString(R.string.new_win));
 			close.setOnClickListener(new View.OnClickListener(){
 
@@ -105,7 +105,7 @@ public class WinListAdapter extends RecyclerView.Adapter<WinListAdapter.ViewHold
 					@Override
 					public void onClick(View p1)
 					{
-						EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_TOGGLE_WINDOW,getPosition()));
+						EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_TOGGLE_WINDOW, getPosition()));
 						EventBus.getDefault().post(WindowFragment.CLOSE);
 					}
 				});
