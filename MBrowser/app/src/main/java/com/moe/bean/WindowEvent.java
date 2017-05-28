@@ -10,7 +10,7 @@ public class WindowEvent
 	public final static int WHAT_URL_WINDOW=4;
 	public final static int WHAT_URL_NEW_WINDOW_BACKGROUND=5;
 	public final static int WHAT_JS_CLOSE_WINDOW=6;
-	
+	public final static int WHAT_DATA_NEW_WINDOW=7;
     public boolean isOpen=false;
     public Object obj;
     public int what;

@@ -21,15 +21,12 @@ import com.moe.dialog.DownloadDialog;
 import com.moe.dialog.AlertDialog;
 import com.moe.download.DownloadTask;
 import com.moe.fragment.SettingFragment;
-import android.webkit.GeolocationPermissions;
 import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.app.ActivityCompat;
 import android.Manifest;
 import com.moe.fragment.DownloadFragment;
 import com.moe.utils.DataUtils;
-import android.webkit.WebChromeClient;
-import android.webkit.ValueCallback;
 import android.net.Uri;
 import android.provider.MediaStore;
 import java.io.File;
@@ -37,6 +34,19 @@ import android.os.Environment;
 import com.moe.utils.Theme;
 import com.moe.utils.ToolManager;
 import com.moe.fragment.SkinFragment;
+import android.view.View;
+import android.view.ViewGroup;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import com.moe.dialog.BottomDialog;
+import android.content.DialogInterface;
+import com.moe.widget.WebView;
+import com.moe.bean.WindowEvent;
+import java.util.ArrayList;
+import android.webkit.GeolocationPermissions;
+import android.webkit.WebChromeClient;
+import android.webkit.ValueCallback;
+import com.moe.dialog.ToolboxDialog;
 
 public class HomeActivity extends FragmentActivity
 {
@@ -46,47 +56,29 @@ public class HomeActivity extends FragmentActivity
 	private DownloadDialog dd;
 	private Message callback;
 	private boolean exit=false;
+	private ToolboxDialog toolbox;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        // TODO: Implement this method
         super.onCreate(savedInstanceState);
-		init();
-	}
-	private void init()
-	{
-		long i=System.currentTimeMillis();
 		shared = getSharedPreferences("moe", 0);
 		setContentView(R.layout.main);
 		Theme.registerBackground(findViewById(R.id.main));
-		String path=getIntent().getStringExtra("activity");
-		if ("download".equals(path))
-		{
-			download = new DownloadFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.main2, download).commit();
-			current = download;
-		}
-		else
-		{
-			main = new MainFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
-		}
 		dd = new DownloadDialog(this);
 		if (shared.getBoolean("full", false))
 		{
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			((MainFragment)main).setPadding(true);
 		}
-		if(shared.getBoolean("night",false))
+		if (shared.getBoolean("night", false))
 			findViewById(R.id.main3).setBackgroundColor(0x50000000);
 		startService(new Intent(this, ResourceService.class));
-		Toast.makeText(this, "启动耗时：" + (System.currentTimeMillis() - i), 300).show();
 		EventBus.getDefault().register(this);
 		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
 		{
 			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 55);
 		}
-
+		loadURL(getIntent());
 	}
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
@@ -124,6 +116,28 @@ public class HomeActivity extends FragmentActivity
 
 	}
 
+	
+	@Subscribe
+	public void onFullScreen(View v){
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		((ViewGroup)findViewById(R.id.main3)).addView(v);
+	}
+	@Subscribe
+	public void onHide(String str){
+		if(str.equals("hide")){
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			if (shared.getBoolean("full", false))
+			{
+				getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			}
+			else
+			{
+				getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			}
+			((ViewGroup)findViewById(R.id.main3)).removeAllViews();
+		}
+	}
 	@Subscribe
 	public void permission(Message callback)
 	{
@@ -184,6 +198,28 @@ public class HomeActivity extends FragmentActivity
 					this.callback = null;
 				}
 				break;
+				case 6:
+					//Toast.makeText(this,callback.obj.toString(),400).show();
+				/**final String[] data=callback.obj.toString().split(";");
+				final ArrayList<String> as=new ArrayList<String>();
+				for(String str:data){
+					if(str.trim().isEmpty())continue;
+					as.add(str);
+				}*/
+				final ArrayList<String> as=(ArrayList<String>)callback.obj;
+				if(as.size()==0)
+					Toast.makeText(this,"没有结果，请先播放视频然后重试！",400).show();
+					else
+				new BottomDialog.Builder(this).addArrayItem(as.toArray(new String[0]), new DialogInterface.OnClickListener(){
+
+						@Override
+						public void onClick(DialogInterface p1, int p2)
+						{
+						  EventBus.getDefault().post(new WindowEvent( WindowEvent.WHAT_URL_WINDOW,as.get(p2)));
+						  p1.dismiss();
+						}
+					}).show();
+					break;
 		}
 	}
 	@Subscribe
@@ -214,8 +250,8 @@ public class HomeActivity extends FragmentActivity
 				current = download;
 				break;
 			case HOME:
-				getSupportFragmentManager().beginTransaction().setCustomAnimations(0,R.anim.right_out).hide(current).commit();
-					//current = main;
+				getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).commit();
+				//current = main;
 				break;
 			case FULLSCREEN:
 				if (!shared.getBoolean("full", false))
@@ -252,13 +288,13 @@ public class HomeActivity extends FragmentActivity
 				{
 					shared.edit().putBoolean("night", true).commit();
 					findViewById(R.id.main3).setBackgroundColor(0x50000000);
-					}
+				}
 				else
 				{
 					shared.edit().putBoolean("night", false).commit();
 					findViewById(R.id.main3).setBackgroundColor(0x00000000);
 				}
-				
+
 				break;
 			case SKIN:
 				if (skin == null)skin = new SkinFragment();
@@ -304,8 +340,17 @@ public class HomeActivity extends FragmentActivity
 
 		}
 	}
-
-
+@Subscribe
+public void onEvent(Integer event){
+	switch(event){
+		case ToolboxDialog.SHOW:
+			if(toolbox==null)
+				toolbox=new ToolboxDialog(this);
+				toolbox.show();
+			
+			break;
+	}
+}
 	@Override
 	public void finish()
 	{
@@ -326,6 +371,10 @@ public class HomeActivity extends FragmentActivity
     @Override
     public void onBackPressed()
     {
+		if(ToolManager.getInstance().isShowFind()){
+			ToolManager.getInstance().findToggle(false);
+			return;
+		}
 		if (!setting.onBackPressed())
 		{
 			if (setting.isAdded() && !setting.isHidden())
@@ -333,60 +382,92 @@ public class HomeActivity extends FragmentActivity
 				getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).hide(setting).commit();
 				return;
 			}
-		}else return;
+		}
+		else return;
 		if (current != null && current.onBackPressed())return;
 		else
-		if(current!=null&&!current.isHidden())
+		if (current != null && !current.isHidden())
 		{
-				getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).commit();
-				if (main == null)
-				{
-					main = new MainFragment();
-					getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
-				}
-		}else if (!main.onBackPressed()){
-			if(exit)
-			super.onBackPressed();
-			else{
-				exit=true;
-				Toast.makeText(this,"再点一次退出！",1000).show();
+			getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).commit();
+			current=null;
+			if (main == null)
+			{
+				main = new MainFragment();
+				getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
+			}
+		}
+		else if (!main.onBackPressed())
+		{
+			if (exit)
+				super.onBackPressed();
+			else
+			{
+				exit = true;
+				Toast.makeText(this, "再点一次退出！", 1000).show();
 				new Thread(){
-					public void run(){
+					public void run()
+					{
 						try
 						{
 							Thread.sleep(1000);
 						}
 						catch (InterruptedException e)
-						{}exit=false;
+						{}exit = false;
 					}
 				}.start();
 			}
-			}
+		}
 
     }
-
-	@Override
-	protected void onNewIntent(Intent intent)
+private void loadURL(Intent intent){
+	if (intent.getAction().equals(Intent.ACTION_VIEW))
 	{
-		super.onNewIntent(intent);
+		if(main==null){
+		main = new MainFragment();
+		Bundle b=new Bundle();
+		b.putString("url",intent.getDataString());
+		main.setArguments(b);
+		}else{
+			((MainFragment)main).openNewWindow(intent.getDataString());
+		}
+		if(main.isAdded())
+		getSupportFragmentManager().beginTransaction().show(main).commit();
+			else
+		getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
+	}
+	else
+	{
 		String path=intent.getStringExtra("activity");
-		getIntent().putExtra("activity", path);
 		if ("download".equals(path))
 		{
-			if (download.isAdded())
-				getSupportFragmentManager().beginTransaction().hide(current).show(download).commit();
-			else
-				getSupportFragmentManager().beginTransaction().add(R.id.main2, download).commit();
+			if(download==null)
+			download = new DownloadFragment();
+			getSupportFragmentManager().beginTransaction().add(R.id.main2, download).commit();
 			current = download;
 		}
 		else
 		{
-			if (main.isAdded())
-				getSupportFragmentManager().beginTransaction().hide(current).show(main).commit();
-			else
-				getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
+			if(main==null)
+			main = new MainFragment();
+			if(main.isAdded())
+				getSupportFragmentManager().beginTransaction().show(main).commit();
+				else
+			getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
 		}
-		//init();
+	}
+	dd = new DownloadDialog(this);
+	if (shared.getBoolean("full", false))
+	{
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		((MainFragment)main).setPadding(true);
+	}
+	
+}
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		super.onNewIntent(intent);
+		loadURL(intent);
 	}
 
 }

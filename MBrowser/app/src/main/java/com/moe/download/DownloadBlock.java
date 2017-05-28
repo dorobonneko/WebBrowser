@@ -37,6 +37,8 @@ public class DownloadBlock extends Thread
 			request.addHeader("Cookie", dt.getTaskInfo().getCookie());
 		if (dt.getTaskInfo().getUserAgent() != null)
 			request.addHeader("User-Agent", dt.getTaskInfo().getUserAgent());
+		if(dt.getTaskInfo().getSourceUrl()!=null)
+				request.addHeader("Referer",dt.getTaskInfo().getSourceUrl());
 		request.addHeader("Range","bytes="+di.getCurrent()+"-"+di.getEnd());
 		request.url(dt.getTaskInfo().getTaskurl());
 		try

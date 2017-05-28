@@ -250,7 +250,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 										ti.setSuccess(false);
 										ti.setDownloadinfo(null);
 										//download.deleteDownloadInfoWithId(ti.getId());
-										download.addTaskInfo(ti);
+										download.addTaskInfo(ti,null);
 									}
 									selected.clear();
 									refresh();

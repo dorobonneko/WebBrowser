@@ -21,8 +21,10 @@ import android.app.Activity;
 import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import com.moe.Mbrowser.ResourceService;
+import com.moe.database.Download.State;
+import android.os.Looper;
 
-public class DownloadDialog extends Dialog implements View.OnClickListener
+public class DownloadDialog extends Dialog implements View.OnClickListener,Download.Callback
 {
 	private EditText name,dir;
 	private TextInputLayout namelayout;
@@ -61,7 +63,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 				public void onClick(DialogInterface p1, int p2)
 				{
 					download.deleteTaskInfoWithId(ti.getId());
-					download.addTaskInfo(ti);
+					download.addTaskInfo(ti,DownloadDialog.this);
 					p1.dismiss();
 				}
 			}).create();
@@ -102,19 +104,8 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 				ti.setSourceUrl(di.getSourceUrl());
 				ti.setType(di.getMime());
 				ti.setUserAgent(di.getUserAgent());
-				switch(download.addTaskInfo(ti)){
-					case SUCCESS:
-						dismiss();
-						break;
-					case UPDATE:
-					case SAMEURL:
-						ad.show();
-						dismiss();
-						break;
-					case SAMENAME:
-						namelayout.setError("当前任务名已存在，请更换名称！");
-						break;
-				}
+				download.addTaskInfo(ti,this);
+				dismiss();
 				}else namelayout.setError("文件名不能为空！");
 				break;
 			case R.id.download_item_view_cancel:
@@ -137,6 +128,29 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 		setTitle("文件大小"+new DecimalFormat("0.00").format(di.getLength()/1024.0/1024)+"MB");
 		dir.setText(shared.getString(Download.Setting.DIR,Download.Setting.DIR_DEFAULT));
 	}
+
+	@Override
+	public void callback(TaskInfo ti, Download.State state)
+	{
+		Looper.prepare();
+		switch(state){
+			case SUCCESS:
+				break;
+			default:
+				name.post(new Runnable(){
+
+						@Override
+						public void run()
+						{
+							ad.show();
+						}
+					});
+				break;
+		}
+		Looper.loop();
+	}
+
+	
 	
 	/*public String getName(DownloadItem di){
 		if(di.getContentDisposition()!=null)

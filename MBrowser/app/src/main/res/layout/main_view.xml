@@ -40,15 +40,14 @@
 				android:layout_weight="1.0"
 				android:layout_margin="3dp">
 
-				<ImageButton
+				<!--<ImageButton
 					android:background="?attr/selectableItemBackgroundBorderless"
 					android:layout_height="wrap_content"
 					android:layout_width="wrap_content"
 					android:src="@drawable/ic_star_outline"
 					android:id="@+id/mainview_fav"
 					android:scaleType="centerInside"
-					android:layout_marginLeft="5dp"/>
-
+					android:layout_marginLeft="5dp"/>-->
 				<TextView
 					android:layout_height="wrap_content"
 					android:text="@string/input_site"

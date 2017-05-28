@@ -10,8 +10,9 @@ import com.moe.entity.TaskInfo;
 import com.moe.database.Download;
 import com.moe.database.DataBase;
 import com.moe.bean.DownloadItem;
+import com.moe.database.Download.State;
 
-public class DownloadNewDialog extends Dialog implements View.OnClickListener
+public class DownloadNewDialog extends Dialog implements View.OnClickListener,Download.Callback
 {
 	private TextInputLayout t_name,t_url;
 	private EditText name,url;
@@ -60,8 +61,7 @@ public class DownloadNewDialog extends Dialog implements View.OnClickListener
 					ti.setTaskname(name.getText().toString().trim());
 					ti.setTaskurl(url.getText().toString().trim());
 					ti.setDir(getContext().getSharedPreferences("download",0).getString(Download.Setting.DIR,Download.Setting.DIR_DEFAULT));
-					if(DataBase.getInstance(getContext()).addTaskInfo(ti)==Download.State.SUCCESS)
-					if(call!=null)call.Added(ti);
+					DataBase.getInstance(getContext()).addTaskInfo(ti,this);
 					dismiss();
 				}
 				break;
@@ -70,6 +70,13 @@ public class DownloadNewDialog extends Dialog implements View.OnClickListener
 				break;
 		}
 	}
+
+	@Override
+	public void callback(TaskInfo ti,Download.State state)
+	{
+		if(call!=null)call.Added(ti);
+	}
+
 
 	public static abstract interface Callback{
 		void Added(TaskInfo ti);

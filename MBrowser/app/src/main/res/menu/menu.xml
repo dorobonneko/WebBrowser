@@ -24,6 +24,11 @@
 	</group>
 	<!--分组-->
 	<group>
+		<item
+			android:icon="@drawable/menu_bookmark_plus"
+			android:id="@+id/menu_bookmark_plus"
+			android:title="添加书签"
+			/>
 	<item
 		android:icon="@drawable/menu_auto"
         android:id="@+id/menu_autoscreen"
@@ -40,8 +45,5 @@
 		android:icon="@drawable/menu_desktop"
         android:id="@+id/menu_desktop"
         android:title="桌面模式"/>
-		<item
-			android:id="@+id/item"
-			android:title="Item"/>
 	</group>
 </menu>

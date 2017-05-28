@@ -21,5 +21,5 @@ public interface BookMarks
 	void moveGroupToIndex(String url,int index);
 	List getAllBookmarkGroup();
 	List queryBookmark(String dir);
-	boolean isBookmark(String url);
+	//boolean isBookmark(String url);太耗性能
 }

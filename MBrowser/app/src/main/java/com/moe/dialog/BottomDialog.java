@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
 
 public class BottomDialog extends android.app.Dialog
 {
@@ -24,9 +25,11 @@ public class BottomDialog extends android.app.Dialog
 		getWindow().setGravity(Gravity.BOTTOM);
 		getWindow().setWindowAnimations(R.style.PopupWindowAnim);
 		super.onCreate(savedInstanceState);
+		ScrollView sv=new ScrollView(getContext());
 		LinearLayout ll=new LinearLayout(getContext());
-		setContentView(ll,new ViewGroup.LayoutParams(getWindow().getWindowManager().getDefaultDisplay().getWidth(),ViewGroup.LayoutParams.WRAP_CONTENT));
+		setContentView(sv,new ViewGroup.LayoutParams(getWindow().getWindowManager().getDefaultDisplay().getWidth(),ViewGroup.LayoutParams.WRAP_CONTENT));
 		ll.setOrientation(ll.VERTICAL);
+		sv.addView(ll,new ScrollView.LayoutParams(ScrollView.LayoutParams.MATCH_PARENT,ScrollView.LayoutParams.MATCH_PARENT));
 		for(View v:lv)
 		ll.addView(v);
 	}
@@ -40,6 +43,7 @@ public class BottomDialog extends android.app.Dialog
 			for(String msg:title){
 				Button b=new Button(bd.getContext());
 				b.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+				b.setAllCaps(false);
 				b.setText(msg);
 				if(doc!=null)
 					b.setOnClickListener(new View.OnClickListener(){

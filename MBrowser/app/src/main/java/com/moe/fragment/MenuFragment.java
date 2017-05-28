@@ -30,6 +30,8 @@ import com.moe.utils.ToolManager;
 import android.content.SharedPreferences;
 import com.moe.widget.WebView;
 import com.moe.dialog.ToolboxDialog;
+import com.moe.dialog.BookmarkEditDialog;
+import com.moe.dialog.BookmarkAddDialog;
 
 public class MenuFragment extends FragmentPop implements MenuAdapter.OnItemClickListener
 {
@@ -41,7 +43,7 @@ private ArrayList<View> av=new ArrayList<>();
 private int groupSize=0;//计算几组
 private SharedPreferences shared,moe;
 private final static String xmlns="http://schemas.android.com/apk/res/android";
-private ToolboxDialog td;
+private BookmarkAddDialog bed;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -70,7 +72,6 @@ private ToolboxDialog td;
         super.onActivityCreated(savedInstanceState);
 		shared=getContext().getSharedPreferences("webview",0);
 		moe=getContext().getSharedPreferences("moe",0);
-		td=new ToolboxDialog(getActivity());
 		updateBlockImage();
 		updateFull();
     }
@@ -118,12 +119,20 @@ private ToolboxDialog td;
 				EventBus.getDefault().post(HIDE);
 				break;
 			case R.id.menu_toolbox:
-				td.show();
+				EventBus.getDefault().post(ToolboxDialog.SHOW);
 				EventBus.getDefault().post(SHUTDOWN);
+				break;
+			case R.id.menu_bookmark_plus:
+				if(bed==null)
+					bed=new BookmarkAddDialog(getActivity());
+					final WebView wv=(WebView)ToolManager.getInstance().getContent().getCurrentView();
+					bed.show(wv.getUrl(),wv.getTitle());
+					EventBus.getDefault().post(HIDE);
 				break;
 			default:
 				EventBus.getDefault().post(HIDE);
 			break;
+			
 		}
 		
 	}

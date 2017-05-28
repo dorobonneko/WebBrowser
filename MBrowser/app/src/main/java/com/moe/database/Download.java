@@ -4,13 +4,14 @@ import java.util.List;
 import com.moe.download.DownloadTask;
 import com.moe.entity.DownloadInfo;
 import android.os.Environment;
+import com.moe.database.Download.State;
 
 public interface Download
 {
 	void clearAllTask(Object[] id,boolean file);
 	public void clearAllSuccessTask(boolean file);
 
-	State addTaskInfo(TaskInfo ti);
+	void addTaskInfo(TaskInfo ti,Callback call);
 	void deleteTaskInfoWithId(int id);
 	void updateTaskInfo(TaskInfo ti);
 	void updateTaskInfoData(TaskInfo ti);
@@ -27,7 +28,7 @@ public interface Download
 	List<DownloadInfo> getDownloadInfoWithId(int url);
 	
 	public enum State{
-		UPDATE,SAMEURL,SAMENAME,SUCCESS;
+		UPDATE,SUCCESS,FAIL;
 	}
 	public class Setting{
 		//默认保存目录
@@ -45,5 +46,8 @@ public interface Download
 		//缓冲
 		public final static String BUFFER="buffer";
 		public final static int BUFFER_DEFAULT=2;
+	}
+	public abstract interface Callback{
+		void callback(TaskInfo ti,State state);
 	}
 }

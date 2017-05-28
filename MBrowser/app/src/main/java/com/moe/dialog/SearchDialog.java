@@ -27,18 +27,21 @@ import android.support.design.widget.TextInputLayout;
 import android.hardware.input.InputManager;
 import android.view.inputmethod.InputMethodManager;
 import android.content.DialogInterface;
+import android.text.TextUtils;
 
-public class SearchDialog extends android.app.Dialog implements ToolEditText.OnEditorActionListener,ToolEditText.OnTextChangedListener
+public class SearchDialog extends android.app.Dialog implements ToolEditText.OnEditorActionListener,ToolEditText.OnTextChangedListener,Dialog.OnDismissListener
 {
 	private LinearLayout ll;
     private ToolEditText tet;
 	private SearchHistoryAdapter sha;
-	private SearchHistory sh;
+	//private SearchHistory sh;
+	private InputMethodManager imm;
     public SearchDialog(Context context)
 	{
         super(context, R.style.searchDialog);
 		tet = new ToolEditText(context, this);
-		sh=DataBase.getInstance(context);
+		imm=context.getSystemService(InputMethodManager.class);
+		//sh=DataBase.getInstance(context);
     }
 
     @Override
@@ -78,6 +81,7 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
 		rv.addItemDecoration(new CustomDecoration((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,1,getContext().getResources().getDisplayMetrics())));
 		tet.setFocusable(true);
 		tet.setFocusableInTouchMode(true);
+		setOnDismissListener(this);
     }
 
     @Override
@@ -85,12 +89,9 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
     {
         if (p2 == EditorInfo.IME_ACTION_GO)
 		{
-          		new Thread(){
-				public void run(){
-					LocalBroadcastManager.getInstance(getContext().getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra("text", tet.getText().toString()));
-					sh.insertSearchHistory(tet.getText().toString());
-				}
-			}.start();
+          		String text=tet.getText().toString().trim();
+					
+					LocalBroadcastManager.getInstance(getContext().getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra("text", text));
             dismiss();
         }
         return false;
@@ -102,20 +103,34 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
 		sha.query(text);
 	}
 
+	@Override
+	public void onDismiss(DialogInterface p1)
+	{
+		getContext().getSystemService(InputMethodManager.class).toggleSoftInputFromWindow(tet.getApplicationWindowToken(),imm.SHOW_IMPLICIT,imm.HIDE_NOT_ALWAYS);
+	}
+
+
 	
 
 
 
 
 
-    public void show(String url)
+    public void show(final String url)
 	{
 		super.show();
 		tet.setText(url);
-		if (url != null &&! url.isEmpty()){
-			tet.selectAll();
-			//sha.query(url);
-			}
-		tet.requestFocusFromTouch();
-    }
+		
+		tet.postDelayed(new Runnable(){
+
+				@Override
+				public void run()
+				{
+					imm.toggleSoftInput(0,0);
+					if (!TextUtils.isEmpty(url))
+						tet.selectAll();
+				}
+			}, 200);
+		
+		}
 }

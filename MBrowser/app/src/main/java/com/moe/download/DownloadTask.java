@@ -167,6 +167,8 @@ public class DownloadTask extends Thread
 				request.addHeader("Cookie", ti.getCookie());
 			if (ti.getUserAgent() != null)
 				request.addHeader("User-Agent", ti.getUserAgent());
+			if(ti.getSourceUrl()!=null)
+				request.addHeader("Referer",ti.getSourceUrl());
 			//request.addHeader("Range","bytes=0-100");
 			request.url(ti.getTaskurl());
 			try
@@ -174,7 +176,10 @@ public class DownloadTask extends Thread
 				response = okhttp.newCall(request.build()).execute();
 				if (response.code() == 200)
 				{
-					long length=Long.parseLong(response.header("Content-Length"));
+					long length=ti.getLength();
+					try{
+					length=Long.parseLong(response.header("Content-Length"));
+					}catch(Exception e){}
 //				if (length != ti.getLength())
 //				{
 //					state=State.DNS;

@@ -24,8 +24,11 @@ import android.widget.EditText;
 import android.text.TextWatcher;
 import android.text.Editable;
 import java.lang.reflect.Method;
+import android.view.inputmethod.InputMethodManager;
+import android.view.MotionEvent;
+import com.moe.dialog.ToolboxDialog;
 
-public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeListener,WebView.OnStateListener,TextWatcher,WebView.FindListener
+public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeListener,WebView.OnStateListener,TextWatcher,WebView.FindListener,View.OnLongClickListener
 {
 
 	private int index=0;
@@ -33,7 +36,8 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	private TextView title;
 	private ProgressBar pb;
 	private ImageButton back,forward,home,win,menu;
-	private ImageView bookmark,refresh;
+	private ImageView refresh;
+	//private ImageView bookmark;
 	private View toolbar;
 	private ViewFlipper content;
 	private static ToolManager tm;
@@ -45,7 +49,9 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	private ImageView findup,finddown;
 	private TextView findCount;
 	private int active,count;
+	private InputMethodManager imm;
 	private ToolManager(View v){
+		imm=v.getContext().getSystemService(InputMethodManager.class);
 		search=new SearchDialog(v.getContext());
 		bm=DataBase.getInstance(v.getContext());
 		toolbar = v.findViewById(R.id.mainview_searchbar);
@@ -67,12 +73,13 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		home.setOnClickListener(this);
 		menu=(ImageButton)v.findViewById(R.id.mainview_bar_menu);
 		menu.setOnClickListener(this);
+		menu.setOnLongClickListener(this);
 		content=(ViewFlipper)v.findViewById(R.id.main_content);
 		content.registerOnChangeListener(this);
 		v.findViewById(R.id.mainview_popwin).setOnClickListener(this);
 		abl=(AppBarLayout)v.findViewById(R.id.main_view_appbarlayout);
-		bookmark=(ImageView)v.findViewById(R.id.mainview_fav);
-		bookmark.setOnClickListener(this);
+		//bookmark=(ImageView)v.findViewById(R.id.mainview_fav);
+		//bookmark.setOnClickListener(this);
 		v.findViewById(R.id.main_view_exit).setOnClickListener(this);
 		v.findViewById(R.id.main_view_setting).setOnClickListener(this);
 		v.findViewById(R.id.main_view_skin).setOnClickListener(this);
@@ -85,6 +92,17 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		findup.setOnClickListener(this);
 		finddown.setOnClickListener(this);
 	}
+
+	@Override
+	public boolean onLongClick(View p1)
+	{
+		EventBus.getDefault().post(ToolboxDialog.SHOW);
+		return false;
+	}
+
+
+	
+	
 	public ViewFlipper getContent(){
 		return content;
 	}
@@ -132,6 +150,9 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 			return false;
 			return true;
 	}
+	public boolean isShowFind(){
+		return findToggle.getDisplayedChild()==1;
+	}
 	public void findToggle(boolean toggle){
 		if(toggle){
 			findToggle.setDisplayedChild(1);
@@ -139,6 +160,8 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 			findKey.setText(null);
 			active=0;
 			count=0;
+			findKey.requestFocus();
+			imm.toggleSoftInput(imm.SHOW_FORCED,imm.HIDE_NOT_ALWAYS);
 			}
 			else{
 			findToggle.setDisplayedChild(0);
@@ -196,7 +219,11 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
             case R.id.mainview_bar_pre:
 				checkToggle();
                 EventBus.getDefault().post(WindowFragment.CLOSE);
-                ((WebView)content.getCurrentView()).goBack();
+               final  WebView wv=((WebView)content.getCurrentView());
+			   if(wv.canGoBack())
+				   wv.goBack();
+				   else if(content.getChildCount()>1)
+				content.removeViewAt(content.getDisplayedChild());
                 break;
             case R.id.mainview_bar_next:
 				checkToggle();
@@ -208,13 +235,13 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
                 EventBus.getDefault().post(WindowFragment.OPEN);
                 break;
 			case R.id.mainview_refresh:
-				WebView wv=(WebView)content.getCurrentView();
-				if(wv.getState())
-					wv.stopLoading();
+				final WebView wvv=(WebView)content.getCurrentView();
+				if(wvv.getState())
+					wvv.stopLoading();
 					else
-					wv.reload();
+					wvv.reload();
 				break;
-			case R.id.mainview_fav:
+			/**case R.id.mainview_fav:
 				String url=((WebView)content.getCurrentView()).getUrl();
 				if(bm.isBookmark(url))
 				{
@@ -231,11 +258,11 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 						baos.close();
 					}
 					catch (IOException e)
-					{}*/
+					{}
 					bm.insertBookmark(url,((WebView)content.getCurrentView()).getTitle());
 					bookmark.setImageResource(R.drawable.ic_star);
 					}
-				break;
+				break;*/
 			case R.id.main_view_exit:
 				EventBus.getDefault().post(MenuOptions.EXIT);
 				break;
@@ -292,6 +319,8 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		refresh.setImageResource(R.drawable.menu_refresh);
 		}
 		checkButtonState(wv);
+		//if(bm.isBookmark(wv.getUrl()))bookmark.setImageResource(R.drawable.ic_star);
+		//else bookmark.setImageResource(R.drawable.ic_star_outline);
 		wv.setOnStateListener(this);
 		this.index=index;
 	}
@@ -309,8 +338,8 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		pb.setVisibility(pb.VISIBLE);
 		refresh.setImageResource(R.drawable.ic_close);
 		title.setText(url);
-		if(bm.isBookmark(url))bookmark.setImageResource(R.drawable.ic_star);
-		else bookmark.setImageResource(R.drawable.ic_star_outline);
+		//if(bm.isBookmark(url))bookmark.setImageResource(R.drawable.ic_star);
+		//else bookmark.setImageResource(R.drawable.ic_star_outline);
 		EventBus.getDefault().post(Message.obitMessage(0,index));
 	}
 
@@ -336,13 +365,13 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	public void checkButtonState(WebView wv){
 		if(wv.canGoBack())
 			back.setImageResource(R.drawable.bar_back);
-			else
+			else if(content.getChildCount()>1)
+			back.setImageResource(R.drawable.ic_exit_to_app);
+				else
 			back.setImageResource(R.drawable.bar_back_normal);
 		if(wv.canGoForward())
 			forward.setImageResource(R.drawable.bar_next);
 			else
 			forward.setImageResource(R.drawable.bar_next_normal);
-	if(bm.isBookmark(wv.getUrl()))bookmark.setImageResource(R.drawable.ic_star);
-	else bookmark.setImageResource(R.drawable.ic_star_outline);
-	}
+		}
 }

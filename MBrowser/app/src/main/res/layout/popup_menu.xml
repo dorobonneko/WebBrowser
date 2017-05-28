@@ -6,7 +6,7 @@
 	android:orientation="vertical"
 	android:background="@drawable/conners_border">
 	<Button
-		android:visibility="gone"
+		android:visibility="visible"
 		android:layout_weight="1"
 		android:layout_height="wrap_content"
 		android:layout_width="match_parent"
@@ -69,14 +69,13 @@
 
 
 	<Button
-		android:visibility="gone"
 		android:layout_weight="1"
 		android:layout_height="wrap_content"
 		android:layout_width="match_parent"
 		android:gravity="left|center_vertical"
 		android:textSize="12sp"
-		android:id="@+id/popupmenu_property"
-		android:text="@string/web_property"
+		android:id="@+id/popupmenu_adblock"
+		android:text="标记广告"
 		android:background="?attr/selectableItemBackground"/>
 
 </LinearLayout>

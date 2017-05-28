@@ -15,6 +15,7 @@ import java.io.IOException;
 import com.moe.adapter.MenuAdapter;
 import android.view.View;
 import com.moe.utils.ToolManager;
+import com.moe.widget.WebView;
 
 public class ToolboxDialog extends android.app.Dialog implements MenuAdapter.OnItemClickListener
 {
@@ -22,6 +23,8 @@ public class ToolboxDialog extends android.app.Dialog implements MenuAdapter.OnI
 	private MenuAdapter ta;
 	private List<MenuItem> lmi=new ArrayList<>();
 	private final static String xmlns="http://schemas.android.com/apk/res/android";
+
+	public final static int SHOW=0xff10;
 	public ToolboxDialog(Context context){
 		super(context,R.style.searchDialog);
 		try
@@ -57,6 +60,15 @@ public class ToolboxDialog extends android.app.Dialog implements MenuAdapter.OnI
 		switch(v.getId()){
 			case R.id.webpageSarch:
 				ToolManager.getInstance().findToggle(true);
+				break;
+			case R.id.webpageSave:
+				((WebView)ToolManager.getInstance().getContent().getCurrentView()).saveWebArchive();
+				break;
+			case R.id.videoFind:
+				((WebView)ToolManager.getInstance().getContent().getCurrentView()).videoFind();
+				break;
+			case R.id.webSource:
+				((WebView)ToolManager.getInstance().getContent().getCurrentView()).watchSource();
 				break;
 		}
 		dismiss();

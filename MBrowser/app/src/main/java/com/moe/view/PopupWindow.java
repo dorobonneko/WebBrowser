@@ -5,13 +5,17 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import com.moe.Mbrowser.R;
-import android.webkit.WebView;
 import android.webkit.WebView.HitTestResult;
 import android.content.ClipboardManager;
 import android.widget.Toast;
 import de.greenrobot.event.EventBus;
 import com.moe.bean.WindowEvent;
 import android.view.MotionEvent;
+import com.moe.widget.WebView;
+import android.view.KeyEvent;
+import com.moe.bean.DownloadItem;
+import com.moe.entity.DomElement;
+
 public class PopupWindow implements View.OnClickListener
 {
 	private WebView.HitTestResult wh;
@@ -20,7 +24,9 @@ public class PopupWindow implements View.OnClickListener
 	private ClipboardManager cm;
 	private Context context;
 	private View url1,url2,url3,img_r,img_s;
-	private int item_height=42;
+	private int item_height=32;
+	private WebView wv=null;
+	private DomElement de;
 	private PopupWindow(Context c){
 		this.context=c;
 		cm=(ClipboardManager)c.getSystemService(c.CLIPBOARD_SERVICE);
@@ -43,11 +49,13 @@ public class PopupWindow implements View.OnClickListener
 		img_r.setOnClickListener(this);
 		img_s=v.findViewById(R.id.popupmenu_save_image);
 		img_s.setOnClickListener(this);
-	
+		v.findViewById(R.id.popupmenu_copy).setOnClickListener(this);
+		v.findViewById(R.id.popupmenu_adblock).setOnClickListener(this);
 	}
 
-	public void showAtLocation(View p0, int gravity, MotionEvent event)
+	public void showAtLocation(WebView p0, int gravity, MotionEvent event)
 	{
+		this.wv=p0;
 		switch (wh.getType())
 		{
             case HitTestResult.ANCHOR_TYPE:
@@ -60,7 +68,7 @@ public class PopupWindow implements View.OnClickListener
 				url3.setVisibility(View.VISIBLE);
 				img_r.setVisibility(View.GONE);
 				img_s.setVisibility(View.GONE);
-				pop.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, item_height*3, p0.getResources().getDisplayMetrics()));
+				pop.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, item_height*5, p0.getResources().getDisplayMetrics()));
 				
 				break;
             case HitTestResult.IMAGE_ANCHOR_TYPE:
@@ -71,7 +79,7 @@ public class PopupWindow implements View.OnClickListener
 				url3.setVisibility(View.VISIBLE);
 				img_r.setVisibility(View.VISIBLE);
 				img_s.setVisibility(View.VISIBLE);
-				pop.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, item_height*5, p0.getResources().getDisplayMetrics()));
+				pop.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, item_height*7, p0.getResources().getDisplayMetrics()));
 				
 				break;
             case HitTestResult.EDIT_TEXT_TYPE:
@@ -106,6 +114,19 @@ public class PopupWindow implements View.OnClickListener
 				EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_NEW_WINDOW,wh.getExtra()));
 				break;
 			case R.id.popupmenu_save_image:
+				DownloadItem di=new DownloadItem();
+				di.setSourceUrl(wv.getUrl());
+				di.setUrl(wh.getExtra());
+				EventBus.getDefault().post(di);
+				break;
+			case R.id.popupmenu_copy:
+				//wv.loadUrl("javascript:android.selection.longTouch();");
+				KeyEvent shiftPressEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_SHIFT_LEFT);  
+				shiftPressEvent.dispatch(wv);  
+				break;
+			case R.id.popupmenu_adblock:
+				de=wv.getDomElement();
+				Toast.makeText(context,de.toString(),300).show();
 				break;
 		}
 		pop.dismiss();

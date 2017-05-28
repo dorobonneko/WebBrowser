@@ -35,7 +35,7 @@
 				android:layout_width="wrap_content"
 				android:id="@+id/winlistitem_title"
 				android:singleLine="true"
-				android:textColor="@color/dark"/>
+				android:textColor="@color/light"/>
 
 			<TextView
 				android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
 				android:layout_marginTop="3dp"
 				android:id="@+id/winlistitem_url"
 				android:singleLine="true"
-				android:textColor="@color/light"/>
+				android:textColor="@color/dark"/>
 
 		</LinearLayout>
 

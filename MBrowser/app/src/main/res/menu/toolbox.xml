@@ -4,5 +4,16 @@
         android:id="@+id/webpageSarch"
 		android:icon="@drawable/ic_search"
         android:title="网页搜索"/>
-    
+	<item
+        android:id="@+id/webpageSave"
+		android:icon="@drawable/ic_export"
+        android:title="网页保存"/>
+    <item
+        android:id="@+id/videoFind"
+		android:icon="@drawable/ic_video"
+        android:title="视频嗅探"/>
+	<item
+        android:id="@+id/webSource"
+		android:icon="@drawable/ic_eye"
+        android:title="网页源码"/>
 </menu>
