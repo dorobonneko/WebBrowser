@@ -14,9 +14,6 @@ import android.view.MotionEvent;
 import com.moe.widget.WebView;
 import android.view.KeyEvent;
 import com.moe.bean.DownloadItem;
-import com.moe.entity.DomElement;
-import com.tencent.smtt.utils.y;
-
 public class PopupWindow implements View.OnClickListener
 {
 	private WebView.HitTestResult wh;

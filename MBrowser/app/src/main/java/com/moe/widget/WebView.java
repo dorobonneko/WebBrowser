@@ -44,11 +44,9 @@ import com.moe.view.PopupWindow;
 import android.content.SharedPreferences;
 import com.moe.bean.DownloadItem;
 import com.moe.database.Download;
-import com.moe.entity.DomElement;
 import android.view.ViewGroup;
 import android.os.Bundle;
 import java.util.ArrayList;
-import com.moe.utils.AdBlock;
 import android.webkit.DownloadListener;
 import android.webkit.WebViewClient;
 import android.webkit.SslErrorHandler;
@@ -416,6 +414,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 				if(javascript!=null)
 				for(String js:javascript)
 				loadUrl(js);
+				if(adblock!=null)
 				for(String js:adblock.split(",")){
 					loadUrl("javascript:var item=document.querySelector('"+js+"');item.parentNode.removeChild(item);");
 				}

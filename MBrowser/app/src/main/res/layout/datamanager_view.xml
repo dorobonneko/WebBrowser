@@ -177,6 +177,36 @@
 		android:background="@color/border"/>
 
 	<RelativeLayout
+		android:id="@+id/datamanager_view_outprograme"
+		android:layout_height="?android:attr/listPreferredItemHeight"
+		android:layout_width="match_parent"
+		android:clickable="true"
+		android:foreground="?attr/selectableItemBackground">
+
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="清除链接外部程序记录"
+			android:layout_centerVertical="true"
+			android:layout_alignParentLeft="true"/>
+
+		<CheckBox
+			android:clickable="false"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_centerVertical="true"/>
+
+	</RelativeLayout>
+
+	<View
+		android:layout_height="1px"
+		android:layout_width="match_parent"
+		android:layout_marginStart="2dp"
+		android:layout_marginEnd="2dp"
+		android:background="@color/border"/>
+	
+	<RelativeLayout
 		android:id="@+id/datamanager_view_autoclear"
 		android:layout_height="?attr/actionBarSize"
 		android:layout_width="match_parent"

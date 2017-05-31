@@ -31,7 +31,6 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 	{
 		super.onActivityCreated(savedInstanceState);
 		home();
-		current = this;
 		getView().setId(90);
 	}
 	private void home()

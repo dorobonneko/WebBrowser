@@ -89,7 +89,7 @@ public class AdBkockFragment extends PreferenceFragment implements View.OnClickL
 	@Override
 	public boolean onBackPressed()
 	{
-		if (aba.getType() == AdBlockAdapter.Type.SELECTOR)
+		if (!isHidden()&&aba.getType() == AdBlockAdapter.Type.SELECTOR)
 		{
 			aba.setType(AdBlockAdapter.Type.HOST, 0);
 			aba.notifyDataSetChanged();

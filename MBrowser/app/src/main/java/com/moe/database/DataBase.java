@@ -115,6 +115,13 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 
 	}
 
+	@Override
+	public void clear()
+	{
+		sql.delete("blacklist",null,null);
+	}
+
+
 
 	@Override
 	public synchronized void insertOrUpdateWebHistory(String url, String title)

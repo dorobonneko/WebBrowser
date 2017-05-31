@@ -15,7 +15,7 @@ import android.graphics.Color;
 public class DataManager extends Activity implements View.OnClickListener
 {
 private SharedPreferences shared;
-private ViewGroup searchHistory,webHistory,form,cookies,cache,autoClear;
+private ViewGroup searchHistory,webHistory,form,cookies,cache,autoClear,out;
 private Button cancel,sure;
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -24,7 +24,11 @@ private Button cancel,sure;
         super.onCreate(savedInstanceState);
 		shared=getSharedPreferences("moe",0);
 		setContentView(R.layout.datamanager_view);
-		findViewById(R.id.datamanager).setBackgroundColor(Color.parseColor(getResources().getTextArray(R.array.skin_color)[shared.getInt("color",0)].toString()));
+		int color=Color.parseColor(getResources().getTextArray(R.array.skin_color)[shared.getInt("color",0)].toString());
+		int red=Color.red(color);
+		int green=Color.green(color);
+		int blue=Color.blue(color);
+		findViewById(R.id.datamanager).setBackgroundColor(Color.rgb(red-30<0?0:red-30,green-30<0?0:green-30,blue-30<0?0:blue-30));
 		searchHistory=(ViewGroup)findViewById(R.id.datamanager_view_searchhistory);
 		webHistory=(ViewGroup)findViewById(R.id.datamanager_view_webhistory);
 		form=(ViewGroup)findViewById(R.id.datamanager_view_form);
@@ -33,6 +37,8 @@ private Button cancel,sure;
 		autoClear=(ViewGroup)findViewById(R.id.datamanager_view_autoclear);
 		cancel=(Button)findViewById(R.id.datamanager_view_cancel);
 		sure=(Button)findViewById(R.id.datamanager_view_sure);
+		out=(ViewGroup)findViewById(R.id.datamanager_view_outprograme);
+		out.setOnClickListener(this);
 		searchHistory.setOnClickListener(this);
 		webHistory.setOnClickListener(this);
 		form.setOnClickListener(this);
@@ -47,6 +53,7 @@ private Button cancel,sure;
 		changeState(R.id.datamanager_view_form,R.id.datamanager_view_form+"");
 		changeState(R.id.datamanager_view_cookies,R.id.datamanager_view_cookies+"");
 		changeState(R.id.datamanager_view_autoclear,R.id.datamanager_view_autoclear+"");
+		changeState(R.id.datamanager_view_outprograme,R.id.datamanager_view_outprograme+"");
 //        new Thread(){
 //            public void run(){
 //                try
@@ -69,6 +76,7 @@ private Button cancel,sure;
 			case R.id.datamanager_view_form:
 			case R.id.datamanager_view_cookies:
 			case R.id.datamanager_view_autoclear:
+			case R.id.datamanager_view_outprograme:
 				shared.edit().putBoolean(p1.getId()+"",!shared.getBoolean(p1.getId()+"",false)).commit();
 				changeState(p1.getId(),p1.getId()+"");
 				break;
