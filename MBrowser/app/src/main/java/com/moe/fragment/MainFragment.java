@@ -52,6 +52,8 @@ import android.widget.Toast;
 import android.graphics.Color;
 import de.greenrobot.event.ThreadMode;
 import android.support.annotation.MainThread;
+import com.moe.database.Sqlite;
+import com.moe.database.SearchHistory;
 
 public class MainFragment extends Fragment implements FragmentPop.OnHideListener,AddDialog.OnAddListener
 {
@@ -95,7 +97,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {
-		hp = DataBase.getInstance(getActivity());
+		hp = Sqlite.getInstance(getActivity(),HomePage.class);
 		ad = new AddDialog(getActivity());
         EventBus.getDefault().register(this);
         super.onActivityCreated(savedInstanceState);
@@ -290,7 +292,10 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
             {  ((WebView)content.getCurrentView()).goBack();
 				return true;
             }
-			else
+			else if(content.getChildCount()>1){
+				content.removeViewAt(content.getDisplayedChild());
+				return true;
+			}else
 				return false;
         return true;
     }
@@ -311,7 +316,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 					text="http://" + text;
 			}
 			else{
-				DataBase.getInstance(p1).insertSearchHistory(text);
+				Sqlite.getInstance(p1,SearchHistory.class).insertSearchHistory(text);
 				text="http://m.sm.cn/s?q=" + text;
 			}
 			openUrl(text);

@@ -43,6 +43,7 @@ import android.support.v7.widget.SimpleItemAnimator;
 import android.content.ClipboardManager;
 import com.moe.dialog.DownloadNewDialog;
 import com.moe.utils.Theme;
+import com.moe.database.Sqlite;
 
 public class DownloadFragment extends Fragment implements DownloadItemAdapter.OnClickListener,DownloadItemAdapter.OnLongClickListener,View.OnClickListener
 {
@@ -147,7 +148,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 	{
 		super.onActivityCreated(savedInstanceState);
 		cm=getContext().getSystemService(ClipboardManager.class);
-		download = DataBase.getInstance(getContext());
+		download = Sqlite.getInstance(getContext(),Download.class);
 		refresh();
 		EventBus.getDefault().register(this);
 	}

@@ -13,6 +13,7 @@ import android.os.Bundle;
 import com.moe.Mbrowser.R;
 import android.view.View.OnClickListener;
 import android.view.View;
+import com.moe.database.Sqlite;
 
 public class BookmarkAddDialog extends Dialog implements OnClickListener
 {
@@ -23,10 +24,10 @@ public class BookmarkAddDialog extends Dialog implements OnClickListener
 	private BookMarks bm;
 	private ArrayAdapter aa;
 	private List list=new ArrayList();
-	private String currenturl;
+	//private String currenturl;
 	public BookmarkAddDialog(Context context){
 		super(context);
-		bm=DataBase.getInstance(context);
+		bm=Sqlite.getInstance(context,BookMarks.class);
 	}
 
 	@Override
@@ -45,6 +46,8 @@ public class BookmarkAddDialog extends Dialog implements OnClickListener
 		sure.setText("添加");
 		sure.setOnClickListener(this);
 		cancel.setOnClickListener(this);
+		name_l.setErrorEnabled(true);
+		url_l.setErrorEnabled(true);
 		spinner.setAdapter(aa=new ArrayAdapter(getContext(),android.R.layout.simple_spinner_dropdown_item,list));
 	}
 
@@ -76,8 +79,8 @@ public class BookmarkAddDialog extends Dialog implements OnClickListener
 
 	public void show(String url,String title){
 		super.show();
-		name_l.setErrorEnabled(false);
-		url_l.setErrorEnabled(false);
+		name_l.setError(null);
+		url_l.setError(null);
 		name.setText(title);
 		this.url.setText(url);
 		list.clear();

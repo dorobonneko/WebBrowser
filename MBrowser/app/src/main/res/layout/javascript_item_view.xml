@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="horizontal"
+	android:gravity="center"
+	android:foreground="?attr/selectableItemBackground"
+	android:clickable="true">
+
+	<TextView
+		android:id="@+id/javascript_item_view_name"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:singleLine="true"
+		android:layout_weight="1.0"/>
+
+	<ImageButton
+		android:id="@+id/javascript_item_view_edit"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:src="@drawable/ic_pencil"
+		android:background="?attr/selectableItemBackgroundBorderless"/>
+
+	<ImageButton
+		android:id="@+id/javascript_item_viewImage_run"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:src="@drawable/ic_play"
+		android:background="?attr/selectableItemBackgroundBorderless"/>
+
+	<Switch
+		android:id="@+id/javascript_item_view_autorun"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"/>
+
+</LinearLayout>
+

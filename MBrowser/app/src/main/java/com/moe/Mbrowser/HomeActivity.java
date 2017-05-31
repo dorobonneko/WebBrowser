@@ -18,7 +18,6 @@ import android.content.SharedPreferences;
 import android.content.Intent;
 import com.moe.bean.DownloadItem;
 import com.moe.dialog.DownloadDialog;
-import com.moe.dialog.AlertDialog;
 import com.moe.download.DownloadTask;
 import com.moe.fragment.SettingFragment;
 import android.content.pm.PackageManager;
@@ -47,8 +46,15 @@ import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.ValueCallback;
 import com.moe.dialog.ToolboxDialog;
+import com.moe.entity.TaskInfo;
+import com.moe.database.Download;
+import android.os.Looper;
+import com.moe.dialog.AlertDialog;
+import com.moe.database.DataBase;
+import com.moe.database.Sqlite;
+import com.moe.dialog.JavaScriptDialog;
 
-public class HomeActivity extends FragmentActivity
+public class HomeActivity extends FragmentActivity implements Download.Callback
 {
 	private SharedPreferences shared;
 	private Fragment current,main,bookmark,download,skin;
@@ -57,6 +63,56 @@ public class HomeActivity extends FragmentActivity
 	private Message callback;
 	private boolean exit=false;
 	private ToolboxDialog toolbox;
+	private android.support.v7.app.AlertDialog ad;
+	private JavaScriptDialog jsd;
+	@Override
+	public void callback(final TaskInfo ti, Download.State state)
+	{
+		switch(state){
+			case SUCCESS:
+				break;
+			case FAIL:
+				runOnUiThread(new Runnable(){
+
+						@Override
+						public void run()
+						{
+							if(ad==null)
+								ad=new android.support.v7.app.AlertDialog.Builder(HomeActivity.this).setMessage("请选择以下操作").setTitle("当前任务已存在")
+									.setNeutralButton("取消", new DialogInterface.OnClickListener(){
+
+										@Override
+										public void onClick(DialogInterface p1, int p2)
+										{
+											p1.dismiss();
+										}
+									})
+									.setNegativeButton("更新", new DialogInterface.OnClickListener(){
+
+										@Override
+										public void onClick(DialogInterface p1, int p2)
+										{
+											Sqlite.getInstance(HomeActivity.this,Download.class).updateTaskInfo(ti);
+											p1.dismiss();
+										}
+									})
+									.setPositiveButton("覆盖", new DialogInterface.OnClickListener(){
+
+										@Override
+										public void onClick(DialogInterface p1, int p2)
+										{
+											Sqlite.getInstance(HomeActivity.this,Download.class).deleteTaskInfoWithId(ti.getId());
+											Sqlite.getInstance(HomeActivity.this,Download.class).addTaskInfo(ti,null);
+											p1.dismiss();
+										}
+									}).create();
+							ad.show();
+						}
+					});
+				break;
+		}
+	}
+	
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -232,6 +288,20 @@ public class HomeActivity extends FragmentActivity
 	{
 		switch (mo)
 		{
+			case HISTORY:
+				if (bookmark == null)bookmark = new BookmarksFragment();
+				if (bookmark.isAdded()){
+					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(bookmark).commit();
+					((BookmarksFragment)bookmark).setCurrent(1);
+					
+				}else{
+					Bundle b=new Bundle();
+					b.putInt("index",1);
+					bookmark.setArguments(b);
+					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, bookmark).commit();
+					}
+				current = bookmark;
+				break;
 			case BOOKMARKS:
 				if (bookmark == null)bookmark = new BookmarksFragment();
 				if (bookmark.isAdded())
@@ -348,6 +418,10 @@ public void onEvent(Integer event){
 				toolbox=new ToolboxDialog(this);
 				toolbox.show();
 			
+			break;
+		case JavaScriptDialog.SHOW:
+			if(jsd==null)jsd=new JavaScriptDialog(this);
+			jsd.show();
 			break;
 	}
 }

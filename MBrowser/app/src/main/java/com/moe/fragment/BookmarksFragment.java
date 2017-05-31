@@ -33,6 +33,7 @@ import com.moe.database.HomePage;
 import com.moe.dialog.SendToHomepageDialog;
 import android.content.res.TypedArray;
 import com.moe.utils.Theme;
+import com.moe.database.Sqlite;
 
 public class BookmarksFragment extends Fragment implements View.OnClickListener,ViewPager.OnPageChangeListener,AddFolderDialog.OnSuccessListener,AlertDialog.OnClickListener,BookmarksAdapter.OnItemClickListener,BookmarksAdapter.OnItemLongClickListener,AddDialog.OnAddListener
 {
@@ -66,6 +67,11 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	private BookmarkEditDialog bed;
 	//发送至桌面前改名dialog
 	private SendToHomepageDialog sthd;
+
+	public void setCurrent(int p0)
+	{
+		vp.setCurrentItem(p0);
+	}
 	public void sendToHomepage(boolean isBookmark, int index)
 	{
 		if(isBookmark)
@@ -151,8 +157,8 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		vibrator=(Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE);
-		bm = DataBase.getInstance(getActivity());
-		wh = DataBase.getInstance(getActivity());
+		bm = Sqlite.getInstance(getActivity(),BookMarks.class);
+		wh = Sqlite.getInstance(getActivity(),WebHistory.class);
 		afd=new AddFolderDialog(getActivity());
 		aid=new AddDialog(getActivity());
 		afd.setOnSuccessListener(this);
@@ -173,6 +179,9 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		pbm=new PopupBookmarkMenu(this);
 		bed=new BookmarkEditDialog(this);
 		sthd=new SendToHomepageDialog(this);
+		Bundle b=getArguments();
+		if(b!=null&&b.getInt("index")==1)
+			vp.setCurrentItem(1);
 	}
 	@Override
 	public void onPageScrolled(int p1, float p2, int p3)

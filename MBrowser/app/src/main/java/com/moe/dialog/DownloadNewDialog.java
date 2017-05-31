@@ -11,6 +11,7 @@ import com.moe.database.Download;
 import com.moe.database.DataBase;
 import com.moe.bean.DownloadItem;
 import com.moe.database.Download.State;
+import com.moe.database.Sqlite;
 
 public class DownloadNewDialog extends Dialog implements View.OnClickListener,Download.Callback
 {
@@ -40,6 +41,8 @@ public class DownloadNewDialog extends Dialog implements View.OnClickListener,Do
 		t_url.setHint("下载地址");
 		add.setText("添加");
 		setTitle("新建任务");
+		t_name.setErrorEnabled(true);
+		t_url.setErrorEnabled(true);
 	}
 
 	@Override
@@ -49,19 +52,19 @@ public class DownloadNewDialog extends Dialog implements View.OnClickListener,Do
 			case R.id.dialogaddview_add:
 				boolean flag = true;
 				if(name.getText().toString().trim().isEmpty()){
-					t_name.setError(null);
+					t_name.setError("名称不能为空");
 					flag=false;
-				}else t_name.setErrorEnabled(false);
+				}else t_name.setError(null);
 				if(url.getText().toString().trim().isEmpty()){
-					t_url.setError(null);
+					t_url.setError("地址不能为空");
 					flag=false;
-				}else t_url.setErrorEnabled(false);
+				}else t_url.setError(null);
 				if(flag){
 					TaskInfo ti=new TaskInfo();
 					ti.setTaskname(name.getText().toString().trim());
 					ti.setTaskurl(url.getText().toString().trim());
 					ti.setDir(getContext().getSharedPreferences("download",0).getString(Download.Setting.DIR,Download.Setting.DIR_DEFAULT));
-					DataBase.getInstance(getContext()).addTaskInfo(ti,this);
+					Sqlite.getInstance(getContext(),Download.class).addTaskInfo(ti,this);
 					dismiss();
 				}
 				break;

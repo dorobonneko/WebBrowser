@@ -27,6 +27,9 @@ import java.lang.reflect.Method;
 import android.view.inputmethod.InputMethodManager;
 import android.view.MotionEvent;
 import com.moe.dialog.ToolboxDialog;
+import com.moe.bean.WindowEvent;
+import com.moe.fragment.BookmarksFragment;
+import com.moe.database.Sqlite;
 
 public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeListener,WebView.OnStateListener,TextWatcher,WebView.FindListener,View.OnLongClickListener
 {
@@ -53,7 +56,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	private ToolManager(View v){
 		imm=v.getContext().getSystemService(InputMethodManager.class);
 		search=new SearchDialog(v.getContext());
-		bm=DataBase.getInstance(v.getContext());
+		bm=Sqlite.getInstance(v.getContext(),BookMarks.class);
 		toolbar = v.findViewById(R.id.mainview_searchbar);
         toolbar.setOnClickListener(this);
         title = (TextView)toolbar.findViewById(R.id.mainview_title);
@@ -91,13 +94,25 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		findKey.addTextChangedListener(this);
 		findup.setOnClickListener(this);
 		finddown.setOnClickListener(this);
+		win.setOnLongClickListener(this);
+		back.setOnLongClickListener(this);
 	}
 
 	@Override
 	public boolean onLongClick(View p1)
 	{
-		EventBus.getDefault().post(ToolboxDialog.SHOW);
-		return false;
+		switch(p1.getId()){
+			case R.id.mainview_bar_menu:
+				EventBus.getDefault().post(ToolboxDialog.SHOW);
+				break;
+			case R.id.mainview_bar_win:
+				EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_NEW_WINDOW));
+				break;
+			case R.id.mainview_bar_pre:
+				EventBus.getDefault().post(MenuOptions.HISTORY);
+				break;
+		}
+			return true;
 	}
 
 

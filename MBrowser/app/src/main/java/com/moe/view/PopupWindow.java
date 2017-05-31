@@ -15,6 +15,7 @@ import com.moe.widget.WebView;
 import android.view.KeyEvent;
 import com.moe.bean.DownloadItem;
 import com.moe.entity.DomElement;
+import com.tencent.smtt.utils.y;
 
 public class PopupWindow implements View.OnClickListener
 {
@@ -26,7 +27,7 @@ public class PopupWindow implements View.OnClickListener
 	private View url1,url2,url3,img_r,img_s;
 	private int item_height=32;
 	private WebView wv=null;
-	private DomElement de;
+	private MotionEvent event;
 	private PopupWindow(Context c){
 		this.context=c;
 		cm=(ClipboardManager)c.getSystemService(c.CLIPBOARD_SERVICE);
@@ -56,6 +57,8 @@ public class PopupWindow implements View.OnClickListener
 	public void showAtLocation(WebView p0, int gravity, MotionEvent event)
 	{
 		this.wv=p0;
+		this.event=event;
+		wh=wv.getHitTestResult();
 		switch (wh.getType())
 		{
             case HitTestResult.ANCHOR_TYPE:
@@ -93,11 +96,6 @@ public class PopupWindow implements View.OnClickListener
         }
 		pop.showAtLocation(p0,gravity, (int)event.getX(), (int)event.getY() - pop.getHeight() / 2);
 	}
-	public void setHitTestResult(WebView.HitTestResult hitTestResult)
-	{
-		this.wh=hitTestResult;
-	}
-
 	@Override
 	public void onClick(View p1)
 	{
@@ -125,8 +123,12 @@ public class PopupWindow implements View.OnClickListener
 				shiftPressEvent.dispatch(wv);  
 				break;
 			case R.id.popupmenu_adblock:
-				de=wv.getDomElement();
-				Toast.makeText(context,de.toString(),300).show();
+				float x;
+				float y;
+				
+					x=event.getX()/wv.getScale();
+					y=event.getY()/wv.getScale();
+					wv.loadUrl("javascript:function get(dom){if(dom.getAttribute('id')==''||dom.getAttribute('id')==undefined){if(dom.getAttribute('class')==''||dom.getAttribute('class')==undefined){get(dom.parentNode);}else{moe.getElement(dom.tagName,dom.getAttribute('id'),dom.getAttribute('class'));}}else{ moe.getElement(dom.tagName,dom.getAttribute('id'),dom.getAttribute('class'));}}get(document.elementFromPoint("+x+","+y+"));");
 				break;
 		}
 		pop.dismiss();

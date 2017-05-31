@@ -10,6 +10,7 @@ import com.moe.Mbrowser.R;
 import android.view.View;
 import com.moe.database.BookMarks;
 import com.moe.database.DataBase;
+import com.moe.database.Sqlite;
 
 public class AddFolderDialog extends Dialog implements View.OnClickListener
 {
@@ -19,7 +20,7 @@ public class AddFolderDialog extends Dialog implements View.OnClickListener
 	private String dir=null;
 	public AddFolderDialog(Context context){
 		super(context);
-		bm=DataBase.getInstance(context);
+		bm=Sqlite.getInstance(context,BookMarks.class);
 	}
 
 	public void show(Object get)
@@ -74,7 +75,7 @@ public class AddFolderDialog extends Dialog implements View.OnClickListener
 	{
 		dir=null;
 		super.show();
-		til.setErrorEnabled(false);
+		til.setError(null);
 		et.setText("");
 	}
 public void setOnSuccessListener(OnSuccessListener o){

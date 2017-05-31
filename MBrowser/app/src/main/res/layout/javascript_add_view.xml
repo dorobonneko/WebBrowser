@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+<android.support.design.widget.TextInputLayout
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:id="@+id/javascript_add_view_name_layout">
+	<EditText
+		android:id="@+id/javascript_add_view_name"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:singleLine="true"
+		android:hint="脚本名称"/>
+</android.support.design.widget.TextInputLayout>
+	<android.support.design.widget.TextInputLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+	<EditText
+		android:id="@+id/javascript_add_view_content"
+		android:inputType="textMultiLine"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:minLines="5"
+		android:hint="脚本主体"/>
+	</android.support.design.widget.TextInputLayout>
+</LinearLayout>
+

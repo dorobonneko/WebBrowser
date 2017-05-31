@@ -2,8 +2,8 @@
 <resources>
     <color name="primary">#00000000</color>
     <!--主背景色-->
-    <color name="primary_dark">#ff11aa88</color>
-    <color name="accent">#ff66ffcc</color>
+    <color name="primary_dark">#ff0098e3</color>
+    <color name="accent">#ff03a9f4</color>
     <color name="window_background">#ffffffff</color>
     <color name="border">#ffadadad</color>
     <color name="no">#00000000</color>

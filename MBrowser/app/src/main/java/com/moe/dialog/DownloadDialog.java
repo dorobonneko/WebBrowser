@@ -23,8 +23,10 @@ import android.content.DialogInterface;
 import com.moe.Mbrowser.ResourceService;
 import com.moe.database.Download.State;
 import android.os.Looper;
+import com.moe.Mbrowser.HomeActivity;
+import com.moe.database.Sqlite;
 
-public class DownloadDialog extends Dialog implements View.OnClickListener,Download.Callback
+public class DownloadDialog extends Dialog implements View.OnClickListener
 {
 	private EditText name,dir;
 	private TextInputLayout namelayout;
@@ -33,40 +35,12 @@ public class DownloadDialog extends Dialog implements View.OnClickListener,Downl
 	private DownloadItem di;
 	private Context context;
 	private TaskInfo ti;
-	private AlertDialog ad;
 	public DownloadDialog(Context context){
 		super(context);
 		this.context=context;
-		download=DataBase.getInstance(context);
+		download=Sqlite.getInstance(context,Download.class);
 		shared=context.getSharedPreferences("download",0);
-		ad=new AlertDialog.Builder(context).setMessage("请选择以下操作").setTitle("当前任务已存在")
-		.setNeutralButton("取消", new DialogInterface.OnClickListener(){
-
-				@Override
-				public void onClick(DialogInterface p1, int p2)
-				{
-					p1.dismiss();
-				}
-			})
-		.setNegativeButton("更新", new DialogInterface.OnClickListener(){
-
-				@Override
-				public void onClick(DialogInterface p1, int p2)
-				{
-					download.updateTaskInfo(ti);
-					p1.dismiss();
-				}
-			})
-		.setPositiveButton("覆盖", new DialogInterface.OnClickListener(){
-
-				@Override
-				public void onClick(DialogInterface p1, int p2)
-				{
-					download.deleteTaskInfoWithId(ti.getId());
-					download.addTaskInfo(ti,DownloadDialog.this);
-					p1.dismiss();
-				}
-			}).create();
+		
 
 	}
 
@@ -86,6 +60,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener,Downl
 		findViewById(R.id.download_item_view_sure).setOnClickListener(this);
 		findViewById(R.id.download_item_view_cancel).setOnClickListener(this);
 		dir.setOnClickListener(this);
+		namelayout.setErrorEnabled(true);
 	}
 
 	@Override
@@ -104,7 +79,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener,Downl
 				ti.setSourceUrl(di.getSourceUrl());
 				ti.setType(di.getMime());
 				ti.setUserAgent(di.getUserAgent());
-				download.addTaskInfo(ti,this);
+				download.addTaskInfo(ti,(HomeActivity)context);
 				dismiss();
 				}else namelayout.setError("文件名不能为空！");
 				break;
@@ -123,33 +98,13 @@ public class DownloadDialog extends Dialog implements View.OnClickListener,Downl
 	{
 		this.di=di;
 		super.show();
-		namelayout.setErrorEnabled(false);
+		namelayout.setError(null);
 		name.setText(di.getFileName());
 		setTitle("文件大小"+new DecimalFormat("0.00").format(di.getLength()/1024.0/1024)+"MB");
 		dir.setText(shared.getString(Download.Setting.DIR,Download.Setting.DIR_DEFAULT));
 	}
 
-	@Override
-	public void callback(TaskInfo ti, Download.State state)
-	{
-		Looper.prepare();
-		switch(state){
-			case SUCCESS:
-				break;
-			default:
-				name.post(new Runnable(){
-
-						@Override
-						public void run()
-						{
-							ad.show();
-						}
-					});
-				break;
-		}
-		Looper.loop();
-	}
-
+	
 	
 	
 	/*public String getName(DownloadItem di){

@@ -26,8 +26,8 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter
 		this.context = context;
 		this.et = et;
 		this.d = d;
-		sh = DataBase.getInstance(context);
-		wh = DataBase.getInstance(context);
+		sh = Sqlite.getInstance(context,SearchHistory.class);
+		wh = Sqlite.getInstance(context,WebHistory.class);
 		refresh();
 	}
 	

@@ -16,6 +16,7 @@ import com.moe.adapter.MenuAdapter;
 import android.view.View;
 import com.moe.utils.ToolManager;
 import com.moe.widget.WebView;
+import de.greenrobot.event.EventBus;
 
 public class ToolboxDialog extends android.app.Dialog implements MenuAdapter.OnItemClickListener
 {
@@ -69,6 +70,9 @@ public class ToolboxDialog extends android.app.Dialog implements MenuAdapter.OnI
 				break;
 			case R.id.webSource:
 				((WebView)ToolManager.getInstance().getContent().getCurrentView()).watchSource();
+				break;
+			case R.id.javascript:
+				EventBus.getDefault().post(JavaScriptDialog.SHOW);
 				break;
 		}
 		dismiss();

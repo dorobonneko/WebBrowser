@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.net.Uri;
 import com.moe.database.BlackList;
 import com.moe.database.DataBase;
+import com.moe.database.Sqlite;
 
 public class OutProgramWindow extends Dialog implements View.OnClickListener
 {
@@ -21,7 +22,7 @@ public class OutProgramWindow extends Dialog implements View.OnClickListener
 	private BlackList bl;
 	private OutProgramWindow(Context context){
 		super(context,R.style.searchDialog);
-		bl=DataBase.getInstance(context);
+		bl=Sqlite.getInstance(context,BlackList.class);
 	}
 
 	public void show(String url)

@@ -30,6 +30,7 @@ import android.os.Build;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
 import com.moe.bean.Message;
+import com.moe.database.Sqlite;
 
 public class DownloadTask extends Thread
 {
@@ -49,7 +50,7 @@ public class DownloadTask extends Thread
 	{
 		this.ti = ti;
 		this.ds = ds;
-		this.download = DataBase.getInstance(ds);
+		this.download = Sqlite.getInstance(ds,Download.class);
 		nm = ds.getSystemService(NotificationManager.class);
 		okhttp = ok;
 		shared = ds.getSharedPreferences("download", 0);

@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import com.moe.fragment.BookmarksFragment;
+import com.moe.database.Sqlite;
 
 public class BookmarkEditDialog extends Dialog implements OnClickListener
 {
@@ -29,7 +30,7 @@ public class BookmarkEditDialog extends Dialog implements OnClickListener
 	public BookmarkEditDialog(BookmarksFragment context){
 		super(context.getActivity());
 		this.bf=context;
-		bm=DataBase.getInstance(context.getContext());
+		bm=Sqlite.getInstance(context.getContext(),BookMarks.class);
 	}
 
 	@Override
@@ -48,6 +49,8 @@ public class BookmarkEditDialog extends Dialog implements OnClickListener
 		sure.setText("确认更改");
 		sure.setOnClickListener(this);
 		cancel.setOnClickListener(this);
+		name_l.setErrorEnabled(true);
+		url_l.setErrorEnabled(true);
 		spinner.setAdapter(aa=new ArrayAdapter(getContext(),android.R.layout.simple_spinner_dropdown_item,list));
 	}
 
@@ -81,8 +84,8 @@ public class BookmarkEditDialog extends Dialog implements OnClickListener
 	public void show(String url){
 		super.show();
 		String[] data=bm.getBookmark(url);
-		name_l.setErrorEnabled(false);
-		url_l.setErrorEnabled(false);
+		name_l.setError(null);
+		url_l.setError(null);
 		name.setText(data[1]);
 		this.url.setText(data[0]);
 		list.clear();

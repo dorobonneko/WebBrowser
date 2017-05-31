@@ -9,6 +9,7 @@ import android.widget.EditText;
 import com.moe.fragment.BookmarksFragment;
 import com.moe.database.HomePage;
 import com.moe.database.DataBase;
+import com.moe.database.Sqlite;
 
 public class SendToHomepageDialog extends Dialog implements View.OnClickListener
 {
@@ -20,7 +21,7 @@ public class SendToHomepageDialog extends Dialog implements View.OnClickListener
 	public SendToHomepageDialog(BookmarksFragment context){
 		super(context.getActivity());
 		this.bf=context;
-		hp=DataBase.getInstance(context.getContext());
+		hp=Sqlite.getInstance(context.getContext(),HomePage.class);
 	}
 
 	@Override

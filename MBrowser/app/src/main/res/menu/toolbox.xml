@@ -16,4 +16,8 @@
         android:id="@+id/webSource"
 		android:icon="@drawable/ic_eye"
         android:title="网页源码"/>
+	<item
+		android:id="@+id/javascript"
+		android:icon="@drawable/ic_script"
+		android:title="网页脚本"/>
 </menu>
