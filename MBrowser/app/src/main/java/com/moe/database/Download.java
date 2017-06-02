@@ -8,8 +8,11 @@ import com.moe.database.Download.State;
 
 public interface Download
 {
+
+	void renameTask(int id, String toString);
+
 	void clearAllTask(Object[] id,boolean file);
-	public void clearAllSuccessTask(boolean file);
+	void clearAllSuccessTask(boolean file);
 
 	void addTaskInfo(TaskInfo ti,Callback call);
 	void deleteTaskInfoWithId(int id);

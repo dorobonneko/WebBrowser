@@ -60,6 +60,11 @@ public class DownloadTask extends Thread
 		start();
 	}
 
+	public void cancelNotifycation()
+	{
+		nm.cancel(ti.getId());
+	}
+
 	public void itemFinish(DownloadBlock p0)
 	{
 		if (p0.isSuccess() && ldb.size() > 0)
@@ -171,10 +176,9 @@ public class DownloadTask extends Thread
 			if(ti.getSourceUrl()!=null)
 				request.addHeader("Referer",ti.getSourceUrl());
 			//request.addHeader("Range","bytes=0-100");
-			request.url(ti.getTaskurl());
 			try
 			{
-				response = okhttp.newCall(request.build()).execute();
+				response = okhttp.newCall(request.url(ti.getTaskurl()).build()).execute();
 				if (response.code() == 200)
 				{
 					long length=ti.getLength();
@@ -261,7 +265,7 @@ public class DownloadTask extends Thread
 					ti.setState(State.INVALIDE);
 				}
 			}
-			catch (IOException e)
+			catch (Exception e)
 			{
 				ti.setState(State.FAIL);
 				sendMessage();
@@ -269,6 +273,7 @@ public class DownloadTask extends Thread
 			}
 			finally
 			{
+				if(response!=null)
 				response.close();
 			}
 		}

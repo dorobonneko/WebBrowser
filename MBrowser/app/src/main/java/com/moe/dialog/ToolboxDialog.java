@@ -49,7 +49,7 @@ public class ToolboxDialog extends android.app.Dialog implements MenuAdapter.OnI
 		glm.setAutoMeasureEnabled(true);
 		rv.setBackgroundResource(R.color.window_background);
 		rv.setLayoutManager(glm);
-		rv.setAdapter(ta=new MenuAdapter(getContext(),lmi));
+		rv.setAdapter(ta=new MenuAdapter(lmi));
 		rv.setOverScrollMode(rv.OVER_SCROLL_NEVER);
 		ta.notifyDataSetChanged();
 		ta.setOnItemClickListener(this);

@@ -1,12 +1,23 @@
 package com.moe.bean;
 import android.graphics.drawable.Drawable;
+import com.moe.Mbrowser.R;
 
 public class MenuItem
 {
 	private int id;
 	private Drawable icon;
 	private String summory;
+	private int color=R.color.textColor;
 
+	public void setColor(int color)
+	{
+		this.color = color;
+	}
+
+	public int getColor()
+	{
+		return color;
+	}
 
 	public void setId(int id)
 	{
@@ -36,4 +47,5 @@ public class MenuItem
 	public String getSummory()
 	{
 		return summory;
-	}}
+	}
+	}

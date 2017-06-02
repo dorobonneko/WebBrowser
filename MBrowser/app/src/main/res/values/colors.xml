@@ -8,6 +8,4 @@
     <color name="border">#ffadadad</color>
     <color name="no">#00000000</color>
 	<color name="textColor">#ff555555</color>
-	<color name="light">#ffcccccc</color>
-	<color name="dark">#ff606060</color>
 </resources>

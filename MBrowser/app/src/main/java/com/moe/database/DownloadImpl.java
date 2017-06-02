@@ -11,6 +11,7 @@ import com.moe.bean.TaskBean;
 import java.util.ArrayList;
 import java.util.List;
 import com.moe.entity.DownloadInfo;
+import android.database.sqlite.SQLiteStatement;
 
 class DownloadImpl extends SQLiteOpenHelper implements Download
 {
@@ -36,7 +37,17 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 	@Override
 	public void onUpgrade(SQLiteDatabase p1, int p2, int p3)
 	{
-			}
+	}
+
+	@Override
+	public void renameTask(int id, String name)
+	{
+		SQLiteStatement state=sql.compileStatement("update download set name=? where id=?");
+		state.bindString(1,name);
+		state.bindLong(2,id);
+		state.executeUpdateDelete();
+	}
+
 
 	@Override
 	public void clearAllTask(final Object[] id, final boolean file)

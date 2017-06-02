@@ -36,6 +36,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.KeyManagementException;
 import java.security.cert.CertificateException;
 import com.moe.bean.Message;
+import com.moe.database.Sqlite;
 
 public class DownloadService extends Service
 {
@@ -99,32 +100,38 @@ public class DownloadService extends Service
 	@Subscribe
 	public void onTask(TaskBean tb)
 	{
+		DownloadTask dt;
 		switch(tb.getState()){
 			case ADD:
 				tb.getTaskInfo().setState(DownloadTask.State.WAITING);
 				downloadlist.put(tb.getTaskInfo().getId(),tb.getTaskInfo());
 				break;
 			case UPDATE:
-				if(downloadinglist.containsKey(tb.getTaskInfo().getId())){
-					downloadinglist.remove(tb.getTaskInfo().getId()).pause();
+				dt=downloadinglist.remove(tb.getTaskInfo().getId());
+				if(dt!=null)dt.pause();
 					downloadlist.remove(tb.getTaskInfo().getId());
-					}
 				tb.getTaskInfo().setState(DownloadTask.State.WAITING);
 				downloadlist.put(tb.getTaskInfo().getId(),tb.getTaskInfo());
 				break;
-			case PAUSE:
-				if(downloadinglist.containsKey(tb.getTaskInfo().getId())){
-					downloadinglist.remove(tb.getTaskInfo().getId()).pause();
+			case STOP:
+				dt=downloadinglist.remove(tb.getTaskInfo().getId());
+					if(dt!=null){
+						dt.pause();
+					dt.cancelNotifycation();}
 					downloadlist.remove(tb.getTaskInfo().getId());
-				}
+				
+				break;
+			case PAUSE:
+				dt=downloadinglist.remove(tb.getTaskInfo().getId());
+				if(dt!=null)dt.pause();
+				downloadlist.remove(tb.getTaskInfo().getId());
 				tb.getTaskInfo().setState(DownloadTask.State.PAUSE);
 				EventBus.getDefault().post(tb.getTaskInfo());
 				break;
 			case DELETE:
-				if(downloadinglist.containsKey(tb.getTaskInfo().getId())){
-					downloadinglist.remove(tb.getTaskInfo().getId()).pause();
+				dt=downloadinglist.remove(tb.getTaskInfo().getId());
+				if(dt!=null)dt.pause();
 					downloadlist.remove(tb.getTaskInfo().getId());
-				}
 				break;
 		}
 		checkSize();
@@ -190,12 +197,12 @@ public class DownloadService extends Service
 		public void onReceive(Context p1, Intent p2)
 		{
 			int id=p2.getIntExtra("id",-1);
-			if(id!=-1&&downloadlist.containsKey(id)){
+			if(id!=-1){
 				TaskInfo ti= downloadlist.get(id);
-				if(ti.isDownloading())
+				if(ti!=null)
 					EventBus.getDefault().post(new TaskBean(ti,TaskBean.State.PAUSE));
 				else
-					EventBus.getDefault().post(new TaskBean(ti,TaskBean.State.ADD));
+					EventBus.getDefault().post(new TaskBean(Sqlite.getInstance(p1,Download.class).queryTaskInfoWithId(id),TaskBean.State.ADD));
 				
 				
 			}

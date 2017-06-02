@@ -19,11 +19,9 @@ import android.view.ViewTreeObserver;
 public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder>
 {
 	private List<MenuItem> lm;
-	private Context context;
 	
-	public MenuAdapter(Context context,List<MenuItem> lm){
+	public MenuAdapter(List<MenuItem> lm){
 		this.lm=lm;
-		this.context=context;
 	}
 
 	public MenuItem get(int p0)
@@ -34,7 +32,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder>
 	@Override
 	public ViewHolder onCreateViewHolder(ViewGroup p1, int p2)
 	{
-		return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.menu_item,null));
+		return new ViewHolder(LayoutInflater.from(p1.getContext()).inflate(R.layout.menu_item,null));
 	}
 
 	@Override
@@ -43,6 +41,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder>
 		vh.itemView.setId(lm.get(p2).getId());
 		vh.summary.setText(lm.get(p2).getSummory());
 		vh.icon.setImageDrawable(lm.get(p2).getIcon());
+		vh.summary.setTextColor(vh.summary.getResources().getColor(lm.get(p2).getColor()));
 	}
 	
 	@Override

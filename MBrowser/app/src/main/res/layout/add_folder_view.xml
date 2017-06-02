@@ -13,7 +13,7 @@
 		<EditText
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textColor="@color/dark"
+			android:textColor="?android:attr/textColorPrimary"
 			android:id="@+id/addfolderview_name"
 			android:singleLine="true"/>
 					

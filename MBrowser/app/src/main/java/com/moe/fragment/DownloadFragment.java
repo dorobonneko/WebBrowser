@@ -44,8 +44,10 @@ import android.content.ClipboardManager;
 import com.moe.dialog.DownloadNewDialog;
 import com.moe.utils.Theme;
 import com.moe.database.Sqlite;
+import com.moe.dialog.RenameDialog;
+import android.widget.Toast;
 
-public class DownloadFragment extends Fragment implements DownloadItemAdapter.OnClickListener,DownloadItemAdapter.OnLongClickListener,View.OnClickListener
+public class DownloadFragment extends Fragment implements DownloadItemAdapter.OnClickListener,DownloadItemAdapter.OnLongClickListener,View.OnClickListener,RenameDialog.Callback
 {
 	private RecyclerView rv;
 	private int currentPosition=0;
@@ -59,6 +61,9 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 	private ViewFlipper toggle;
 	private Button delete,redownload,more;
 	private ClipboardManager cm;
+	private DownloadNewDialog dnd;
+	private BottomDialog b_more;
+	private RenameDialog rd;
 	private ArrayList<Integer> selected=new ArrayList<Integer>(){
 		@Override
 		public boolean add(Integer object)
@@ -262,15 +267,24 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 					}).show();
 			break;
 			case R.id.download_view_new://新建任务
-				new DownloadNewDialog(getActivity(), new DownloadNewDialog.Callback(){
+				if(dnd==null){dnd=new DownloadNewDialog(getActivity(), new DownloadNewDialog.Callback(){
 
 						@Override
-						public void Added(TaskInfo ti)
+						public void Added(final TaskInfo ti)
 						{
-							l1.add(ti);
-							dia.notifyItemInserted(l1.size());
+							getView().post(new Runnable(){
+
+									@Override
+									public void run()
+									{
+										l1.add(ti);
+										dia.notifyItemInserted(l1.size());
+										
+									}
+								});
 						}
-					}).show();
+					});}
+					dnd.show();
 			break;
 			case R.id.download_view_edit://编辑模式
 			edit=true;
@@ -324,7 +338,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 												break;
 											case 1:
 												ati.add(dia.getItem(i));
-												EventBus.getDefault().post(new TaskBean(l1.get(i-1), TaskBean.State.PAUSE));
+												EventBus.getDefault().post(new TaskBean(l1.get(i-1), TaskBean.State.STOP));
 												break;
 										}
 											
@@ -342,7 +356,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 												break;
 											case 1:
 												ati.add(dia.getItem(i));
-												EventBus.getDefault().post(new TaskBean(l1.get(i-1), TaskBean.State.PAUSE));
+												EventBus.getDefault().post(new TaskBean(l1.get(i-1), TaskBean.State.STOP));
 												break;
 										}
 										
@@ -357,8 +371,8 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 					}).show();
 			break;
 			case R.id.download_view_more://更多
-				new BottomDialog.Builder(getActivity())
-					.addArrayItem(new String[]{"任务详情","复制下载链接","取消"}, new DialogInterface.OnClickListener(){
+				if(b_more==null){b_more=new BottomDialog.Builder(getActivity())
+					.addArrayItem(new String[]{"任务详情","复制下载链接","重命名","取消"}, new DialogInterface.OnClickListener(){
 
 						@Override
 						public void onClick(DialogInterface p1, int p2)
@@ -369,10 +383,20 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 								case 1:
 									cm.setText(((TaskInfo)dia.getItem(selected.get(0))).getTaskurl());
 									break;
+								case 2:
+									if(dia.getItemViewType(selected.get(0))==1){
+										Toast.makeText(getActivity(),"正在下载的任务无法更改名称！",Toast.LENGTH_SHORT).show();
+									}else{
+									if(rd==null){
+										rd=new RenameDialog(getActivity());
+									}
+									rd.show((TaskInfo)dia.getItem(selected.get(0)),DownloadFragment.this,selected.get(0).intValue());
+									}break;
 							}
 							p1.dismiss();
 						}
-					}).show();
+					}).create();}
+					b_more.show();
 			break;
 			case R.id.download_view_cancel:
 				cancel();
@@ -380,6 +404,13 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 		}
 	}
 
+	@Override
+	public void success(int position)
+	{
+		dia.notifyItemChanged(position);
+	}
+
+	
 	private void cancel(){
 		edit=false;
 		toggle.setDisplayedChild(0);
@@ -427,6 +458,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 	@Subscribe(threadMode = ThreadMode.MainThread)
 	public synchronized void updateTaskInfo(TaskInfo ti)
 	{
+		if(isHidden())return;
 		if(ti.isSuccess()){
 			int sead=l1.indexOf(ti);
 			l1.remove(ti);
@@ -438,6 +470,20 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 		if(ti.isDownloading()){
 		if (System.currentTimeMillis() - time > 1000)
 		{
+			if(!l1.contains(ti)){
+				for(int i=0;i<l1.size();i++){
+					if(l1.get(i).getId()==ti.getId()){
+						l1.remove(i);
+						dia.notifyItemRemoved(i+1);
+						l1.add(i,ti);
+						dia.notifyItemInserted(i+1);
+						break;
+					}
+				}
+				if(!l1.contains(ti)){
+				l1.add(ti);
+				dia.notifyItemInserted(l1.size());}
+			}
 			dia.notifyItemChanged(l1.indexOf(ti) + 1);
 			time = System.currentTimeMillis();
 		}

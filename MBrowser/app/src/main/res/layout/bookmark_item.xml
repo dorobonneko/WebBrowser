@@ -18,18 +18,16 @@
 		android:orientation="vertical"
 		android:layout_toRightOf="@id/bookmarkitem_icon"
 		android:layout_centerInParent="true">
-
 		<TextView
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:textColor="@color/light"
+			android:textColor="?android:attr/textColorPrimary"
 			android:singleLine="true"
 			android:id="@+id/bookmarkitem_title"/>
-
 		<TextView
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:textColor="@color/dark"
+			android:textColor="?android:attr/textColorSecondary"
 			android:singleLine="true"
 			android:id="@+id/bookmarkitem_url"/>
 
