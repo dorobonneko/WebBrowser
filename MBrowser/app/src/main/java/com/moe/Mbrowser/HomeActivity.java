@@ -53,11 +53,12 @@ import com.moe.dialog.AlertDialog;
 import com.moe.database.DataBase;
 import com.moe.database.Sqlite;
 import com.moe.dialog.JavaScriptDialog;
+import com.moe.fragment.BitImageFragment;
 
 public class HomeActivity extends FragmentActivity implements Download.Callback
 {
 	private SharedPreferences shared;
-	private Fragment current,main,bookmark,download,skin;
+	private Fragment current,main,bookmark,download,skin,bit;
 	private SettingFragment setting=new SettingFragment();
 	private DownloadDialog dd;
 	private Message callback;
@@ -169,7 +170,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 
 		}
 
-
+		super.onRequestPermissionsResult(requestCode,permissions,grantResults);
 	}
 
 	
@@ -374,6 +375,14 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, skin).commit();
 				current = skin;
 				break;
+			case BITIMAGESCANNER:
+				if (bit == null)bit = new BitImageFragment();
+				if (bit.isAdded())
+					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(bit).commit();
+				else
+					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, bit).commit();
+				current = bit;
+				break;
 		}
 	}
 	@Subscribe
@@ -462,6 +471,9 @@ public void onEvent(Integer event){
 		else
 		if (current != null && !current.isHidden())
 		{
+			if(current==bit)
+			getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).remove(current).commit();
+			else
 			getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).commit();
 			current=null;
 			if (main == null)

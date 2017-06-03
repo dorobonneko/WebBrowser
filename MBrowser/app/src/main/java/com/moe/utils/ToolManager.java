@@ -96,6 +96,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		finddown.setOnClickListener(this);
 		win.setOnLongClickListener(this);
 		back.setOnLongClickListener(this);
+		v.findViewById(R.id.mainview_bitImageScanner).setOnClickListener(this);
 	}
 
 	@Override
@@ -296,6 +297,9 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 			case R.id.main_view_findup:
 				if(canForward())
 				((WebView)content.getCurrentView()).findNext(false);
+				break;
+			case R.id.mainview_bitImageScanner:
+				EventBus.getDefault().post(MenuOptions.BITIMAGESCANNER);
 				break;
         }
     }

@@ -56,7 +56,15 @@
 		android:id="@+id/popupmenu_save_image"
 		android:text="@string/save_image"
 		android:background="?attr/selectableItemBackground"/>
-
+	<Button
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:text="二维码识别"
+		android:id="@+id/popupmenu_bitImage"
+		android:background="?attr/selectableItemBackground"/>
 	<Button
 		android:layout_weight="1"
 		android:layout_height="wrap_content"
@@ -66,7 +74,16 @@
 		android:text="@string/read_images"
 		android:id="@+id/popupmenu_read_images"
 		android:background="?attr/selectableItemBackground"/>
-
+	
+	<Button
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:gravity="left|center_vertical"
+		android:textSize="12sp"
+		android:text="分享网页"
+		android:id="@+id/popupmenu_shareWebPage"
+		android:background="?attr/selectableItemBackground"/>
 
 	<Button
 		android:layout_weight="1"

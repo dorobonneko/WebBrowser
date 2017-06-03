@@ -46,6 +46,7 @@ import com.moe.utils.Theme;
 import com.moe.database.Sqlite;
 import com.moe.dialog.RenameDialog;
 import android.widget.Toast;
+import com.moe.dialog.TaskInfoDialog;
 
 public class DownloadFragment extends Fragment implements DownloadItemAdapter.OnClickListener,DownloadItemAdapter.OnLongClickListener,View.OnClickListener,RenameDialog.Callback
 {
@@ -64,6 +65,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 	private DownloadNewDialog dnd;
 	private BottomDialog b_more;
 	private RenameDialog rd;
+	private TaskInfoDialog tid;
 	private ArrayList<Integer> selected=new ArrayList<Integer>(){
 		@Override
 		public boolean add(Integer object)
@@ -379,9 +381,11 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 						{
 							switch(p2){
 								case 0:
+									if(tid==null)tid=new TaskInfoDialog(getActivity());
+									tid.show(dia.getItem(selected.get(0)));
 									break;
 								case 1:
-									cm.setText(((TaskInfo)dia.getItem(selected.get(0))).getTaskurl());
+									cm.setText(dia.getItem(selected.get(0)).getTaskurl());
 									break;
 								case 2:
 									if(dia.getItemViewType(selected.get(0))==1){
@@ -390,7 +394,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 									if(rd==null){
 										rd=new RenameDialog(getActivity());
 									}
-									rd.show((TaskInfo)dia.getItem(selected.get(0)),DownloadFragment.this,selected.get(0).intValue());
+									rd.show(dia.getItem(selected.get(0)),DownloadFragment.this,selected.get(0).intValue());
 									}break;
 							}
 							p1.dismiss();

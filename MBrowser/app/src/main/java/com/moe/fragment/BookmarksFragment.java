@@ -125,6 +125,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		TabLayout tl=(TabLayout)view.findViewById(R.id.bookmarks_tablayout);
 		vp = (ViewPager)view.findViewById(R.id.bookmarks_viewpager);
 		vp.setAdapter(vpa = new ViewPagerAdapter(av));
+		av.clear();
 		av.add(new RecyclerView(getActivity()));
 		av.add(new RecyclerView(getActivity()));
 		av.get(0).setTag("书签");

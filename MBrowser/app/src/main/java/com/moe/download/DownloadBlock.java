@@ -50,7 +50,8 @@ public class DownloadBlock extends Thread
 			int len;
 			switch(response.code()){
 				case 200:
-					raf.seek(0);
+					raf.seek(di.getCurrent());
+					is.skip(di.getCurrent());
 					break;
 				case 206:
 					raf.seek(di.getCurrent());
@@ -61,13 +62,12 @@ public class DownloadBlock extends Thread
 				new IOException();
 				break;
 			}
+			
 			while((len=is.read(b))!=-1){
 				raf.write(b,0,len);
-				if(response.code()==206){
 					di.setCurrent(di.getCurrent()+len);
 					dt.getDownload().updateDownloadInfo(di);
 					EventBus.getDefault().post(dt.getTaskInfo());
-					}
 				if(pause==true)return;
 			}
 		}

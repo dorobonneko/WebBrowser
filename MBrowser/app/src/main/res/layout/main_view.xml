@@ -77,7 +77,14 @@
 					android:layout_width="wrap_content"
 					android:layout_marginRight="10dp"
 					android:textColor="?android:attr/textColorSecondary"/>
-
+				<ImageButton
+					android:background="?attr/selectableItemBackgroundBorderless"
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"
+					android:src="@drawable/ic_crop_free"
+					android:scaleType="centerInside"
+					android:id="@+id/mainview_bitImageScanner"/>
+				
 				<ImageButton
 					android:background="?attr/selectableItemBackgroundBorderless"
 					android:layout_height="wrap_content"

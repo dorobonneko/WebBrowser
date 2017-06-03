@@ -14,14 +14,15 @@ import android.view.MotionEvent;
 import com.moe.widget.WebView;
 import android.view.KeyEvent;
 import com.moe.bean.DownloadItem;
-public class PopupWindow implements View.OnClickListener
+import com.moe.utils.BitImageParser;
+public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 {
 	private WebView.HitTestResult wh;
 	private static PopupWindow pw;
 	private android.widget.PopupWindow pop;
 	private ClipboardManager cm;
 	private Context context;
-	private View url1,url2,url3,img_r,img_s;
+	private View url1,url2,url3,img_r,img_s,bit;
 	private int item_height=32;
 	private WebView wv=null;
 	private MotionEvent event;
@@ -49,6 +50,9 @@ public class PopupWindow implements View.OnClickListener
 		img_s.setOnClickListener(this);
 		v.findViewById(R.id.popupmenu_copy).setOnClickListener(this);
 		v.findViewById(R.id.popupmenu_adblock).setOnClickListener(this);
+		bit=v.findViewById(R.id.popupmenu_bitImage);
+		bit.setOnClickListener(this);
+		v.findViewById(R.id.popupmenu_shareWebPage);
 	}
 
 	public void showAtLocation(WebView p0, int gravity, MotionEvent event)
@@ -68,7 +72,8 @@ public class PopupWindow implements View.OnClickListener
 				url3.setVisibility(View.VISIBLE);
 				img_r.setVisibility(View.GONE);
 				img_s.setVisibility(View.GONE);
-				pop.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, item_height*5, p0.getResources().getDisplayMetrics()));
+				bit.setVisibility(View.GONE);
+				pop.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, item_height*6, p0.getResources().getDisplayMetrics()));
 				
 				break;
             case HitTestResult.IMAGE_ANCHOR_TYPE:
@@ -79,8 +84,8 @@ public class PopupWindow implements View.OnClickListener
 				url3.setVisibility(View.VISIBLE);
 				img_r.setVisibility(View.VISIBLE);
 				img_s.setVisibility(View.VISIBLE);
-				pop.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, item_height*7, p0.getResources().getDisplayMetrics()));
-				
+				bit.setVisibility(bit.VISIBLE);
+				pop.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, item_height*9, p0.getResources().getDisplayMetrics()));
 				break;
             case HitTestResult.EDIT_TEXT_TYPE:
 				return;
@@ -127,9 +132,37 @@ public class PopupWindow implements View.OnClickListener
 					y=event.getY()/wv.getScale();
 					wv.loadUrl("javascript:function get(dom){if(dom.getAttribute('id')==''||dom.getAttribute('id')==undefined){if(dom.getAttribute('class')==''||dom.getAttribute('class')==undefined){get(dom.parentNode);}else{moe.getElement(dom.tagName,dom.getAttribute('id'),dom.getAttribute('class'));}}else{ moe.getElement(dom.tagName,dom.getAttribute('id'),dom.getAttribute('class'));}}get(document.elementFromPoint("+x+","+y+"));");
 				break;
+			case R.id.popupmenu_bitImage://二维码识别
+				BitImageParser.decodeImageUrl(wh.getExtra(),this);
+				break;
+			case R.id.popupmenu_shareWebPage:
+				break;
 		}
 		pop.dismiss();
 	}
+
+	@Override
+	public void onSuccess(String data)
+	{
+		EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_NEW_WINDOW,data));
+	}
+
+	@Override
+	public void onFail(final Exception e)
+	{
+		wv.post(new Runnable(){
+
+				@Override
+				public void run()
+				{
+					Toast.makeText(context,"解析失败"+e.getMessage(),Toast.LENGTH_SHORT).show();
+				}
+				
+			
+		});
+	}
+
+
 
 	
 	public static PopupWindow getInstance(Context c){
