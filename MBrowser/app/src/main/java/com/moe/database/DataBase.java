@@ -17,7 +17,6 @@ import de.greenrobot.event.EventBus;
 import com.moe.bean.TaskBean;
 import java.io.File;
 import android.text.TextUtils;
-
 class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,BlackList,HomePage
 {
 
@@ -45,14 +44,14 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 	public synchronized List<String[]> getData()
 	{
 		List<String[]> list=new ArrayList<>();
-		
+
 		Cursor c=sql.query("homepage", null, null, null, null, null, "no asc");
 		while (c.moveToNext())
 		{
 			list.add(new String[]{c.getString(c.getColumnIndex("url")),c.getString(c.getColumnIndex("title"))});
 		}
 		c.close();
-		
+
 		return list;
 	}
 
@@ -84,8 +83,9 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 				sql.update("homepage", cv, "url=?", new String[]{c.getString(c.getColumnIndex("url"))});
 			}
 		}
-		else{ c.close();
-		
+		else
+		{ c.close();
+
 		}
 	}
 
@@ -118,7 +118,7 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 	@Override
 	public void clear()
 	{
-		sql.delete("blacklist",null,null);
+		sql.delete("blacklist", null, null);
 	}
 
 
@@ -128,17 +128,16 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 	{
 		if (url.length() != 0)
 		{
-			Cursor c=sql.query("webhistory", null, "url=?", new String[]{url}, null, null, null);
 			ContentValues cv=new ContentValues();
 			cv.put("time", System.currentTimeMillis());
-			if (c.getCount() != 1)
+			cv.put("url", url);
+			cv.put("title", title);
+			try
+			{sql.insertOrThrow("webhistory", null, cv);}
+			catch (Exception e)
 			{
-				cv.put("url", url);
-				cv.put("title", title);
-				sql.insert("webhistory", null, cv);
+				sql.update("webhistory", cv, "url=?", new String[]{url});
 			}
-			else sql.update("webhistory", cv, "url=?", new String[]{url});
-			c.close();
 		}
 	}
 
@@ -167,36 +166,40 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 
 
 	/**@Override
-	public boolean isBookmark(String url)
-	{
-		if (TextUtils.isEmpty(url))return false;
-		boolean flag=false;
-		Cursor c=sql.rawQuery("select no from bookmarks where url=?",new String[]{url});
-		flag = c.getCount() == 1;
-		c.close();
-		return flag;
-	}
-*/
-	
+	 public boolean isBookmark(String url)
+	 {
+	 if (TextUtils.isEmpty(url))return false;
+	 boolean flag=false;
+	 Cursor c=sql.rawQuery("select no from bookmarks where url=?",new String[]{url});
+	 flag = c.getCount() == 1;
+	 c.close();
+	 return flag;
+	 }
+	 */
+
 
 	@Override
 	public void insertSearchHistory(final String data)
 	{
 		if (TextUtils.isEmpty(data))return;
 		new Thread(){
-			public void run(){
-				Cursor c=sql.rawQuery("select time from searchhistory where data=?",new String[]{data});
+			public void run()
+			{
+				Cursor c=sql.rawQuery("select time from searchhistory where data=?", new String[]{data});
 				sql.beginTransaction();
-				if(c.getCount()==1){
+				if (c.getCount() == 1)
+				{
 					ContentValues cv=new ContentValues();
 					cv.put("time", System.currentTimeMillis());
 					sql.update("searchhistory", cv, "data=?", new String[]{data});
 					sql.setTransactionSuccessful();
-				}else{
+				}
+				else
+				{
 					SQLiteStatement statement=sql.compileStatement("insert into searchhistory values (?,?);");
 					//sql.insert("searchhistory", null, cv);
-					statement.bindString(1,data);
-					statement.bindLong(2,System.currentTimeMillis());
+					statement.bindString(1, data);
+					statement.bindLong(2, System.currentTimeMillis());
 					statement.executeInsert();
 					sql.setTransactionSuccessful();
 				}
@@ -209,7 +212,7 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 	@Override
 	public List getSearchHistoryList()
 	{
-		
+
 		List<String> ls=new ArrayList<>();
 		Cursor c=sql.query("searchhistory", null, null, null, null, null, "time");
 		while (c.moveToNext())
@@ -217,14 +220,14 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 			ls.add(c.getString(c.getColumnIndex("data")));
 		}
 		c.close();
-		
+
 		return ls;
 	}
 
 	@Override
 	public List queryWebHistory(String key)
 	{
-		
+
 		if (key.isEmpty())return null;
 //		StringBuffer sb=new StringBuffer();
 //		//sb.append("'");
@@ -232,14 +235,14 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 //			sb.append(str).append("%");
 //		//sb.append("'");
 		List<String[]> ls=new ArrayList<>();
-		key = "%"+key+"%";
-		Cursor c=sql.query(false,"webhistory", null, "url like ? OR title like ?", new String[]{key,key}, null, null, "time desc","0,10");
+		key = "%" + key + "%";
+		Cursor c=sql.query(false, "webhistory", null, "url like ? OR title like ?", new String[]{key,key}, null, null, "time desc", "0,10");
 		while (c.moveToNext())
 		{
 			ls.add(new String[]{c.getString(c.getColumnIndex("url")),c.getString(c.getColumnIndex("title"))});
 		}
 		c.close();
-		
+
 		return ls;
 	}
 
@@ -247,21 +250,21 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 	@Override
 	public List querySearchHistory(String key)
 	{
-		
+
 		if (key == null)
 			throw new NullPointerException("key is not null!");
-		key = "%"+key+"%";
+		key = "%" + key + "%";
 		List ls=new ArrayList<>();
 		Cursor c=sql.query("searchhistory", null, "data like ?", new String[]{key}, null, null, "time desc");
-		if(c.getCount()>0)
-		while (c.moveToNext())
-		{
-			ls.add(c.getString(c.getColumnIndex("data")));
-		}
+		if (c.getCount() > 0)
+			while (c.moveToNext())
+			{
+				ls.add(c.getString(c.getColumnIndex("data")));
+			}
 		c.close();
-		
+
 		return ls;
-		
+
 	}
 
 	@Override
@@ -285,12 +288,12 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 		cv.put("title", "添加");
 		cv.put("no", Integer.MAX_VALUE);
 		p1.insert("homepage", null, cv);
-		
+
 	}
 	@Override
 	public void onUpgrade(SQLiteDatabase p1, int p2, int p3)
 	{
-			}
+	}
 
 	private DataBase(Context context)
 	{

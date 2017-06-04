@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.content.Intent;
 import android.net.Uri;
 import com.moe.database.BlackList;
-import com.moe.database.DataBase;
 import com.moe.database.Sqlite;
 
 public class OutProgramWindow extends Dialog implements View.OnClickListener

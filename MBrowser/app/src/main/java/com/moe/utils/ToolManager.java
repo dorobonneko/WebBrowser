@@ -14,7 +14,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.moe.bean.Message;
 import android.support.design.widget.AppBarLayout;
 import com.moe.database.BookMarks;
-import com.moe.database.DataBase;
 import android.graphics.Bitmap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

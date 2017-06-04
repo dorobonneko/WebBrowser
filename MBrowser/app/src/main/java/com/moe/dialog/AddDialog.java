@@ -6,7 +6,6 @@ import android.support.design.widget.TextInputLayout;
 import android.view.View;
 import android.widget.TextView;
 import com.moe.database.BookMarks;
-import com.moe.database.DataBase;
 import android.widget.Button;
 
 public class AddDialog extends Dialog implements View.OnClickListener

@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import com.moe.Mbrowser.R;
 import android.view.View;
 import com.moe.database.BookMarks;
-import com.moe.database.DataBase;
 import com.moe.database.Sqlite;
 
 public class AddFolderDialog extends Dialog implements View.OnClickListener

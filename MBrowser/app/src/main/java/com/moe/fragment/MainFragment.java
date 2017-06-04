@@ -47,13 +47,13 @@ import com.moe.utils.*;
 import android.os.Message;
 import com.moe.dialog.AddDialog;
 import com.moe.database.HomePage;
-import com.moe.database.DataBase;
 import android.widget.Toast;
 import android.graphics.Color;
 import de.greenrobot.event.ThreadMode;
 import android.support.annotation.MainThread;
 import com.moe.database.Sqlite;
 import com.moe.database.SearchHistory;
+import android.app.SearchManager;
 
 public class MainFragment extends Fragment implements FragmentPop.OnHideListener,AddDialog.OnAddListener
 {
@@ -97,7 +97,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {
-		hp = Sqlite.getInstance(getActivity(),HomePage.class);
+		hp = Sqlite.getInstance(getActivity(), HomePage.class);
 		ad = new AddDialog(getActivity());
         EventBus.getDefault().register(this);
         super.onActivityCreated(savedInstanceState);
@@ -115,8 +115,13 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 		ad.setOnAddLostener(this);
 		//初始化颜色
 		Theme.updateTheme(Color.parseColor(getResources().getTextArray(R.array.skin_color)[getContext().getSharedPreferences("moe", 0).getInt("color", 0)].toString()));
-		if(getArguments()!=null)
-			openUrl(getArguments().getString("url"));
+		if (getArguments() != null)
+		{
+			String url=getArguments().getString("url");
+			if (url != null)openUrl(url);
+			else
+				LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY, getArguments().getString(SearchManager.QUERY)));
+		}
 	}
 
 	@Override
@@ -156,7 +161,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 				break;
 			case event.WHAT_DATA_NEW_WINDOW:
 				WebView wv=new WebView(getActivity(), ad);
-				wv.loadDataWithBaseURL(((WebView)content.getCurrentView()).getUrl(),event.obj.toString(),"text/plain","utf-8","");
+				wv.loadDataWithBaseURL(((WebView)content.getCurrentView()).getUrl(), event.obj.toString(), "text/plain", "utf-8", "");
 				int index=content.getChildCount();
 				content.addView(wv, index);
 				content.setDisplayedChild(index);				
@@ -292,10 +297,12 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
             {  ((WebView)content.getCurrentView()).goBack();
 				return true;
             }
-			else if(content.getChildCount()>1){
+			else if (content.getChildCount() > 1)
+			{
 				content.removeViewAt(content.getDisplayedChild());
 				return true;
-			}else
+			}
+			else
 				return false;
         return true;
     }
@@ -309,18 +316,19 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
         @Override
         public void onReceive(Context p1, Intent p2)
         {
-            String text=p2.getStringExtra("text");
+            String text=p2.getStringExtra(SearchManager.QUERY);
 			if (text.indexOf("://") != -1 || text.indexOf(".") != -1)
 			{
 				if (text.indexOf("://") == -1)
-					text="http://" + text;
+					text = "http://" + text;
 			}
-			else{
-				Sqlite.getInstance(p1,SearchHistory.class).insertSearchHistory(text);
-				text="http://m.sm.cn/s?q=" + text;
+			else
+			{
+				Sqlite.getInstance(p1, SearchHistory.class).insertSearchHistory(text);
+				text = "http://m.sm.cn/s?q=" + text;
 			}
 			openUrl(text);
-			}
+		}
 
 
     }

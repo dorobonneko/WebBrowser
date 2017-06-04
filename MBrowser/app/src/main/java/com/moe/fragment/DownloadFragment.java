@@ -14,7 +14,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import com.moe.adapter.DownloadItemAdapter;
 import com.moe.utils.CustomDecoration;
 import com.moe.database.Download;
-import com.moe.database.DataBase;
 import com.moe.Mbrowser.ResourceService;
 import com.moe.Mbrowser.DownloadService;
 import java.util.Iterator;

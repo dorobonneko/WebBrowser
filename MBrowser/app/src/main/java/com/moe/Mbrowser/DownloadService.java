@@ -114,6 +114,7 @@ public class DownloadService extends Service
 			case ADD:
 				tb.getTaskInfo().setState(DownloadTask.State.WAITING);
 				downloadlist.put(tb.getTaskInfo().getId(),tb.getTaskInfo());
+				EventBus.getDefault().post(tb.getTaskInfo());
 				break;
 			case UPDATE:
 				dt=downloadinglist.remove(tb.getTaskInfo().getId());
@@ -121,6 +122,7 @@ public class DownloadService extends Service
 					downloadlist.remove(tb.getTaskInfo().getId());
 				tb.getTaskInfo().setState(DownloadTask.State.WAITING);
 				downloadlist.put(tb.getTaskInfo().getId(),tb.getTaskInfo());
+				EventBus.getDefault().post(tb.getTaskInfo());
 				break;
 			case STOP:
 				dt=downloadinglist.remove(tb.getTaskInfo().getId());

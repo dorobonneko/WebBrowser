@@ -50,10 +50,11 @@ import com.moe.entity.TaskInfo;
 import com.moe.database.Download;
 import android.os.Looper;
 import com.moe.dialog.AlertDialog;
-import com.moe.database.DataBase;
 import com.moe.database.Sqlite;
 import com.moe.dialog.JavaScriptDialog;
 import com.moe.fragment.BitImageFragment;
+import android.app.SearchManager;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class HomeActivity extends FragmentActivity implements Download.Callback
 {
@@ -510,40 +511,42 @@ public void onEvent(Integer event){
 
     }
 private void loadURL(Intent intent){
-	if (intent.getAction().equals(Intent.ACTION_VIEW))
-	{
-		if(main==null){
-		main = new MainFragment();
-		Bundle b=new Bundle();
-		b.putString("url",intent.getDataString());
-		main.setArguments(b);
-		}else{
-			((MainFragment)main).openNewWindow(intent.getDataString());
-		}
-		if(main.isAdded())
-		getSupportFragmentManager().beginTransaction().show(main).commit();
-			else
-		getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
-	}
-	else
-	{
-		String path=intent.getStringExtra("activity");
-		if ("download".equals(path))
-		{
-			if(download==null)
-			download = new DownloadFragment();
-			getSupportFragmentManager().beginTransaction().add(R.id.main2, download).commit();
-			current = download;
-		}
-		else
-		{
-			if(main==null)
-			main = new MainFragment();
+	switch(intent.getAction()){
+		case Intent.ACTION_VIEW:
+			if(main==null){
+				main = new MainFragment();
+				Bundle b=new Bundle();
+				b.putString("url",intent.getDataString());
+				main.setArguments(b);
+			}else{
+				((MainFragment)main).openNewWindow(intent.getDataString());
+			}
 			if(main.isAdded())
 				getSupportFragmentManager().beginTransaction().show(main).commit();
-				else
-			getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
-		}
+			else
+				getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
+			break;
+			case Intent.ACTION_WEB_SEARCH:
+			case Intent.ACTION_SEARCH:
+			if(main==null){
+				main = new MainFragment();
+				Bundle b=new Bundle();
+				b.putString(SearchManager.QUERY,intent.getStringExtra(SearchManager.QUERY));
+				main.setArguments(b);
+			}else
+			LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY,intent.getStringExtra(SearchManager.QUERY)));
+			if(main.isAdded())
+				getSupportFragmentManager().beginTransaction().show(main).commit();
+			else
+				getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
+			break;
+			case Intent.ACTION_MAIN:
+				main();
+				break;
+			case "download":
+			onEvent(MenuOptions.DOWNLOAD);
+			main();
+				break;
 	}
 	dd = new DownloadDialog(this);
 	if (shared.getBoolean("full", false))
@@ -552,6 +555,14 @@ private void loadURL(Intent intent){
 		((MainFragment)main).setPadding(true);
 	}
 	
+}
+private void main(){
+	if(main==null)
+		main = new MainFragment();
+	if(main.isAdded())
+		getSupportFragmentManager().beginTransaction().show(main).commit();
+	else
+		getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
 }
 	@Override
 	protected void onNewIntent(Intent intent)

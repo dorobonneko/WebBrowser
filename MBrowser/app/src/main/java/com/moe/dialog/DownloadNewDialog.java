@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.view.View;
 import com.moe.entity.TaskInfo;
 import com.moe.database.Download;
-import com.moe.database.DataBase;
 import com.moe.bean.DownloadItem;
 import com.moe.database.Download.State;
 import com.moe.database.Sqlite;

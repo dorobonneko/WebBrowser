@@ -26,7 +26,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.util.TypedValue;
 import com.moe.dialog.OutProgramWindow;
 import com.moe.database.WebHistory;
-import com.moe.database.DataBase;
 import com.moe.database.BlackList;
 import com.moe.dialog.AlertDialog;
 import android.support.v4.content.ContextCompat;

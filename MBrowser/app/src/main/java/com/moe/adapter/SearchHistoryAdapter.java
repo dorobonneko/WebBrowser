@@ -153,7 +153,7 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter
 							}
 							else
 							{
-								LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra("text", url.getText().toString()));
+								LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY, url.getText().toString()));
 								d.dismiss();}
 
 						}

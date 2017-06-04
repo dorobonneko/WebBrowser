@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter;
 import java.util.List;
 import java.util.ArrayList;
 import android.content.Context;
-import com.moe.database.DataBase;
 import android.os.Bundle;
 import com.moe.Mbrowser.R;
 import android.view.View.OnClickListener;

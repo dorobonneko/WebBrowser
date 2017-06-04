@@ -17,7 +17,6 @@ import java.io.File;
 import com.moe.entity.DownloadInfo;
 import java.util.ArrayList;
 import java.util.List;
-import com.moe.database.DataBase;
 import android.content.Context;
 import java.util.Iterator;
 import java.text.DecimalFormat;
@@ -419,8 +418,8 @@ public class DownloadTask extends Thread
 		remoteviews = new RemoteViews(ds.getPackageName(), R.layout.notification_view);
 		remoteviews.setTextViewText(R.id.notificationview_title, ti.getTaskname());
 		Intent intent=new Intent();
+		intent.setAction("download");
 		intent.setClassName(ds.getPackageName(), ds.getPackageName() + ".HomeActivity");
-		intent.putExtra("activity", "download");
 		PendingIntent pi=PendingIntent.getActivity(ds, 233, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		nb = new Notification.Builder(ds)
 			.setSmallIcon(R.drawable.ic_launcher)

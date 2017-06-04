@@ -8,7 +8,6 @@ import android.support.design.widget.TextInputLayout;
 import android.widget.EditText;
 import com.moe.fragment.BookmarksFragment;
 import com.moe.database.HomePage;
-import com.moe.database.DataBase;
 import com.moe.database.Sqlite;
 
 public class SendToHomepageDialog extends Dialog implements View.OnClickListener

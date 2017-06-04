@@ -28,6 +28,7 @@ import android.hardware.input.InputManager;
 import android.view.inputmethod.InputMethodManager;
 import android.content.DialogInterface;
 import android.text.TextUtils;
+import android.app.SearchManager;
 
 public class SearchDialog extends android.app.Dialog implements ToolEditText.OnEditorActionListener,ToolEditText.OnTextChangedListener,Dialog.OnDismissListener
 {
@@ -40,7 +41,7 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
 	{
         super(context, R.style.searchDialog);
 		tet = new ToolEditText(context, this);
-		imm=context.getSystemService(InputMethodManager.class);
+		imm = context.getSystemService(InputMethodManager.class);
 		//sh=DataBase.getInstance(context);
     }
 
@@ -51,7 +52,7 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
         getWindow().setGravity(Gravity.TOP);
 		getWindow().setWindowAnimations(R.style.PopupWindowAnim);
         super.onCreate(savedInstanceState);
-        ll=new LinearLayout(getContext());
+        ll = new LinearLayout(getContext());
         ll.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getContext().getResources().getDisplayMetrics()), (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getContext().getResources().getDisplayMetrics()), (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getContext().getResources().getDisplayMetrics()), (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getContext().getResources().getDisplayMetrics()));
         ll.setOrientation(ll.VERTICAL);
         ll.setGravity(Gravity.TOP | Gravity.CENTER);
@@ -75,10 +76,10 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
 		llm.setAutoMeasureEnabled(true);
 		child.addView(rv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 		rv.setItemAnimator(new DefaultItemAnimator());
-		rv.setAdapter(sha=new SearchHistoryAdapter(getContext(),tet,this));
+		rv.setAdapter(sha = new SearchHistoryAdapter(getContext(), tet, this));
 		tet.setOnTextChangedListener(this);
-		rv.setPadding(5,0,10,0);
-		rv.addItemDecoration(new CustomDecoration((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,1,getContext().getResources().getDisplayMetrics())));
+		rv.setPadding(5, 0, 10, 0);
+		rv.addItemDecoration(new CustomDecoration((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getContext().getResources().getDisplayMetrics())));
 		tet.setFocusable(true);
 		tet.setFocusableInTouchMode(true);
 		setOnDismissListener(this);
@@ -89,9 +90,8 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
     {
         if (p2 == EditorInfo.IME_ACTION_GO)
 		{
-          		String text=tet.getText().toString().trim();
-					
-					LocalBroadcastManager.getInstance(getContext().getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra("text", text));
+			String text=tet.getText().toString().trim();
+			LocalBroadcastManager.getInstance(getContext().getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY, text));
             dismiss();
         }
         return false;
@@ -106,11 +106,11 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
 	@Override
 	public void onDismiss(DialogInterface p1)
 	{
-		getContext().getSystemService(InputMethodManager.class).toggleSoftInputFromWindow(tet.getApplicationWindowToken(),imm.SHOW_IMPLICIT,imm.HIDE_NOT_ALWAYS);
+		getContext().getSystemService(InputMethodManager.class).toggleSoftInputFromWindow(tet.getApplicationWindowToken(), imm.SHOW_IMPLICIT, imm.HIDE_NOT_ALWAYS);
 	}
 
 
-	
+
 
 
 
@@ -120,17 +120,17 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
 	{
 		super.show();
 		tet.setText(url);
-		
+
 		tet.postDelayed(new Runnable(){
 
 				@Override
 				public void run()
 				{
-					imm.toggleSoftInput(0,0);
+					imm.toggleSoftInput(0, 0);
 					if (!TextUtils.isEmpty(url))
 						tet.selectAll();
 				}
 			}, 200);
-		
-		}
+
+	}
 }

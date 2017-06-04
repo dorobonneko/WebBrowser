@@ -166,14 +166,12 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 				cv.put("sourceurl", ti.getSourceUrl());
 				cv.put("length", ti.getLength());
 				cv.put("time", System.currentTimeMillis());
-				sql.insertOrThrow("download", null, cv);
-				Cursor c=sql.query("download",new String[]{"id"},"id=?",new String[]{ti.getId()+""},null,null,null);
-				if(c.getCount()>0){
+				try{sql.insertOrThrow("download", null, cv);
 					EventBus.getDefault().post(new TaskBean(ti, TaskBean.State.ADD));
 					if(call!=null)call.callback(ti,Download.State.SUCCESS);
-				}else
-				if(call!=null)call.callback(ti,Download.State.FAIL);
-				c.close();
+				}catch(Exception e){
+					if(call!=null)call.callback(ti,Download.State.FAIL);
+				}
 			}
 		}.start();
 	}
@@ -298,6 +296,8 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 			di.setStart(c.getLong(c.getColumnIndex("start")));
 			di.setCurrent(c.getLong(c.getColumnIndex("current")));
 			di.setEnd(c.getLong(c.getColumnIndex("end")));
+			di.setUrl(c.getString(c.getColumnIndex("url")));
+			di.setSuccess(c.getInt(c.getColumnIndex("success"))==1);
 			ad.add(di);
 		}
 		c.close();

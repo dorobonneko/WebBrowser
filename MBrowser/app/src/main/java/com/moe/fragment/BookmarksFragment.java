@@ -14,7 +14,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import com.moe.database.BookMarks;
 import com.moe.database.WebHistory;
-import com.moe.database.DataBase;
 import com.moe.utils.CustomDecoration;
 import android.widget.Button;
 import com.moe.dialog.AddFolderDialog;

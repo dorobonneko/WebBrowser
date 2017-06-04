@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import com.moe.Mbrowser.DownloadService;
 import android.view.View;
 import com.moe.database.Download;
-import com.moe.database.DataBase;
 import com.moe.entity.TaskInfo;
 import com.moe.Mbrowser.FileExplorer;
 import android.content.Intent;

@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.view.View.OnClickListener;
 import android.view.View;
 import com.moe.database.BookMarks;
-import com.moe.database.DataBase;
 import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 import java.util.List;
