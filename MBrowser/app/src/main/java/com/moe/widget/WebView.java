@@ -499,8 +499,8 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 			case "m.le.com":
 				loadUrl("javascript:var video=document.querySelector('video');video.setAttribute('controls','true');if(video.value!='bind'){video.value='bind';video.addEventListener('canplay',function(){if(moe.isVideoBlock(this.src)){this.src='';}else{var child=this.parentNode.nextSibling; if(child)child.parentNode.removeChild(child);}},false); };");
 				break;
-			case "m.sohu.com":
-				loadUrl("javascript:var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind'; video[i].setAttribute('controls','true'); video[i].setAttribute('playsinline','false'); video[i].setAttribute('webkit-playsinline','false');   video[i].addEventListener('play',function(){if(moe.isVideoBlock(this.src)){this.src='';this.currentTime=150;}; },false); };");
+			case "m.tv.sohu.com":
+				loadUrl("javascript:var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind'; video[i].setAttribute('controls','true'); video[i].setAttribute('playsinline','false'); video[i].setAttribute('webkit-playsinline','false');   video[i].addEventListener('play',function(){if(moe.isVideoBlock(this.src)){this.currentTime=150;}; },false); };");
 				break;
 			case "m.youku.com":
 				loadUrl("javascript:var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind'; " +

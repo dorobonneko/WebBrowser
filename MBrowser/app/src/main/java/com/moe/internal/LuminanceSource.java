@@ -4,6 +4,10 @@ import android.graphics.Bitmap;
 public class LuminanceSource extends com.google.zxing.LuminanceSource
 {
 	private byte[] data;
+	public LuminanceSource(byte[] b,int width,int height){
+		super(width,height);
+		this.data=b;
+	}
 	public LuminanceSource(Bitmap bitmap){
 		super(bitmap.getWidth(),bitmap.getHeight());
 		final int[] tmp=new int[bitmap.getWidth()*bitmap.getHeight()];

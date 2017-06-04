@@ -11,6 +11,7 @@ import android.content.res.TypedArray;
 import android.app.FragmentTransaction;
 import com.moe.utils.Theme;
 import com.moe.fragment.preference.AdBkockFragment;
+import android.content.Intent;
 
 public class SettingFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener
 {
@@ -76,6 +77,12 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 		}
 		return false;
 	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if(current!=null)current.onActivityResult(requestCode,resultCode,data);
+		}
 
 	public boolean onBackPressed()
 	{

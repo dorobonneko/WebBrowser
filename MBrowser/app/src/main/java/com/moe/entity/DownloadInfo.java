@@ -5,16 +5,35 @@ public class DownloadInfo
 	private int no;
 	private int id;
 	private long start,current,end;
+	private String url;
+	private boolean success;
 
-	public void setNo(int no)
+	public void setSuccess(boolean success)
 	{
-		this.no=no;
+		this.success = success;
 	}
 
-	
+	public boolean isSuccess()
+	{
+		return success;
+	}
+	public void setUrl(String url)
+	{
+		this.url = url;
+	}
+
+	public String getUrl()
+	{
+		return url;
+	}
+	public void setNo(int no)
+	{
+		this.no = no;
+	}
+
 	public void setTaskId(int url)
 	{
-		this.id=url;
+		this.id = url;
 	}
 
 	public int getNo()
@@ -28,11 +47,6 @@ public class DownloadInfo
 		// TODO: Implement this method
 		return id;
 	}
-	 
-
-	
-
-	
 
 	public void setStart(long start)
 	{
@@ -64,5 +78,5 @@ public class DownloadInfo
 		return end;
 	}
 
-	
+
 }

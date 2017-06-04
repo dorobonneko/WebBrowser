@@ -9,12 +9,13 @@ import com.moe.database.Download;
 import java.io.File;
 import com.moe.Mbrowser.R;
 import de.greenrobot.event.EventBus;
+import android.text.TextUtils;
+import okhttp3.ResponseBody;
 
 public class DownloadBlock extends Thread
 {
 	private DownloadTask dt;
 	private DownloadInfo di;
-	private boolean success;
 	private Response response;
 	private RandomAccessFile raf;
 	private InputStream is;
@@ -26,27 +27,48 @@ public class DownloadBlock extends Thread
 		start();
 	}
 	public boolean isSuccess(){
-		return success;
+		return di.isSuccess();
 	}
 	@Override
 	public void run()
 	{
-		if(di.getCurrent()<di.getEnd()){
+		if(!isSuccess()){
 		Request.Builder request=new Request.Builder();
-		if (dt.getTaskInfo().getCookie() != null)
-			request.addHeader("Cookie", dt.getTaskInfo().getCookie());
-		if (dt.getTaskInfo().getUserAgent() != null)
-			request.addHeader("User-Agent", dt.getTaskInfo().getUserAgent());
-		if(dt.getTaskInfo().getSourceUrl()!=null)
-				request.addHeader("Referer",dt.getTaskInfo().getSourceUrl());
-		request.addHeader("Range","bytes="+di.getCurrent()+"-"+di.getEnd());
-		request.url(dt.getTaskInfo().getTaskurl());
+			if (!TextUtils.isEmpty(dt.getTaskInfo().getCookie()))
+				request.addHeader("Cookie", dt.getTaskInfo().getCookie());
+			if (!TextUtils.isEmpty(dt.getTaskInfo().getUserAgent()))
+				request.addHeader("User-Agent", dt.getTaskInfo().getUserAgent());
+			//if(ti.getSourceUrl()!=null)
+			//request.addHeader("Referer",ti.getSourceUrl());
+			request.addHeader("Accept","*/*");
+			request.addHeader("Connection","close");
+			request.addHeader("Icy-MetaData","1");
+			request.addHeader("Range","bytes="+di.getCurrent()+"-"+(di.getEnd()==0?"":di.getEnd()));
 		try
 		{
-			response = dt.getOkHttpCliebt().newCall(request.build()).execute();
-			is=response.body().byteStream();
+			response = dt.getOkHttpCliebt().newCall(request.url(di.getUrl()).build()).execute();
+			ResponseBody rb=response.body();
+			is=rb.byteStream();
+			if(di.getEnd()==0){
+				long length=0;
+				try
+				{
+					length = Long.parseLong(response.header("Content-Length"));
+				}
+				catch (Exception e)
+				{length=rb.contentLength();}
+				di.setEnd(length);
+			}
+			dt.getDownload().updateDownloadInfoWithData(di);
 			byte[] b=new byte[Integer.parseInt(dt.getContext().getResources().getTextArray(R.array.buffer)[dt.getSharedPreferences().getInt(Download.Setting.BUFFER,Download.Setting.BUFFER_DEFAULT)].toString())];
-			raf=new RandomAccessFile(new File(dt.getTaskInfo().getDir(),dt.getTaskInfo().getTaskname()),"rw");
+			File file=new File(dt.getTaskInfo().getDir(),dt.getTaskInfo().getTaskname());
+			if(dt.getTaskInfo().getM3u8()){
+				if(file.exists())file.delete();
+				file.mkdirs();
+			file=new File(file,di.getNo()+"");}
+			raf=new RandomAccessFile(file,"rw");
+			if(dt.getTaskInfo().getM3u8()&&!file.exists())
+				raf.setLength(di.getEnd());
 			int len;
 			switch(response.code()){
 				case 200:
@@ -96,12 +118,12 @@ public class DownloadBlock extends Thread
 				response.close();
 		}
 		}
-		success=true;
+		di.setSuccess(true);
 		dt.itemFinish(this);
 	}
 	public void pause(){
 		pause=true;
-		if(!success){
+		if(!isSuccess()){
 			try
 			{
 				if (raf != null)

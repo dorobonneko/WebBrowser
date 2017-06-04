@@ -34,10 +34,19 @@ public class BitImageParser
 		hm.put(DecodeHintType.POSSIBLE_FORMATS,vector);
 		mfr.setHints(hm);*/
 	}
+	public static void decodeImage(byte[] data,Callback call,int width,int height){
+		try
+		{
+			if (call != null)call.onSuccess(new MultiFormatReader().decodeWithState(new BinaryBitmap(new HybridBinarizer(new LuminanceSource(data,width,height)))).getText());
+		}
+		catch (Exception e)
+		{if(call!=null)call.onFail(e);}
+		
+	}
 	public static void decodeImage(Bitmap bitmap,Callback call){
 			try
 			{
-				if (call != null)call.onSuccess(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new LuminanceSource(bitmap)))).getText());
+				if (call != null)call.onSuccess(qr.decode(new BinaryBitmap(new HybridBinarizer(new LuminanceSource(bitmap)))).getText());
 			}
 			catch (Exception e)
 		{if(call!=null)call.onFail(e);}

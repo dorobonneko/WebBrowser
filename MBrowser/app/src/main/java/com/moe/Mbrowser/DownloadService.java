@@ -37,6 +37,15 @@ import java.security.KeyManagementException;
 import java.security.cert.CertificateException;
 import com.moe.bean.Message;
 import com.moe.database.Sqlite;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import com.moe.utils.DataUtils;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Arrays;
 
 public class DownloadService extends Service
 {

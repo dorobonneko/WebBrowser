@@ -21,6 +21,10 @@ public class TaskInfo
 	private long time;
 	private long[] tag=null;
 
+	public boolean getM3u8()
+	{
+		return "application/x-mpegURL".equalsIgnoreCase(type)||type.indexOf("charset")!=-1;
+	}
 	public void setTag(long time,long size)
 	{
 		if(tag==null)tag=new long[2];

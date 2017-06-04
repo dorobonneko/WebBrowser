@@ -401,9 +401,9 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 	{
 		switch (requestCode)
 		{
-			case 233:
-				if (resultCode == RESULT_OK)
-					dd.setPath(data.getStringExtra("dir"));
+			case 256:
+				if(resultCode==RESULT_OK)
+					dd.setPath(data.getDataString());
 				break;
 			case 2888:
 				if (callback != null)
@@ -415,6 +415,10 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 						vu.onReceiveValue(null);
 					callback = null;
 				}
+				break;
+				default:
+				if(setting!=null)setting.onActivityResult(requestCode,resultCode,data);
+				if(current!=null)current.onActivityResult(requestCode,resultCode,data);
 				break;
 
 		}

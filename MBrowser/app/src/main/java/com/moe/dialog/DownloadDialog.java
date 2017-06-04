@@ -87,7 +87,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 				dismiss();
 				break;
 			case R.id.download_item_view_path:
-				((Activity)context).startActivityForResult(new Intent(getContext(),FileExplorer.class).putExtra("path",dir.getText().toString()),233);
+				((Activity)context).startActivityForResult(new Intent(getContext(),FileExplorer.class).putExtra("path",dir.getText().toString()),256);
 				break;
 		}
 	}

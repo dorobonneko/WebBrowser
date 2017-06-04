@@ -7,6 +7,7 @@ import android.preference.Preference;
 import com.moe.preference.SeekBarPreference;
 import android.content.Intent;
 import com.moe.Mbrowser.FileExplorer;
+import android.app.Activity;
 
 public class DownloadFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener,Preference.OnPreferenceClickListener
 {
@@ -43,10 +44,19 @@ public class DownloadFragment extends PreferenceFragment implements Preference.O
 	{
 		switch(p1.getKey()){
 			case Download.Setting.DIR:
-				startActivity(new Intent(getActivity(),FileExplorer.class).putExtra("path",p1.getSummary().toString()));
+				startActivityForResult(new Intent(getActivity(),FileExplorer.class).putExtra("path",p1.getSummary().toString()),233);
 				break;
 		}
 		return false;
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if (requestCode==233&& resultCode == Activity.RESULT_OK){
+			getPreferenceManager().getSharedPreferences().edit().putString(Download.Setting.DIR,data.getStringExtra("dir")).commit();
+			findPreference(Download.Setting.DIR).setSummary(data.getDataString());
+			}
 	}
 
 

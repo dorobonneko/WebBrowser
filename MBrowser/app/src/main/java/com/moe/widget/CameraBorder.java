@@ -104,6 +104,14 @@ public CameraBorder(Context context,AttributeSet attrs){
 	}
 
 	@Override
+	protected void onWindowVisibilityChanged(int visibility)
+	{
+		if(!loop&&visibility==VISIBLE)
+			start();
+		super.onWindowVisibilityChanged(visibility);
+	}
+
+	@Override
 	protected Parcelable onSaveInstanceState()
 	{
 		loop=false;

@@ -30,7 +30,7 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 	public void onCreate(SQLiteDatabase p1)
 	{
 		p1.execSQL("CREATE TABLE download(id INTEGER PRIMARY KEY,url TEXT UNIQUE,name TEXT UNIQUE,dir TEXT,cookie TEXT,multithread INTEGER,pause INTEGER,success INTEGER,useragent TEXT,mime TEXT,sourceurl TEXT,length INTEGER,time INTEGER,fail INTEGER)");
-		p1.execSQL("CREATE TABLE downloadinfo(id INTEGER,no INTEGER,start INTEGER,current INTEGER,end INTEGER)");
+		p1.execSQL("CREATE TABLE downloadinfo(id INTEGER,no INTEGER,start INTEGER,current INTEGER,end INTEGER,success INTEGER,url TEXT)");
 		
 	}
 
@@ -328,6 +328,8 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 		cv.put("start", di.getStart());
 		cv.put("current", di.getCurrent());
 		cv.put("end", di.getEnd());
+		cv.put("url",di.getUrl());
+		cv.put("success",di.isSuccess());
 		sql.insert("downloadinfo", null, cv);
 
 	}
@@ -350,15 +352,25 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 	}
 
 	@Override
+	public void updateDownloadInfoWithData(DownloadInfo di)
+	{
+		ContentValues cv=new ContentValues();
+		cv.put("start", di.getStart());
+		cv.put("current", di.getCurrent());
+		cv.put("end", di.getEnd());
+		cv.put("url",di.getUrl());
+		cv.put("success",di.isSuccess());
+		sql.update("downloadinfo", cv, "id=? and no=?", new String[]{di.getTaskId() + "",di.getNo() + ""});
+	}
+
+
+	@Override
 	public void updateDownloadInfo(DownloadInfo di)
 	{
 		ContentValues cv=new ContentValues();
 		cv.put("current", di.getCurrent());
 		sql.update("downloadinfo", cv, "id=? and no=?", new String[]{di.getTaskId() + "",di.getNo() + ""});
 	}
-
-
-
 	@Override
 	public void updateDownloadInfo(TaskInfo ti)
 	{

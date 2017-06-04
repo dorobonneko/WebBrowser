@@ -14,19 +14,40 @@
 		android:layout_height="match_parent"
 		android:id="@+id/bitimage_cameraBorder"/>
 
-	<LinearLayout
+	<RelativeLayout
 		android:layout_height="match_parent"
-		android:layout_width="match_parent"
-		android:orientation="vertical">
+		android:layout_width="match_parent">
 
-		<ImageView
+		<ImageButton
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:id="@+id/bitimage_view_back"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:src="@android:drawable/ic_delete"
-			android:id="@+id/bitimageviewImageView1"
-			android:scaleType="centerInside"/>
+			android:src="@drawable/bar_back_normal"
+			android:layout_marginStart="5dp"
+			android:layout_marginTop="5dp"/>
 
-	</LinearLayout>
+		<ImageButton
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:id="@+id/bitimage_view_flash"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:src="@drawable/ic_flash_off"
+			android:layout_alignParentRight="true"
+			android:layout_marginRight="5dp"
+			android:layout_marginTop="5dp"/>
+
+		<ImageButton
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:id="@+id/bitimage_view_pickerPicture"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:src="@drawable/ic_picture"
+			android:layout_alignParentBottom="true"
+			android:layout_centerHorizontal="true"
+			android:layout_marginBottom="12dp"/>
+
+	</RelativeLayout>
 
 </FrameLayout>
 

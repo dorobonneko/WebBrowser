@@ -29,6 +29,7 @@ public interface Download
 	void updateDownloadInfo(List<DownloadInfo> di);
 	void updateDownloadInfo(DownloadInfo di);
 	List<DownloadInfo> getDownloadInfoWithId(int url);
+	void updateDownloadInfoWithData(DownloadInfo di);
 	
 	public enum State{
 		UPDATE,SUCCESS,FAIL;
