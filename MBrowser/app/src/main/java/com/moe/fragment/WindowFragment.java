@@ -25,6 +25,7 @@ import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.TypedValue;
 import com.moe.utils.CustomDecoration;
 import com.moe.utils.Theme;
+import android.content.SharedPreferences;
 
 public class WindowFragment extends FragmentPop implements WinListAdapter.OnItemClickListener,ViewFlipper.OnChangeListener
 ,View.OnClickListener
@@ -33,59 +34,61 @@ public class WindowFragment extends FragmentPop implements WinListAdapter.OnItem
 	public static final int CLOSE=0xff0001;
 	public static final int OPEN=0XFF0004;
 	private RecyclerView rv;
-	
-	
+	private ImageView security;
+	private WinListAdapter wla;
+	private SharedPreferences webview;
     @Override
     public void onAdd(WebView vf, int index)
     {
-		if(wla!=null)
-        wla.notifyItemInserted(index);
+		if (wla != null)
+			wla.notifyItemInserted(index);
     }
 
     @Override
     public void onRemove(int index)
- {
+	{
         wla.notifyItemRemoved(index);
     }
 
     @Override
     public void onToggle(int index)
     {
-		if(wla!=null){
-        wla.selected(index);
+		if (wla != null)
+		{
+			wla.selected(index);
 		}
     }
 
-private WinListAdapter wla;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        
-        View v=inflater.inflate(R.layout.window_view,container,false);
-        return v;
+
+        return inflater.inflate(R.layout.window_view, container, false);
     }
 
 	@Override
 	public void onViewCreated(View v, Bundle savedInstanceState)
 	{
-		rv=(RecyclerView)v.findViewById(R.id.windowview_list);
-        LinearLayoutManager llm= new LinearLayoutManager(getActivity(),1,false);
+		rv = (RecyclerView)v.findViewById(R.id.windowview_list);
+        LinearLayoutManager llm= new LinearLayoutManager(getActivity(), 1, false);
         llm.setAutoMeasureEnabled(true);
 		rv.setHasFixedSize(false);
         rv.setLayoutManager(llm);
         rv.setNestedScrollingEnabled(false);
-        rv.setAdapter(wla=new WinListAdapter(getActivity(),ToolManager.getInstance().getContent()));
+        rv.setAdapter(wla = new WinListAdapter(getActivity(), ToolManager.getInstance().getContent()));
         //rv.setItemAnimator(new DefaultItemAnimator());
-        v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+        v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         v.findViewById(R.id.windowview_add).setOnClickListener(this);
 		ItemTouchHelper ith=new ItemTouchHelper(new Callback());
 		ith.attachToRecyclerView(rv);
 		//rv.setBackgroundResource(R.color.window_background);
 		//((ViewGroup)v).getChildAt(1).setBackgroundResource(R.color.window_background);
-		int width=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,10,getResources().getDisplayMetrics());
-		rv.setPadding(width,width,width,0);
+		int width=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+		rv.setPadding(width, width, width, 0);
 		//v.setPadding(0,0,0,0);
-		rv.addItemDecoration(new CustomDecoration((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,5,getResources().getDisplayMetrics()),0x00000000));
+		rv.addItemDecoration(new CustomDecoration((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()), 0x00000000));
+		security = (ImageView)v.findViewById(R.id.windowview_security);
+		security.setOnClickListener(this);
 		super.onViewCreated(v, savedInstanceState);
 		Theme.unRegisterBackground(v);
 		Theme.registerBackground(rv);
@@ -101,15 +104,23 @@ private WinListAdapter wla;
 		ToolManager.getInstance().getContent().registerOnChangeListener(this);
         //初始化数据加监听
 		wla.selected(ToolManager.getInstance().getContent().getDisplayedChild());
-       }
+		webview=getContext().getSharedPreferences("webview",0);
+		updateSecurity();
+	}
 
     @Override
     public void onClick(View p1)
     {
-        switch(p1.getId()){
+        switch (p1.getId())
+		{
             case R.id.windowview_add:
                 EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_NEW_WINDOW));
                 break;
+			case R.id.windowview_security:
+				webview.edit().putBoolean(WebView.Setting.PRIVATE,!webview.getBoolean(WebView.Setting.PRIVATE,false)).commit();
+				EventBus.getDefault().post(CLOSE);
+				updateSecurity();
+				break;
         }
     }
 
@@ -127,7 +138,7 @@ private WinListAdapter wla;
 		super.onDetach();
 	}
 
-    
+
     @Override
     public void onItemClick(int index)
     {
@@ -142,9 +153,17 @@ private WinListAdapter wla;
         return false;
     }
 	@Subscribe
-    public void refresh(Message msg){
-		if(msg.what==0)
+    public void refresh(Message msg)
+	{
+		if (msg.what == 0)
 			wla.notifyItemChanged(msg.data);
+	}
+	private void updateSecurity()
+	{
+		if(webview.getBoolean(WebView.Setting.PRIVATE,false))
+			security.setImageResource(R.drawable.ic_security);
+			else
+			security.setImageResource(R.drawable.ic_shield_outline);
 	}
 	class Callback extends ItemTouchHelper.Callback
 	{
@@ -152,7 +171,7 @@ private WinListAdapter wla;
 		@Override
 		public int getMovementFlags(RecyclerView p1, RecyclerView.ViewHolder p2)
 		{
-			return makeMovementFlags(0,ItemTouchHelper.START|ItemTouchHelper.END);
+			return makeMovementFlags(0, ItemTouchHelper.START | ItemTouchHelper.END);
 		}
 
 		@Override
@@ -173,7 +192,7 @@ private WinListAdapter wla;
 		{
 			return true;
 		}
-		
-		
+
+
 	}
 }

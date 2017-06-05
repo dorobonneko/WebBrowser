@@ -15,15 +15,26 @@
 	<RelativeLayout
 		android:layout_height="?attr/actionBarSize"
 		android:layout_width="match_parent"
-		android:layout_gravity="bottom">
+		android:layout_gravity="bottom"
+		android:paddingStart="15dp"
+		android:paddingEnd="15dp">
 
 		<ImageButton
-			android:background="?attr/selectableItemBackground"
+			android:background="?attr/selectableItemBackgroundBorderless"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
 			android:src="@drawable/ic_plus"
 			android:layout_centerInParent="true"
 			android:id="@+id/windowview_add"/>
+
+		<ImageButton
+			android:id="@+id/windowview_security"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:src="@drawable/ic_shield_outline"
+			android:layout_centerVertical="true"
+			android:layout_alignParentEnd="true"/>
 
 	</RelativeLayout>
 

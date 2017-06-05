@@ -623,7 +623,6 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
         @Override
         public void onReceivedTitle(final WebView p1, final String p2)
         {
-            // TODO: Implement this method
             super.onReceivedTitle(p1, p2);
             if (osl != null)osl.onReceiverTitle(p2);
 			if (adblock != null)
@@ -631,6 +630,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 				{
 					loadUrl("javascript:var item=document.querySelector('" + js + "');item.parentNode.removeChild(item);");
 				}
+			if(!shared.getBoolean(Setting.PRIVATE,false)){
 			final String url=p1.getUrl();
 			new Thread(){
 				public void run()
@@ -638,6 +638,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 					wh.insertOrUpdateWebHistory(url, p2);
 				}
 			}.start();
+			}
 		}
 
         @Override
@@ -969,6 +970,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		public final static String DESKTOP="desktop";
 		//gps
 		public final static String GPS="gps";
-		
+		//无痕浏览
+		public final static String PRIVATE="private";
 	}
 }
