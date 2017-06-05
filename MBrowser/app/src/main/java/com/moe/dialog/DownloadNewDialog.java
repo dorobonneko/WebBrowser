@@ -45,6 +45,16 @@ public class DownloadNewDialog extends Dialog implements View.OnClickListener,Do
 	}
 
 	@Override
+	public void show()
+	{
+		super.show();
+		name.setText(null);
+		url.setText(null);
+		t_name.setError(null);
+		t_url.setError(null);
+	}
+
+	@Override
 	public void onClick(View p1)
 	{
 		switch(p1.getId()){

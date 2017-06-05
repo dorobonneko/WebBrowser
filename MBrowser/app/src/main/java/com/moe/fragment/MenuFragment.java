@@ -41,7 +41,7 @@ public final static int SHUTDOWN=0xff005;
 private ViewPagerAdapter vpa;
 private ArrayList<View> av=new ArrayList<>();
 private int groupSize=0;//计算几组
-private SharedPreferences shared,moe;
+private SharedPreferences webview,moe;
 private final static String xmlns="http://schemas.android.com/apk/res/android";
 private BookmarkAddDialog bed;
     @Override
@@ -70,13 +70,14 @@ private BookmarkAddDialog bed;
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-		shared=getContext().getSharedPreferences("webview",0);
+		webview=getContext().getSharedPreferences("webview",0);
 		moe=getContext().getSharedPreferences("moe",0);
 		updateBlockImage();
 		updateFull();
 		updateAutoScreen();
 		updateNightMode();
 		updateDesktopMode();
+		updateGps();
     }
 
 	@Override
@@ -103,7 +104,7 @@ private BookmarkAddDialog bed;
 				EventBus.getDefault().post(HIDE);
 				break;
 			case R.id.menu_noimage:
-				shared.edit().putBoolean(WebView.Setting.BLOCKIMAGES,!shared.getBoolean(WebView.Setting.BLOCKIMAGES,false)).commit();
+				webview.edit().putBoolean(WebView.Setting.BLOCKIMAGES,!webview.getBoolean(WebView.Setting.BLOCKIMAGES,false)).commit();
 				updateBlockImage();
 				EventBus.getDefault().post(HIDE);
 				break;
@@ -112,14 +113,14 @@ private BookmarkAddDialog bed;
 				EventBus.getDefault().post(SHUTDOWN);
 				break;
 			case R.id.menu_autoscreen:
-				shared.edit().putBoolean(WebView.Setting.WIDEVIEW,!shared.getBoolean(WebView.Setting.WIDEVIEW,true)).commit();
-				Toast.makeText(getActivity(),shared.getBoolean(WebView.Setting.WIDEVIEW,true)==true?"自适应布局已开启":"自适应布局已关闭",Toast.LENGTH_SHORT).show();
+				webview.edit().putBoolean(WebView.Setting.WIDEVIEW,!webview.getBoolean(WebView.Setting.WIDEVIEW,true)).commit();
+				Toast.makeText(getActivity(),webview.getBoolean(WebView.Setting.WIDEVIEW,true)==true?"自适应布局已开启":"自适应布局已关闭",Toast.LENGTH_SHORT).show();
 				EventBus.getDefault().post(HIDE);
 				updateAutoScreen();
 				break;
 			case R.id.menu_desktop:
-				shared.edit().putBoolean(WebView.Setting.DESKTOP,!shared.getBoolean(WebView.Setting.DESKTOP,false)).commit();
-				Toast.makeText(getActivity(),shared.getBoolean(WebView.Setting.DESKTOP,true)==true?"桌面模式已开启":"桌面模式已关闭",Toast.LENGTH_SHORT).show();
+				webview.edit().putBoolean(WebView.Setting.DESKTOP,!webview.getBoolean(WebView.Setting.DESKTOP,false)).commit();
+				Toast.makeText(getActivity(),webview.getBoolean(WebView.Setting.DESKTOP,true)==true?"桌面模式已开启":"桌面模式已关闭",Toast.LENGTH_SHORT).show();
 				ToolManager.getInstance().refresh();
 				EventBus.getDefault().post(HIDE);
 				updateDesktopMode();
@@ -134,6 +135,11 @@ private BookmarkAddDialog bed;
 					final WebView wv=(WebView)ToolManager.getInstance().getContent().getCurrentView();
 					bed.show(wv.getUrl(),wv.getTitle());
 					EventBus.getDefault().post(HIDE);
+				break;
+			case R.id.menu_gps:
+				webview.edit().putBoolean(WebView.Setting.GPS,!webview.getBoolean(WebView.Setting.GPS,false)).commit();
+				updateGps();
+				EventBus.getDefault().post(HIDE);
 				break;
 			default:
 				EventBus.getDefault().post(HIDE);
@@ -156,7 +162,7 @@ private void updateFull(){
 private void updateBlockImage(){
 	MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(0)).getAdapter());
 	MenuItem mi=ma.get(4);
-	if(shared.getBoolean(WebView.Setting.BLOCKIMAGES,false)){
+	if(webview.getBoolean(WebView.Setting.BLOCKIMAGES,false)){
 		mi.setIcon(getResources().getDrawable(R.drawable.menu_image_broken));
 	mi.setColor(R.color.accent);
 	}else{
@@ -167,7 +173,7 @@ private void updateBlockImage(){
 private void updateAutoScreen(){
 	MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(0)).getAdapter());
 	MenuItem mi=ma.get(6);
-	if(shared.getBoolean(WebView.Setting.WIDEVIEW,true)){
+	if(webview.getBoolean(WebView.Setting.WIDEVIEW,true)){
 		mi.setColor(R.color.accent);
 	}else{
 		mi.setColor(R.color.textColor);
@@ -176,7 +182,7 @@ private void updateAutoScreen(){
 private void updateDesktopMode(){
 	MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(0)).getAdapter());
 	MenuItem mi=ma.get(9);
-	if(shared.getBoolean(WebView.Setting.DESKTOP,false)){
+	if(webview.getBoolean(WebView.Setting.DESKTOP,false)){
 		mi.setColor(R.color.accent);
 	}else{
 		mi.setColor(R.color.textColor);
@@ -185,12 +191,23 @@ private void updateDesktopMode(){
 private void updateNightMode(){
 	MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(0)).getAdapter());
 	MenuItem mi=ma.get(7);
-	if(getContext().getSharedPreferences("moe",0).getBoolean("night",false)){
+	if(moe.getBoolean("night",false)){
 		mi.setColor(R.color.accent);
 	}else{
 		mi.setColor(R.color.textColor);
 	}ma.notifyItemChanged(7);
 }
+	private void updateGps(){
+		MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(1)).getAdapter());
+		MenuItem mi=ma.get(0);
+		if(webview.getBoolean(WebView.Setting.GPS,false)){
+			mi.setColor(R.color.accent);
+			mi.setIcon(getResources().getDrawable(R.drawable.ic_map_marker));
+		}else{
+			mi.setColor(R.color.textColor);
+			mi.setIcon(getResources().getDrawable(R.drawable.ic_map_marker_off));
+		}ma.notifyItemChanged(0);
+	}
     @Override
     public void onDestroyView()
     {

@@ -205,7 +205,7 @@
 		android:layout_marginStart="2dp"
 		android:layout_marginEnd="2dp"
 		android:background="@color/border"/>
-	
+		
 	<RelativeLayout
 		android:id="@+id/datamanager_view_autoclear"
 		android:layout_height="?attr/actionBarSize"

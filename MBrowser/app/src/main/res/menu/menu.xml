@@ -46,4 +46,10 @@
         android:id="@+id/menu_desktop"
         android:title="桌面模式"/>
 	</group>
+	<group>
+		<item
+			android:icon="@drawable/ic_map_marker_off"
+			android:id="@+id/menu_gps"
+			android:title="gps"/>
+	</group>
 </menu>

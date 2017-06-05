@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.moe.entity.DownloadInfo;
 import android.database.sqlite.SQLiteStatement;
+import com.moe.utils.DataUtils;
 
 class DownloadImpl extends SQLiteOpenHelper implements Download
 {
@@ -56,10 +57,14 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 		//	public void run(){
 
 		for(Object tii:id){
-			TaskInfo ti=(TaskInfo)tii;
+			final TaskInfo ti=(TaskInfo)tii;
 			deleteTaskInfoWithId(ti.getId());
 			if(file)
-				new File(ti.getDir(),ti.getTaskname()).delete();
+			{new Thread(){
+				public void run(){
+					DataUtils.deleteDir(new File(ti.getDir(), ti.getTaskname()));
+				}
+			}.start();}
 		}
 
 		//	}
@@ -179,7 +184,8 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 	@Override
 	public void deleteTaskInfoWithId(int url)
 	{
-		TaskInfo ti=queryTaskInfoWithId(url);
+		TaskInfo ti=new TaskInfo();
+		ti.setId(url);
 		sql.delete("download", "id=?", new String[]{url + ""});
 		deleteDownloadInfoWithId(url);
 		EventBus.getDefault().post(new TaskBean(ti, TaskBean.State.DELETE));

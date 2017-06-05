@@ -328,10 +328,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 						@Override
 						public void onClick(DialogInterface p1, int p2)
 						{
-							ArrayList<TaskInfo> ati;
-							switch(p2){
-								case 0:
-									ati=new ArrayList<>();
+							ArrayList<TaskInfo> ati=new ArrayList<>();
 									for(Integer i:selected){
 										switch(dia.getItemViewType(i)){
 											case 2:
@@ -339,34 +336,22 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 												break;
 											case 1:
 												ati.add(dia.getItem(i));
-												EventBus.getDefault().post(new TaskBean(l1.get(i-1), TaskBean.State.STOP));
+												//删除任务自动发送删除事件
+												//EventBus.getDefault().post(new TaskBean(l1.get(i-1), TaskBean.State.STOP));
 												break;
 										}
 											
 									}
-									download.clearAllTask(ati.toArray(),false);
-									selected.clear();
-									refresh();
-									break;
-								case 1:
-									ati=new ArrayList<>();
-									for(Integer i:selected){
-										switch(dia.getItemViewType(i)){
-											case 2:
-												ati.add(dia.getItem(i));
-												break;
-											case 1:
-												ati.add(dia.getItem(i));
-												EventBus.getDefault().post(new TaskBean(l1.get(i-1), TaskBean.State.STOP));
-												break;
-										}
-										
+									switch(p2){
+										case 0:
+											download.clearAllTask(ati.toArray(),false);
+											break;
+										case 1:
+											download.clearAllTask(ati.toArray(),true);
+											break;
 									}
-									download.clearAllTask(ati.toArray(),true);
 									selected.clear();
 									refresh();
-									break;
-							}
 							p1.dismiss();
 						}
 					}).show();
@@ -483,9 +468,9 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 						break;
 					}
 				}
-				if(!l1.contains(ti)){
-				l1.add(ti);
-				dia.notifyItemInserted(l1.size());}
+//				if(!l1.contains(ti)){
+//				l1.add(ti);
+//				dia.notifyItemInserted(l1.size());}
 			}
 			dia.notifyItemChanged(l1.indexOf(ti) + 1);
 			time = System.currentTimeMillis();

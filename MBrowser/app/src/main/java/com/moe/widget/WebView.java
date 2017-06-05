@@ -88,7 +88,6 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 	private WebHistory wh;
 	private GestureDetector gd=new GestureDetector(this);
 	private BlackList bl;
-	private AlertDialog gps;
 	private HomePage hp;
 	private AddDialog ad;
 	private SharedPreferences shared;
@@ -107,8 +106,6 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		shared = context.getSharedPreferences("webview", 0);
 		shared.registerOnSharedPreferenceChangeListener(this);
 		this.ad = ad;
-		gps = new AlertDialog(context);
-		gps.setTitle("网页请求定位权限");
 		dd = new AlertDialog(context);
 		dd.setTitle("确认删除导航？");
 		dd.setOnClickListener(this);
@@ -385,7 +382,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		@Override
 		public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse)
 		{
-
+			super.onReceivedHttpError(view,request,errorResponse);
 		}
 
         @Override
@@ -426,7 +423,6 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 			}
 			catch (MalformedURLException e)
 			{urlParse(p2);}
-
 		}
 
 
@@ -680,23 +676,15 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		@Override
 		public void onGeolocationPermissionsShowPrompt(final String p1, final GeolocationPermissions.Callback p2)
 		{
-			gps.show();
-			gps.setOnClickListener(new AlertDialog.OnClickListener(){
-
-					@Override
-					public void onClick(View v)
-					{
-						if (v.getId() == 0)
-						{
-							if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-							{ActivityCompat.requestPermissions((Activity)getContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, 49);
-								EventBus.getDefault().post(new com.moe.bean.Message(49, new Object[]{p1,p2}));
-							}
-							else
-								p2.invoke(p1, true, false);
-						}
-					}
-				});    
+			if(shared.getBoolean(Setting.GPS,false)){
+				if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+				{ActivityCompat.requestPermissions((Activity)getContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION}, 49);
+					EventBus.getDefault().post(new com.moe.bean.Message(49, new Object[]{p1,p2}));
+				}
+				else
+					p2.invoke(p1, true, false);
+			}else
+			p2.invoke(p1,false,false);
 		}
 
 
@@ -979,5 +967,8 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		public final static String ALERTDIALOG="alertDialog";
 		//桌面模式
 		public final static String DESKTOP="desktop";
+		//gps
+		public final static String GPS="gps";
+		
 	}
 }

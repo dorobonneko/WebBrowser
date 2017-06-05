@@ -23,7 +23,7 @@ public class TaskInfo
 
 	public boolean getM3u8()
 	{
-		return "application/x-mpegURL".equalsIgnoreCase(type)||type.indexOf("charset")!=-1;
+		return "application/x-mpegURL".equalsIgnoreCase(type)||type.indexOf("text/plain")!=-1;
 	}
 	public void setTag(long time,long size)
 	{

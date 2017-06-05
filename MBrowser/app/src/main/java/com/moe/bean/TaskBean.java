@@ -33,6 +33,6 @@ public class TaskBean
 	}
 
 	public enum State{
-		ADD,UPDATE,DELETE,PAUSE,STOP;
+		ADD,UPDATE,DELETE,PAUSE;
 	}
 }

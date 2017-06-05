@@ -327,12 +327,14 @@ private void loadBookmarks(String dir){
 	public boolean onBackPressed()
 	{
 		if(!isHidden()){
+			if(vp.getCurrentItem()==0){
 		if(drag){
 			toggleMode(false);
 			return true;
 		}else if(bookmark.getMode()==BookmarksAdapter.Mode.ITEM){
 			loadFolder();
 			return true;
+		}
 		}
 		}
 		return false;

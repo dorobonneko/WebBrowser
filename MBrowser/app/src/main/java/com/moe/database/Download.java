@@ -50,6 +50,13 @@ public interface Download
 		//缓冲
 		public final static String BUFFER="buffer";
 		public final static int BUFFER_DEFAULT=2;
+		//重试次数
+		public final static String RELOADSIZE="reloadSize";
+		public final static int RELOADSIZE_DEFAULT=2;
+		//M3U8出错
+		public final static String M3U8ERROR="m3u8Error";
+		public final static int M3U8ERROR_DEFAULT=0;
+		
 	}
 	public abstract interface Callback{
 		void callback(TaskInfo ti,State state);

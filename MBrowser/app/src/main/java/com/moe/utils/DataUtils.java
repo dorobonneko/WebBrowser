@@ -30,7 +30,7 @@ public class DataUtils
 			wv.destroy();
 		if(shared.getBoolean(R.id.datamanager_view_outprograme+"",false))
 			Sqlite.getInstance(context,BlackList.class).clear();
-	}
+		}
 	public static void deleteDir(File f){
 		if(f.isDirectory()){
 			for(File ff:f.listFiles())

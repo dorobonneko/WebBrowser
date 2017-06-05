@@ -20,6 +20,16 @@
 			android:key="threadSize"
 			android:title="线程数"/>
 		<com.moe.preference.DropDownPreference
+			android:key="m3u8Error"
+			android:title="m3u8资源出错"
+			android:entries="@array/m3u8"
+			android:defaultValue="0"/>
+		<com.moe.preference.DropDownPreference
+			android:key="reloadSize"
+			android:title="重试次数"
+			android:entries="@array/size"
+			android:defaultValue="2"/>
+		<com.moe.preference.DropDownPreference
 			android:key="buffer"
 			android:title="缓冲大小"
 			android:summary="单位(byte)"

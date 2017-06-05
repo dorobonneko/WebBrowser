@@ -46,6 +46,7 @@ import com.moe.utils.DataUtils;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 public class DownloadService extends Service
 {
@@ -87,7 +88,7 @@ public class DownloadService extends Service
 					// TODO: Implement this method
 					return true;
 				}
-			}).build();
+			}).connectTimeout(30,TimeUnit.SECONDS).readTimeout(30,TimeUnit.SECONDS).build();
 		startForeground(0, new Notification());
 		EventBus.getDefault().post(this);
 		registerReceiver(new stateChange(),new IntentFilter("com.moe.notification.state"));
@@ -124,14 +125,6 @@ public class DownloadService extends Service
 				downloadlist.put(tb.getTaskInfo().getId(),tb.getTaskInfo());
 				EventBus.getDefault().post(tb.getTaskInfo());
 				break;
-			case STOP:
-				dt=downloadinglist.remove(tb.getTaskInfo().getId());
-					if(dt!=null){
-						dt.pause();
-					dt.cancelNotifycation();}
-					downloadlist.remove(tb.getTaskInfo().getId());
-				
-				break;
 			case PAUSE:
 				dt=downloadinglist.remove(tb.getTaskInfo().getId());
 				if(dt!=null)dt.pause();
@@ -141,8 +134,8 @@ public class DownloadService extends Service
 				break;
 			case DELETE:
 				dt=downloadinglist.remove(tb.getTaskInfo().getId());
-				if(dt!=null)dt.pause();
-					downloadlist.remove(tb.getTaskInfo().getId());
+				if(dt!=null){dt.pause();dt.cancelNotifycation();}
+				downloadlist.remove(tb.getTaskInfo().getId());
 				break;
 		}
 		checkSize();

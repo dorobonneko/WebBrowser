@@ -26,6 +26,8 @@ public class DownloadFragment extends PreferenceFragment implements Preference.O
 		sbp.setDefaultValue(Runtime.getRuntime().availableProcessors()-1);
 		findPreference(Download.Setting.DIR).setOnPreferenceClickListener(this);
 		findPreference(Download.Setting.DIR).setSummary(getPreferenceManager().getSharedPreferences().getString(Download.Setting.DIR,Download.Setting.DIR_DEFAULT));
+		findPreference(Download.Setting.M3U8ERROR).setSummary(getResources().getTextArray(R.array.m3u8_summary)[getPreferenceManager().getSharedPreferences().getInt(Download.Setting.M3U8ERROR,Download.Setting.M3U8ERROR_DEFAULT)]);
+		findPreference(Download.Setting.M3U8ERROR).setOnPreferenceChangeListener(this);
 	}
 
 	@Override
@@ -34,6 +36,9 @@ public class DownloadFragment extends PreferenceFragment implements Preference.O
 		switch(p1.getKey()){
 			case Download.Setting.MULTITHREAD:
 				findPreference(Download.Setting.THREADSIZE).setEnabled(p2);
+				break;
+			case Download.Setting.M3U8ERROR:
+				findPreference(Download.Setting.M3U8ERROR).setSummary(getResources().getTextArray(R.array.m3u8_summary)[(Integer)p2]);
 				break;
 		}
 		return true;

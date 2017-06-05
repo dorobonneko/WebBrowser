@@ -77,14 +77,17 @@ public TaskInfo getItem(int position){
 			TaskInfo ti=l1.get(p2-1);
 			long size=0;
 			long speed;
+			long length=0;
 			if(ti.getDownloadinfo()!=null){
 			for(DownloadInfo di:ti.getDownloadinfo()){
 				size+=di.getCurrent()-di.getStart();
+					length+=di.getEnd();
 			}
-			vh.pb.setProgress((int)(size/(double)ti.getLength()*100));
+			if(!ti.getM3u8())length=ti.getLength();
+			vh.pb.setProgress((int)(size/(double)length*100));
 			}
 			vh.title.setText(ti.getTaskname());
-			vh.size.setText(new DecimalFormat("0.00").format(size/1024.0/1024)+"/"+new DecimalFormat("0.00").format(ti.getLength()/1024.0/1024)+"MB");
+			vh.size.setText(new DecimalFormat("0.00").format(size/1024.0/1024)+"/"+new DecimalFormat("0.00").format(length/1024.0/1024)+"MB");
 			if(ti.getTag()!=null){
 				double time=(System.currentTimeMillis()-ti.getTag()[0])/1000.0;
 				long s=size-ti.getTag()[1];

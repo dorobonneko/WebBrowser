@@ -54,6 +54,7 @@ public class DownloadTask extends Thread
 	private RemoteViews remoteviews;
 	private long time;
 	private NotificationManager nm;
+	private int errorsize=0;
 	public DownloadTask(DownloadService ds, TaskInfo ti, OkHttpClient ok)
 	{
 		this.ti = ti;
@@ -71,11 +72,12 @@ public class DownloadTask extends Thread
 	public void cancelNotifycation()
 	{
 		nm.cancel(ti.getId());
+		nm=null;
 	}
 
 	public void itemFinish(DownloadBlock p0)
 	{
-		if (p0.isSuccess() && ldb.size() > 0)
+		if (p0.isSuccess())
 			for (DownloadBlock db:ldb)
 			{
 				if (!db.isSuccess())
@@ -83,12 +85,32 @@ public class DownloadTask extends Thread
 			}
 		else
 		{
+			if(!ti.getM3u8()){
+			if(errorsize++<Integer.parseInt(ds.getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.RELOADSIZE,Download.Setting.RELOADSIZE_DEFAULT)].toString())){
+				p0.start();
+				return;
+			}}else{
+				switch(shared.getInt(Download.Setting.M3U8ERROR,Download.Setting.M3U8ERROR_DEFAULT)){
+					case 0:break;
+					case 1:return;
+					case 2:
+						if(p0.getErrorsize()<Integer.parseInt(ds.getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.RELOADSIZE,Download.Setting.RELOADSIZE_DEFAULT)].toString()))
+						{p0.start();
+						p0.setErrorsize(p0.getErrorsize()+1);
+						return;}
+						else break;
+					
+				}
+			}
 			pause();
 			ti.setState(State.FAIL);
 			EventBus.getDefault().post(ti);
 			ds.taskItemFinish(ti.getId(), false);
 			return;
 		}
+		if(ti.isSuccess())return;
+		else{
+		ti.setSuccess(true);
 		if(ti.getM3u8()){
 			//合并文件
 			File file=new File(ti.getDir(),ti.getTaskname());
@@ -121,10 +143,10 @@ public class DownloadTask extends Thread
 			DataUtils.deleteDir(file);
 			tmp.renameTo(file);
 		}
-		ti.setSuccess(true);
 		download.updateTaskInfoData(ti);
 		EventBus.getDefault().post(ti);
 		ds.taskItemFinish(ti.getId(), true);
+		}
 	}
 	public Context getContext()
 	{
@@ -183,7 +205,12 @@ public class DownloadTask extends Thread
 		}
 
 	}
-
+	private void startTask(){
+		for(DownloadBlock db:ldb)
+			if(ti.getState()==State.DOWNLOADING){
+				db.start();
+		}
+	}
 	@Override
 	public void run()
 	{
@@ -197,12 +224,15 @@ public class DownloadTask extends Thread
 				download.deleteDownloadInfoWithId(ti.getId());ti.setDownloadinfo(null); start();return;//下载的文件已被删除，删除下载信息并重启任务
 			}
 			//循环遍历并加载任务
-			ti.setState(State.DOWNLOADING);
-			sendMessage();
+			
 			for (DownloadInfo di:ldi)
 			{
+				if(!di.isSuccess())//避免创建已完成块，以免浪费资源
 				ldb.add(new DownloadBlock(this, di));
 			}
+			ti.setState(State.DOWNLOADING);
+			sendMessage();
+			startTask();
 			return;
 		}
 		ti.setState(State.QUERY);
@@ -230,7 +260,7 @@ public class DownloadTask extends Thread
 					break;
 				case 206:
 					ti.setSupport(TaskInfo.Pause.SUPPORT);
-					ti.setMultiThread("close".equalsIgnoreCase(response.header("Connection")) ?false: true && shared.getBoolean(Download.Setting.MULTITHREAD, Download.Setting.MULTITHREAD_DEFAULT));
+					ti.setMultiThread(shared.getBoolean(Download.Setting.MULTITHREAD, Download.Setting.MULTITHREAD_DEFAULT));
 					break;
 				default:
 					//链接无效
@@ -268,6 +298,7 @@ public class DownloadTask extends Thread
 				for (int i=0;i < ls.size();i++)
 				{
 					DownloadInfo di=new DownloadInfo();
+					di.setTaskId(ti.getId());
 					di.setNo(i);
 					di.setCurrent(0);
 					di.setStart(0);
@@ -301,8 +332,6 @@ public class DownloadTask extends Thread
 				ti.setState(State.TEMPFILE);
 				sendMessage();
 				raf.close();
-				ti.setState(State.DOWNLOADING);
-				sendMessage();
 				int size=0;//多线程数量
 				if (ti.isMultiThread())
 					size = shared.getInt(Download.Setting.THREADSIZE, Download.Setting.THREADSIZE_DEFAULE);
@@ -325,9 +354,10 @@ public class DownloadTask extends Thread
 					ldb.add(new DownloadBlock(this, di));
 				}//循环
 			}
-
 			ti.setDownloadinfo(ad);
 			download.updateTaskInfoData(ti);
+			ti.setState(State.DOWNLOADING);
+			startTask();
 		}
 		catch (Exception e)
 		{
@@ -380,20 +410,24 @@ public class DownloadTask extends Thread
 	@Subscribe
 	public void refresh(TaskInfo ti)
 	{
+		if(nm==null)return;
 		if (ti != this.ti)return;
 		if (!ti.isDownloading() || System.currentTimeMillis() - time > 1000)
 		{
 			long size=0;
 			long speed;
+			long length=0;
 			if (ti.getDownloadinfo() != null)
 			{
 				for (DownloadInfo di:ti.getDownloadinfo())
 				{
 					size += di.getCurrent() - di.getStart();
+					length+=di.getEnd();
 				}
-				remoteviews.setProgressBar(R.id.notificationview_progress, 100, (int)(size / (double)ti.getLength() * 100), false);
+				if(!ti.getM3u8())length=ti.getLength();
+				remoteviews.setProgressBar(R.id.notificationview_progress, 100, (int)(size / (double)length * 100), false);
 			}
-			remoteviews.setTextViewText(R.id.notificationview_size, new DecimalFormat("0.00").format(size / 1024.0 / 1024) + "/" + new DecimalFormat("0.00").format(ti.getLength() / 1024.0 / 1024) + "MB");
+			remoteviews.setTextViewText(R.id.notificationview_size, new DecimalFormat("0.00").format(size / 1024.0 / 1024) + "/" + new DecimalFormat("0.00").format(length/ 1024.0 / 1024) + "MB");
 			if (ti.getTag() != null)
 			{
 				double time=(System.currentTimeMillis() - ti.getTag()[0]) / 1000.0;

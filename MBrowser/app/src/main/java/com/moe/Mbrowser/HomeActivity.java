@@ -119,6 +119,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 		shared = getSharedPreferences("moe", 0);
 		setContentView(R.layout.main);
 		Theme.registerBackground(findViewById(R.id.main));
@@ -386,7 +387,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 				break;
 		}
 	}
-	@Subscribe
+	/**@Subscribe
 	public void download(DownloadTask dt)
 	{
 		if (dt.getStateOfTask() == DownloadTask.State.DNS)
@@ -396,7 +397,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 			ad.setTitle("疑似网络劫持");
 			ad.show();
 		}
-	}
+	}*/
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
@@ -548,12 +549,7 @@ private void loadURL(Intent intent){
 			main();
 				break;
 	}
-	dd = new DownloadDialog(this);
-	if (shared.getBoolean("full", false))
-	{
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		((MainFragment)main).setPadding(true);
-	}
+	
 	
 }
 private void main(){

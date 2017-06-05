@@ -46,4 +46,14 @@
 			<item>#ff607d8b</item>
 			<item>#ffffffff</item>
 		</string-array>
+		<string-array name="m3u8">
+			<item>中断下载</item>
+			<item>中断出错</item>
+			<item>重新发起</item>
+		</string-array>
+		<string-array name="m3u8_summary">
+			<item>中断所有资源下载</item>
+			<item>中断当前出错的资源</item>
+			<item>重新下载出错的资源</item>
+		</string-array>
 	</resources>
