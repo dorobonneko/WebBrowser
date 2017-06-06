@@ -20,10 +20,20 @@ public class TaskInfo
 	private DownloadTask.State state=DownloadTask.State.PAUSE;
 	private long time;
 	private long[] tag=null;
+	private boolean forbidden=false;
 
+	public void setForbidden(boolean forbidden)
+	{
+		this.forbidden = forbidden;
+	}
+
+	public boolean isForbidden()
+	{
+		return forbidden;
+	}
 	public boolean getM3u8()
 	{
-		return "application/x-mpegURL".equalsIgnoreCase(type)||type.indexOf("text/plain")!=-1;
+		return "application/x-mpegURL".equalsIgnoreCase(type)||"application/vnd.apple.mpegurl".equalsIgnoreCase(type);
 	}
 	public void setTag(long time,long size)
 	{

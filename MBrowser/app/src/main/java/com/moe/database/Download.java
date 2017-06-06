@@ -11,7 +11,7 @@ public interface Download
 
 	void renameTask(int id, String toString);
 
-	void clearAllTask(Object[] id,boolean file);
+	void clearAllTask(TaskInfo[] id,boolean file);
 	void clearAllSuccessTask(boolean file);
 
 	void addTaskInfo(TaskInfo ti,Callback call);

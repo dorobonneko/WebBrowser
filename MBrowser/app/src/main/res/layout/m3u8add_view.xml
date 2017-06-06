@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:layout_marginStart="20dp"
+	android:layout_marginEnd="20dp">
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:text="创建m3u8下载任务"/>
+
+	<android.support.design.widget.TextInputLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/m3u8add_view_hint">
+
+		<EditText
+			android:id="@+id/m3u8add_view_name"
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:singleLine="true"
+			android:hint="名称"/>
+
+	</android.support.design.widget.TextInputLayout>
+
+	<TextView
+		android:id="@+id/m3u8add_view_path"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"/>
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:gravity="end">
+
+		<Button
+			android:id="@+id/m3u8add_view_sure"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/sure"/>
+
+		<Button
+			android:id="@+id/m3u8add_view_cancel"
+			android:background="?attr/selectableItemBackgroundBorderless"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/cancel"/>
+
+	</LinearLayout>
+
+</LinearLayout>
+

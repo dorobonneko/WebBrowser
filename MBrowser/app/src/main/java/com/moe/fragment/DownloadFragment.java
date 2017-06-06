@@ -244,21 +244,14 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 								case 0:
 									TaskInfo ti = null;
 									for(Integer i:selected){
-										switch(dia.getItemViewType(i)){
-											case 2:
-												ti=dia.getItem(i);
-												break;
-											case 1:
-												ti=dia.getItem(i);
-												EventBus.getDefault().post(new TaskBean(ti, TaskBean.State.PAUSE));
-												break;
-										}
-										download.deleteTaskInfoWithId(ti.getId());
+											ti=dia.getItem(i);
+										download.clearAllTask(new TaskInfo[]{ti},true);
 										ti.setSuccess(false);
 										ti.setDownloadinfo(null);
 										//download.deleteDownloadInfoWithId(ti.getId());
 										download.addTaskInfo(ti,null);
-									}
+										}
+										
 									selected.clear();
 									refresh();
 									break;
@@ -344,10 +337,10 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 									}
 									switch(p2){
 										case 0:
-											download.clearAllTask(ati.toArray(),false);
+											download.clearAllTask(ati.toArray(new TaskInfo[]{}),false);
 											break;
 										case 1:
-											download.clearAllTask(ati.toArray(),true);
+											download.clearAllTask(ati.toArray(new TaskInfo[]{}),true);
 											break;
 									}
 									selected.clear();

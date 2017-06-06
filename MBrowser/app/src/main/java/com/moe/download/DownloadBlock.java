@@ -11,6 +11,7 @@ import com.moe.Mbrowser.R;
 import de.greenrobot.event.EventBus;
 import android.text.TextUtils;
 import okhttp3.ResponseBody;
+import java.util.zip.GZIPInputStream;
 
 public class DownloadBlock extends Thread
 {
@@ -44,7 +45,7 @@ public class DownloadBlock extends Thread
 	@Override
 	public void run()
 	{
-		if (!isSuccess() && !(di.getCurrent() == di.getEnd() && di.getEnd() > 0))
+		if (!isSuccess())
 		{
 			Request.Builder request=new Request.Builder();
 			if (!TextUtils.isEmpty(dt.getTaskInfo().getCookie()))
@@ -52,16 +53,20 @@ public class DownloadBlock extends Thread
 			if (!TextUtils.isEmpty(dt.getTaskInfo().getUserAgent()))
 				request.addHeader("User-Agent", dt.getTaskInfo().getUserAgent());
 			//if(ti.getSourceUrl()!=null)
-			//request.addHeader("Referer",ti.getSourceUrl());
+			if(dt.getTaskInfo().isForbidden())
+			request.addHeader("Referer",dt.getTaskInfo().getTaskurl());
 			request.addHeader("Accept", "*/*");
-			request.addHeader("Connection", "close");
-			request.addHeader("Icy-MetaData", "1");
+			request.addHeader("Connection", "Keep-Alive");
+			//request.addHeader("Icy-MetaData", "1");
+			request.addHeader("Accept-Encoding","gzip");
 			request.addHeader("Range", "bytes=" + di.getCurrent() + "-" + (di.getEnd() < 1 ?"": di.getEnd()));
 			try
 			{
 				response = dt.getOkHttpCliebt().newCall(request.url(di.getUrl()).build()).execute();
 				ResponseBody rb=response.body();
 				is = rb.byteStream();
+				if("gzip".equalsIgnoreCase(response.header("Content-Encoding")))
+					is=new GZIPInputStream(is);
 				if (di.getEnd() == 0)
 				{
 					long length=0;
@@ -111,7 +116,7 @@ public class DownloadBlock extends Thread
 				di.setSuccess(true);
 				dt.getDownload().updateDownloadInfoWithData(di);
 			}
-			catch (IOException e)
+			catch (Exception e)
 			{
 				if (!pause)
 					dt.itemFinish(this);

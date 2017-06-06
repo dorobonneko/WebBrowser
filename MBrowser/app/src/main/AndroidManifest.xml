@@ -21,7 +21,6 @@
             android:name=".HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -32,27 +31,12 @@
                 <data android:scheme="https" />
                 <data android:scheme="about" />
                 <data android:scheme="javascript" />
-            </intent-filter>
-            <!--  For these schemes where any of these particular MIME types
-            have been supplied, we are a good candidate. -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-                <data android:scheme="inline" />
+				<data android:scheme="inline" />
 				<data android:scheme="file"/>
                 <data android:mimeType="text/html"/>
                 <data android:mimeType="text/plain"/>
                 <data android:mimeType="application/xhtml+xml"/>
                 <data android:mimeType="application/vnd.wap.xhtml+xml"/>
-            </intent-filter>
-            <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="file" />
             </intent-filter>
 			<intent-filter>
 				<action android:name="android.intent.action.WEB_SEARCH" />
@@ -61,20 +45,29 @@
 				<category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
+		<activity
+			android:excludeFromRecents="true"
+			android:name=".M3u8AddActivity"
+			android:label="m3u8视频文件"
+			android:theme="@style/searchDialog">
+			<intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="file" 
+					android:mimeType="text/plain"/>
+				<data android:scheme="file" 
+					android:mimeType="text/html"/>
+				<data android:scheme="file" 
+					android:mimeType="application/x-mpegURL"/>
+				<data android:scheme="file" 
+					android:mimeType="application/vnd.apple.mpegurl"/>
+				<data android:scheme="file" 
+					android:mimeType="text/*"/>
+			</intent-filter>
+		</activity>
         <activity android:name=".ExceptionActivity"/>
         <activity android:name=".DataManager"/>
 		<activity android:name=".FileExplorer"/>
-        <!--<activity
-            android:name="com.tencent.smtt.sdk.VideoActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:exported="false"
-            android:launchMode="singleTask"
-            android:alwaysRetainTaskState="true">
-            <intent-filter>
-                <action android:name="com.tencent.smtt.tbs.video.PLAY" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>-->
 		<service android:name=".DownloadService"/>
 		<service android:name=".ResourceService"/>
 		<provider

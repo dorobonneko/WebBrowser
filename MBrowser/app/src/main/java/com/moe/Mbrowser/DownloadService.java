@@ -47,6 +47,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import android.app.NotificationManager;
 
 public class DownloadService extends Service
 {
@@ -57,6 +58,7 @@ public class DownloadService extends Service
 	private SharedPreferences shared;
 	private NetworkState network;
 	private OkHttpClient okhttp;
+	private NotificationManager nm;
 	@Override
 	public IBinder onBind(Intent p1)
 	{
@@ -68,6 +70,7 @@ public class DownloadService extends Service
 	public void onCreate()
 	{
 		super.onCreate();
+		nm=getSystemService(NotificationManager.class);
 		shared=getSharedPreferences("download",0);
 		EventBus.getDefault().register(this);
 		SSLContext ssl=null;
@@ -136,6 +139,7 @@ public class DownloadService extends Service
 				dt=downloadinglist.remove(tb.getTaskInfo().getId());
 				if(dt!=null){dt.pause();dt.cancelNotifycation();}
 				downloadlist.remove(tb.getTaskInfo().getId());
+				nm.cancel(tb.getTaskInfo().getId());
 				break;
 		}
 		checkSize();

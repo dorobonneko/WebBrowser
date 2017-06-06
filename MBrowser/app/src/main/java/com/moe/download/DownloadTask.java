@@ -34,15 +34,21 @@ import android.text.TextUtils;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 import java.io.ByteArrayOutputStream;
-import com.moe.utils.M3u8Utils;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.io.FileInputStream;
 import com.moe.utils.DataUtils;
+import com.moe.m3u.M3uParser;
+import java.net.URI;
+import com.moe.m3u.M3uList;
+import java.util.zip.GZIPInputStream;
+import com.moe.m3u.tag.M3uTag;
+import com.moe.m3u.tag.M3uXStreamInfTag;
+import com.moe.m3u.tag.M3uInfTag;
 
 public class DownloadTask extends Thread
 {
-	private List<DownloadBlock> ldb=new ArrayList<>();
+	private List<DownloadBlock> ldb;
 	private TaskInfo ti;
 	private DownloadService ds;
 	private OkHttpClient okhttp;
@@ -59,6 +65,7 @@ public class DownloadTask extends Thread
 	{
 		this.ti = ti;
 		this.ds = ds;
+		ldb = new ArrayList<>();
 		this.download = Sqlite.getInstance(ds, Download.class);
 		nm = ds.getSystemService(NotificationManager.class);
 		okhttp = ok;
@@ -72,81 +79,93 @@ public class DownloadTask extends Thread
 	public void cancelNotifycation()
 	{
 		nm.cancel(ti.getId());
-		nm=null;
+		nm = null;
 	}
 
 	public void itemFinish(DownloadBlock p0)
 	{
 		if (p0.isSuccess())
+		{
 			for (DownloadBlock db:ldb)
 			{
 				if (!db.isSuccess())
 					return;
 			}
+			if (ti.isSuccess())return;//任务全部成功
+			else if (ti.getM3u8())
+			{
+				ti.setSuccess(true);
+				//合并文件
+				File file=new File(ti.getDir(), ti.getTaskname());
+				File[] lf=file.listFiles();
+				Arrays.sort(lf, new Comparator<File>(){
+
+						@Override
+						public int compare(File p1, File p2)
+						{
+							return Integer.compare(Integer.parseInt(p1.getName()), Integer.parseInt(p2.getName()));
+						}
+					});
+				File tmp=new File(ti.getDir(), System.currentTimeMillis() + "");
+				try
+				{
+					int len=0;
+					byte[] b=new byte[10240];
+					FileOutputStream fos=new FileOutputStream(tmp);
+					for (File l:lf)
+					{
+						FileInputStream fis=new FileInputStream(l);
+						while ((len = fis.read(b)) != -1)
+							fos.write(b, 0, len);
+						fis.close();
+					}
+					fos.flush();
+					fos.close();
+				}
+				catch (Exception e)
+				{}
+				DataUtils.deleteDir(file);
+				tmp.renameTo(file);
+			}
+			ti.setSuccess(true);
+			download.updateTaskInfoData(ti);
+			EventBus.getDefault().post(ti);
+			ds.taskItemFinish(ti.getId(), true);
+		}
 		else
 		{
-			if(!ti.getM3u8()){
-			if(errorsize++<Integer.parseInt(ds.getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.RELOADSIZE,Download.Setting.RELOADSIZE_DEFAULT)].toString())){
-				p0.start();
-				return;
-			}}else{
-				switch(shared.getInt(Download.Setting.M3U8ERROR,Download.Setting.M3U8ERROR_DEFAULT)){
+			if (ti.getM3u8())
+			{
+				switch (shared.getInt(Download.Setting.M3U8ERROR, Download.Setting.M3U8ERROR_DEFAULT))
+				{
 					case 0:break;
 					case 1:return;
-					case 2:
-						if(p0.getErrorsize()<Integer.parseInt(ds.getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.RELOADSIZE,Download.Setting.RELOADSIZE_DEFAULT)].toString()))
+					case 2://重试当前出错任务
+						if (p0.getErrorsize() < Integer.parseInt(ds.getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.RELOADSIZE, Download.Setting.RELOADSIZE_DEFAULT)].toString()))
 						{p0.start();
-						p0.setErrorsize(p0.getErrorsize()+1);
-						return;}
-						else break;
-					
+							p0.setErrorsize(p0.getErrorsize() + 1);
+							return;}
+						else return;
+
+				}
+
+			}
+			else
+			{
+				if (errorsize++ < Integer.parseInt(ds.getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.RELOADSIZE, Download.Setting.RELOADSIZE_DEFAULT)].toString()))
+				{
+					p0.start();
+					return;
 				}
 			}
 			pause();
 			ti.setState(State.FAIL);
 			EventBus.getDefault().post(ti);
 			ds.taskItemFinish(ti.getId(), false);
-			return;
 		}
-		if(ti.isSuccess())return;
-		else{
-		ti.setSuccess(true);
-		if(ti.getM3u8()){
-			//合并文件
-			File file=new File(ti.getDir(),ti.getTaskname());
-			File[] lf=file.listFiles();
-			Arrays.sort(lf,new Comparator<File>(){
+		
 
-					@Override
-					public int compare(File p1, File p2)
-					{
-						return Integer.compare(Integer.parseInt(p1.getName()),Integer.parseInt(p2.getName()));
-					}
-				});
-			File tmp=new File(ti.getDir(),System.currentTimeMillis()+"");
-			try
-			{
-				int len=0;
-				byte[] b=new byte[10240];
-				FileOutputStream fos=new FileOutputStream(tmp);
-				for(File l:lf){
-					FileInputStream fis=new FileInputStream(l);
-					while((len=fis.read(b))!=-1)
-						fos.write(b,0,len);
-					fis.close();
-				}
-				fos.flush();
-				fos.close();
-			}
-			catch (Exception e)
-			{}
-			DataUtils.deleteDir(file);
-			tmp.renameTo(file);
-		}
-		download.updateTaskInfoData(ti);
-		EventBus.getDefault().post(ti);
-		ds.taskItemFinish(ti.getId(), true);
-		}
+
 	}
 	public Context getContext()
 	{
@@ -205,12 +224,15 @@ public class DownloadTask extends Thread
 		}
 
 	}
-	private void startTask(){
-		for(DownloadBlock db:ldb)
-			if(ti.getState()==State.DOWNLOADING){
+	private void startTask()
+	{
+		for (DownloadBlock db:ldb)
+			if (ti.getState() == State.DOWNLOADING)
+			{
 				db.start();
-		}
+			}
 	}
+
 	@Override
 	public void run()
 	{
@@ -218,17 +240,17 @@ public class DownloadTask extends Thread
 		List<DownloadInfo> ldi=ti.getDownloadinfo();
 		if (ldi != null && ldi.size() > 0)
 		{
-			File f=new File(ti.getDir(), ti.getTaskname());
-			if (!f.exists())
-			{
-				download.deleteDownloadInfoWithId(ti.getId());ti.setDownloadinfo(null); start();return;//下载的文件已被删除，删除下载信息并重启任务
-			}
+			/**File f=new File(ti.getDir(), ti.getTaskname());
+			 if (!f.exists())
+			 {
+			 download.deleteDownloadInfoWithId(ti.getId());ti.setDownloadinfo(null); start();return;//下载的文件已被删除，删除下载信息并重启任务
+			 }*/
 			//循环遍历并加载任务
-			
+
 			for (DownloadInfo di:ldi)
 			{
-				if(!di.isSuccess())//避免创建已完成块，以免浪费资源
-				ldb.add(new DownloadBlock(this, di));
+				if (!di.isSuccess())//避免创建已完成块，以免浪费资源
+					ldb.add(new DownloadBlock(this, di));
 			}
 			ti.setState(State.DOWNLOADING);
 			sendMessage();
@@ -244,11 +266,13 @@ public class DownloadTask extends Thread
 		if (!TextUtils.isEmpty(ti.getUserAgent()))
 			request.addHeader("User-Agent", ti.getUserAgent());
 		//if(ti.getSourceUrl()!=null)
-		//request.addHeader("Referer",ti.getSourceUrl());
+		if (ti.isForbidden())
+			request.addHeader("Referer", ti.getTaskurl());
 		request.addHeader("Accept", "*/*");
-		request.addHeader("Connection", "close");
-		request.addHeader("Icy-MetaData", "1");
+		request.addHeader("Connection", "Keep-Alive");
+		//request.addHeader("Icy-MetaData", "1");
 		request.addHeader("Range", "bytes=0-");
+		request.addHeader("Accept-Encoding", "gzip");
 		try
 		{
 			response = okhttp.newCall(request.url(ti.getTaskurl()).build()).execute();
@@ -262,6 +286,10 @@ public class DownloadTask extends Thread
 					ti.setSupport(TaskInfo.Pause.SUPPORT);
 					ti.setMultiThread(shared.getBoolean(Download.Setting.MULTITHREAD, Download.Setting.MULTITHREAD_DEFAULT));
 					break;
+				case 403://有防盗链
+					ti.setForbidden(true);
+					start();
+					return;
 				default:
 					//链接无效
 					ti.setState(State.INVALIDE);
@@ -275,7 +303,7 @@ public class DownloadTask extends Thread
 				length = Long.parseLong(response.header("Content-Length"));
 			}
 			catch (Exception e)
-			{length=response.body().contentLength();}
+			{length = response.body().contentLength();}
 			ti.setLength(length);
 			if (!TextUtils.isEmpty(response.header("Content-Type")))
 				ti.setType(response.header("Content-Type"));
@@ -284,33 +312,48 @@ public class DownloadTask extends Thread
 			{
 				//m3u8
 				InputStream is=response.body().byteStream();
-				ByteArrayOutputStream baos=new ByteArrayOutputStream();
-				int len=0;
-				byte[] b=new byte[8072];
-				while ((len = is.read(b)) != -1)
-				{
-					baos.write(b, 0, len);
-				}
-				baos.flush();
+				if ("gzip".equalsIgnoreCase(response.header("Content-Encoding")))
+					is = new GZIPInputStream(is);
+				M3uList ml=M3uParser.parse(is, URI.create(ti.getTaskurl())).getList();
 				is.close();
-				List<String> ls=M3u8Utils.pauser(new String(baos.toByteArray()));
-				baos.close();
-				for (int i=0;i < ls.size();i++)
+				switch (ml.getType())
 				{
-					DownloadInfo di=new DownloadInfo();
-					di.setTaskId(ti.getId());
-					di.setNo(i);
-					di.setCurrent(0);
-					di.setStart(0);
-					di.setUrl(ls.get(i));
-					ad.add(di);
-					ldb.add(new DownloadBlock(this, di));
+					case MASTER:
+						for (M3uTag mt:ml.getList())
+						{
+							if (mt instanceof M3uXStreamInfTag)
+							{
+								ti.setTaskurl(((M3uXStreamInfTag)mt).getUrl());
+								start();
+								return;
+							}
+						}
+						break;
+					case MEDIA:
+						if (ml.isLive())throw new IOException("不支持直播m3u8");
+						for (M3uTag mt:ml.getList())
+						{
+							if (mt instanceof M3uInfTag)
+							{
+								DownloadInfo di=new DownloadInfo();
+								di.setTaskId(ti.getId());
+								di.setNo(ad.size());
+								di.setCurrent(0);
+								di.setStart(0);
+								di.setUrl(((M3uInfTag)mt).getUrl());
+								ad.add(di);
+								ldb.add(new DownloadBlock(this, di));
+							}
+						}
+						break;
 				}
+
 			}
 			else
 			{
 				File f=new File(ti.getDir());
-				if (!f.exists())f.mkdirs();
+				if (!f.exists())
+					f.mkdirs();
 				if (!f.canWrite())
 				{
 					//无权限读写
@@ -328,7 +371,9 @@ public class DownloadTask extends Thread
 
 					return;
 				}
-				raf = new RandomAccessFile(new File(f, ti.getTaskname()), "rw");
+				File file=new File(f, ti.getTaskname());
+				if (file.exists())DataUtils.deleteDir(file);
+				raf = new RandomAccessFile(file, "rw");
 				ti.setState(State.TEMPFILE);
 				sendMessage();
 				raf.close();
@@ -410,7 +455,7 @@ public class DownloadTask extends Thread
 	@Subscribe
 	public void refresh(TaskInfo ti)
 	{
-		if(nm==null)return;
+		if (nm == null)return;
 		if (ti != this.ti)return;
 		if (!ti.isDownloading() || System.currentTimeMillis() - time > 1000)
 		{
@@ -422,12 +467,12 @@ public class DownloadTask extends Thread
 				for (DownloadInfo di:ti.getDownloadinfo())
 				{
 					size += di.getCurrent() - di.getStart();
-					length+=di.getEnd();
+					length += di.getEnd();
 				}
-				if(!ti.getM3u8())length=ti.getLength();
+				if (!ti.getM3u8())length = ti.getLength();
 				remoteviews.setProgressBar(R.id.notificationview_progress, 100, (int)(size / (double)length * 100), false);
 			}
-			remoteviews.setTextViewText(R.id.notificationview_size, new DecimalFormat("0.00").format(size / 1024.0 / 1024) + "/" + new DecimalFormat("0.00").format(length/ 1024.0 / 1024) + "MB");
+			remoteviews.setTextViewText(R.id.notificationview_size, new DecimalFormat("0.00").format(size / 1024.0 / 1024) + "/" + new DecimalFormat("0.00").format(length / 1024.0 / 1024) + "MB");
 			if (ti.getTag() != null)
 			{
 				double time=(System.currentTimeMillis() - ti.getTag()[0]) / 1000.0;
