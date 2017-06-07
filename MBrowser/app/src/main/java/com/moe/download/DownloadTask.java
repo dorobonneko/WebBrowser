@@ -9,7 +9,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import java.io.IOException;
 import okhttp3.Headers;
-import de.greenrobot.event.EventBus;
 import android.content.SharedPreferences;
 import com.moe.database.Download;
 import java.io.RandomAccessFile;
@@ -56,10 +55,6 @@ public class DownloadTask extends Thread
 	private Download download;
 	private Response response;
 	private RandomAccessFile raf;
-	private Notification.Builder nb;
-	private RemoteViews remoteviews;
-	private long time;
-	private NotificationManager nm;
 	private int errorsize=0;
 	public DownloadTask(DownloadService ds, TaskInfo ti, OkHttpClient ok)
 	{
@@ -67,19 +62,10 @@ public class DownloadTask extends Thread
 		this.ds = ds;
 		ldb = new ArrayList<>();
 		this.download = Sqlite.getInstance(ds, Download.class);
-		nm = ds.getSystemService(NotificationManager.class);
 		okhttp = ok;
 		shared = ds.getSharedPreferences("download", 0);
 		setPriority(Thread.MIN_PRIORITY);
-		getNotificafion();
-		EventBus.getDefault().register(this);
 		start();
-	}
-
-	public void cancelNotifycation()
-	{
-		nm.cancel(ti.getId());
-		nm = null;
 	}
 
 	public void itemFinish(DownloadBlock p0)
@@ -92,7 +78,7 @@ public class DownloadTask extends Thread
 					return;
 			}
 			if (ti.isSuccess())return;//任务全部成功
-			else if (ti.getM3u8())
+			if (ti.getM3u8())
 			{
 				ti.setSuccess(true);
 				//合并文件
@@ -129,7 +115,6 @@ public class DownloadTask extends Thread
 			}
 			ti.setSuccess(true);
 			download.updateTaskInfoData(ti);
-			EventBus.getDefault().post(ti);
 			ds.taskItemFinish(ti.getId(), true);
 		}
 		else
@@ -142,11 +127,11 @@ public class DownloadTask extends Thread
 					case 1:return;
 					case 2://重试当前出错任务
 						if (p0.getErrorsize() < Integer.parseInt(ds.getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.RELOADSIZE, Download.Setting.RELOADSIZE_DEFAULT)].toString()))
-						{p0.start();
+						{
+							p0.start();
 							p0.setErrorsize(p0.getErrorsize() + 1);
 							return;}
-						else return;
-
+						break;
 				}
 
 			}
@@ -160,12 +145,8 @@ public class DownloadTask extends Thread
 			}
 			pause();
 			ti.setState(State.FAIL);
-			EventBus.getDefault().post(ti);
 			ds.taskItemFinish(ti.getId(), false);
 		}
-		
-
-
 	}
 	public Context getContext()
 	{
@@ -206,7 +187,7 @@ public class DownloadTask extends Thread
 				try
 				{
 					raf.close();
-					new File(ti.getDir(), ti.getTaskname()).delete();
+					DataUtils.deleteDir(new File(ti.getDir(), ti.getTaskname()));
 				}
 				catch (IOException e)
 				{}
@@ -224,57 +205,57 @@ public class DownloadTask extends Thread
 		}
 
 	}
-	private void startTask()
+	private void startTask() throws Exception
 	{
 		for (DownloadBlock db:ldb)
 			if (ti.getState() == State.DOWNLOADING)
-			{
-				db.start();
-			}
+				try
+				{db.start();}
+				catch (Exception e)
+				{throw new Exception();}
 	}
 
 	@Override
 	public void run()
 	{
-		//判断任务是否已经存在，如果不存在则创建查询
-		List<DownloadInfo> ldi=ti.getDownloadinfo();
-		if (ldi != null && ldi.size() > 0)
-		{
-			/**File f=new File(ti.getDir(), ti.getTaskname());
-			 if (!f.exists())
-			 {
-			 download.deleteDownloadInfoWithId(ti.getId());ti.setDownloadinfo(null); start();return;//下载的文件已被删除，删除下载信息并重启任务
-			 }*/
-			//循环遍历并加载任务
-
-			for (DownloadInfo di:ldi)
-			{
-				if (!di.isSuccess())//避免创建已完成块，以免浪费资源
-					ldb.add(new DownloadBlock(this, di));
-			}
-			ti.setState(State.DOWNLOADING);
-			sendMessage();
-			startTask();
-			return;
-		}
-		ti.setState(State.QUERY);
-		sendMessage();
-		//构造请求
-		Request.Builder request=new Request.Builder();
-		if (!TextUtils.isEmpty(ti.getCookie()))
-			request.addHeader("Cookie", ti.getCookie());
-		if (!TextUtils.isEmpty(ti.getUserAgent()))
-			request.addHeader("User-Agent", ti.getUserAgent());
-		//if(ti.getSourceUrl()!=null)
-		if (ti.isForbidden())
-			request.addHeader("Referer", ti.getTaskurl());
-		request.addHeader("Accept", "*/*");
-		request.addHeader("Connection", "Keep-Alive");
-		//request.addHeader("Icy-MetaData", "1");
-		request.addHeader("Range", "bytes=0-");
-		request.addHeader("Accept-Encoding", "gzip");
 		try
 		{
+			//判断任务是否已经存在，如果不存在则创建查询
+			List<DownloadInfo> ldi=ti.getDownloadinfo();
+			if (ldi != null && ldi.size() > 0)
+			{
+				for (DownloadInfo di:ldi)
+				{
+					if (!di.isSuccess())//避免创建已完成块，以免浪费资源
+						ldb.add(new DownloadBlock(this, di));
+				}
+				if (ldb.size() == 0)
+				{
+					ti.setSuccess(true);
+					download.updateTaskInfoData(ti);
+					ds.taskItemFinish(ti.getId(), true);
+				}
+				else
+				{
+					ti.setState(State.DOWNLOADING);
+					startTask();}
+				return;
+			}
+			ti.setState(State.QUERY);
+			//构造请求
+			Request.Builder request=new Request.Builder();
+			if (!TextUtils.isEmpty(ti.getCookie()))
+				request.addHeader("Cookie", ti.getCookie());
+			if (!TextUtils.isEmpty(ti.getUserAgent()))
+				request.addHeader("User-Agent", ti.getUserAgent());
+			//if(ti.getSourceUrl()!=null)
+			if (!ti.isForbidden())
+				request.addHeader("Referer", ti.getTaskurl());
+			request.addHeader("Accept", "*/*");
+			request.addHeader("Connection", "Keep-Alive");
+			//request.addHeader("Icy-MetaData", "1");
+			request.addHeader("Range", "bytes=0-");
+			request.addHeader("Accept-Encoding", "gzip");
 			response = okhttp.newCall(request.url(ti.getTaskurl()).build()).execute();
 			switch (response.code())
 			{
@@ -287,13 +268,13 @@ public class DownloadTask extends Thread
 					ti.setMultiThread(shared.getBoolean(Download.Setting.MULTITHREAD, Download.Setting.MULTITHREAD_DEFAULT));
 					break;
 				case 403://有防盗链
+					if (ti.isForbidden())throw new IOException("资源禁止访问");
 					ti.setForbidden(true);
 					start();
 					return;
 				default:
 					//链接无效
 					ti.setState(State.INVALIDE);
-					sendMessage();
 					ds.taskItemFinish(ti.getId(), false);
 					return;
 			}
@@ -358,7 +339,6 @@ public class DownloadTask extends Thread
 				{
 					//无权限读写
 					ti.setState(State.NOPERMISSION);
-					sendMessage();
 					ds.taskItemFinish(ti.getId(), false);
 					return;
 				}
@@ -366,16 +346,13 @@ public class DownloadTask extends Thread
 				{
 					//空间不足
 					ti.setState(State.DISKLESS);
-					sendMessage();
 					ds.taskItemFinish(ti.getId(), false);
-
 					return;
 				}
 				File file=new File(f, ti.getTaskname());
 				if (file.exists())DataUtils.deleteDir(file);
 				raf = new RandomAccessFile(file, "rw");
 				ti.setState(State.TEMPFILE);
-				sendMessage();
 				raf.close();
 				int size=0;//多线程数量
 				if (ti.isMultiThread())
@@ -407,7 +384,6 @@ public class DownloadTask extends Thread
 		catch (Exception e)
 		{
 			ti.setState(State.FAIL);
-			sendMessage();
 			ds.taskItemFinish(ti.getId(), false);
 		}
 		finally
@@ -416,102 +392,11 @@ public class DownloadTask extends Thread
 				response.close();
 		}
 	}
-	@Subscribe
-	public void stop(Message msg)
-	{
-		if (msg.what == 88888)
-		{
-			if (msg.data == ti.getId())
-			{
-				if (ti.isSuccess())
-				{
-					nm.cancel(ti.getId());
-					nb.setContent(null);
-					nb.setContentTitle(ti.getTaskname());
-					nb.setContentInfo("下载成功");
-					nb.setOngoing(false);
-					nb.setAutoCancel(true);
-					Intent intent = new Intent(Intent.ACTION_VIEW);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-					{
-						intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-						Uri contentUri = FileProvider.getUriForFile(ds, getContext().getPackageName() + ".fileProvider", new File(ti.getDir(), ti.getTaskname()));
-						intent.setDataAndType(contentUri, MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl((intent.getDataString()))));
-					}
-					else
-					{
-						intent.setDataAndType(Uri.fromFile(new File(ti.getDir(), ti.getTaskname())), MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(intent.getDataString())));
-						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					}
-
-					PendingIntent pi=PendingIntent.getActivity(ds, 233, intent, PendingIntent.FLAG_ONE_SHOT);
-					nb.setContentIntent(pi);
-					nm.notify(ti.getId(), nb.build());
-				}
-				EventBus.getDefault().unregister(this);
-			}
-		}
-	}
-	@Subscribe
-	public void refresh(TaskInfo ti)
-	{
-		if (nm == null)return;
-		if (ti != this.ti)return;
-		if (!ti.isDownloading() || System.currentTimeMillis() - time > 1000)
-		{
-			long size=0;
-			long speed;
-			long length=0;
-			if (ti.getDownloadinfo() != null)
-			{
-				for (DownloadInfo di:ti.getDownloadinfo())
-				{
-					size += di.getCurrent() - di.getStart();
-					length += di.getEnd();
-				}
-				if (!ti.getM3u8())length = ti.getLength();
-				remoteviews.setProgressBar(R.id.notificationview_progress, 100, (int)(size / (double)length * 100), false);
-			}
-			remoteviews.setTextViewText(R.id.notificationview_size, new DecimalFormat("0.00").format(size / 1024.0 / 1024) + "/" + new DecimalFormat("0.00").format(length / 1024.0 / 1024) + "MB");
-			if (ti.getTag() != null)
-			{
-				double time=(System.currentTimeMillis() - ti.getTag()[0]) / 1000.0;
-				long s=size - ti.getTag()[1];
-				speed = (long)(s / time);
-				remoteviews.setTextViewText(R.id.notificationview_speed, new DecimalFormat("0.00").format(speed / 1024.0 / 1024) + "MB/s");
-			}
-			if (ti.isDownloading())
-				remoteviews.setImageViewResource(R.id.notificationviewImage_state, R.drawable.ic_pause);
-			else
-				remoteviews.setImageViewResource(R.id.notificationviewImage_state, R.drawable.ic_play);
-			time = System.currentTimeMillis();
-			nm.notify(ti.getId(), nb.build());
-		}
-	}
-	private void sendMessage()
-	{
-		EventBus.getDefault().post(ti);
-	}
-	private void getNotificafion()
-	{
-		remoteviews = new RemoteViews(ds.getPackageName(), R.layout.notification_view);
-		remoteviews.setTextViewText(R.id.notificationview_title, ti.getTaskname());
-		Intent intent=new Intent();
-		intent.setAction("download");
-		intent.setClassName(ds.getPackageName(), ds.getPackageName() + ".HomeActivity");
-		PendingIntent pi=PendingIntent.getActivity(ds, 233, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		nb = new Notification.Builder(ds)
-			.setSmallIcon(R.drawable.ic_launcher)
-			.setContent(remoteviews)
-			.setTicker("下载")
-			//.setOngoing(true)
-			.setPriority(Notification.PRIORITY_MAX)
-			.setContentIntent(pi);
-		remoteviews.setOnClickPendingIntent(R.id.notificationviewImage_state, PendingIntent.getBroadcast(ds, ti.getId(), new Intent("com.moe.notification.state").putExtra("id", ti.getId()), PendingIntent.FLAG_UPDATE_CURRENT));
-	}
+	
+	
 	public enum State
 	{
-		QUERY,DOWNLOADING,PAUSE,STOP,FAIL,INVALIDE,DISKLESS,WAITING,TEMPFILE,SUCCESS,NOPERMISSION,DNS;
-		//查询信息，下载中，暂停，停止，失败，地址过期，磁盘空间不足，等待，创建临时文件，完成，无权限;
+		QUERY,DOWNLOADING,PAUSE,FAIL,INVALIDE,DISKLESS,WAITING,TEMPFILE,SUCCESS,NOPERMISSION,DELETE;
+		//查询信息，下载中，暂停，失败，地址过期，磁盘空间不足，等待，创建临时文件，完成，无权限;
 	}
 }

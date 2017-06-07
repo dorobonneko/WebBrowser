@@ -2,10 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:md="http://schemas.android.com/apk/res-auto"
     package="com.moe.Mbrowser" >
-	<use-sdk>
-		<minSdkVersion>13</minSdkVersion>
-		<targetSdkVersion>25</targetSdkVersion>
-	</use-sdk>
+	
     <application
         android:name="com.moe.application.Application"
         android:icon="@drawable/ic_launcher"

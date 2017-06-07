@@ -72,6 +72,7 @@ import java.util.List;
 import com.moe.database.JavaScript;
 import android.text.TextUtils;
 import com.moe.database.AdBlockDatabase;
+import com.moe.utils.Convert;
 
 public class WebView extends WebView implements NestedScrollingChild,GestureDetector.OnGestureListener,SharedPreferences.OnSharedPreferenceChangeListener,DownloadListener,AlertDialog.OnClickListener,View.OnTouchListener
 {
@@ -318,21 +319,35 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
     WebViewClient wvc=new WebViewClient(){
 		private void urlParse(String url)
 		{
-			switch (bl.isBlackOrWhiteUrl(url))
-			{
-				case BlackList.UNKNOW:
-					OutProgramWindow.getInstance(getContext()).show(url);
+			switch(Uri.parse(url).getScheme()){
+				case "flashget":
+				case "thunder":
+				case "qqdl":
+					DownloadItem di=new DownloadItem();
+					di.setUrl(Convert.parse(url));
+					di.setLength(0);
+					di.setSourceUrl(getUrl());
+					EventBus.getDefault().post(di);
 					break;
-				case BlackList.WHITE:
-					Intent intent=new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-					try
+				default:
+					switch (bl.isBlackOrWhiteUrl(url))
 					{
-						getContext().startActivity(intent);
+						case BlackList.UNKNOW:
+							OutProgramWindow.getInstance(getContext()).show(url);
+							break;
+						case BlackList.WHITE:
+							Intent intent=new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+							try
+							{
+								getContext().startActivity(intent);
+							}
+							catch (Exception e)
+							{}
+							break;
 					}
-					catch (Exception e)
-					{}
-					break;
+				break;
 			}
+			
 
 		}
         @Override

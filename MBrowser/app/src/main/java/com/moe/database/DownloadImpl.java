@@ -13,6 +13,8 @@ import java.util.List;
 import com.moe.entity.DownloadInfo;
 import android.database.sqlite.SQLiteStatement;
 import com.moe.utils.DataUtils;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 class DownloadImpl extends SQLiteOpenHelper implements Download
 {
@@ -30,7 +32,7 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 	@Override
 	public void onCreate(SQLiteDatabase p1)
 	{
-		p1.execSQL("CREATE TABLE download(id INTEGER PRIMARY KEY,url TEXT UNIQUE,name TEXT UNIQUE,dir TEXT,cookie TEXT,multithread INTEGER,pause INTEGER,success INTEGER,useragent TEXT,mime TEXT,sourceurl TEXT,length INTEGER,time INTEGER,fail INTEGER,forbidden INTEGER)");
+		p1.execSQL("CREATE TABLE download(id INTEGER PRIMARY KEY,url TEXT,name TEXT UNIQUE,dir TEXT,cookie TEXT,multithread INTEGER,pause INTEGER,success INTEGER,useragent TEXT,mime TEXT,sourceurl TEXT,length INTEGER,time INTEGER,fail INTEGER)");
 		p1.execSQL("CREATE TABLE downloadinfo(id INTEGER,no INTEGER,start INTEGER,current INTEGER,end INTEGER,success INTEGER,url TEXT)");
 		
 	}
@@ -106,8 +108,6 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 		cv.put("mime", ti.getType());
 		cv.put("sourceurl", ti.getSourceUrl());
 		cv.put("length", ti.getLength());
-		//cv.put("time",System.currentTimeMillis());
-		cv.put("forbidden",ti.isForbidden());
 		sql.update("download", cv, "id=?", new String[]{ti.getId() + ""});
 		deleteDownloadInfoWithId(ti.getId());
 		insertDownloadInfo(ti);
@@ -117,39 +117,15 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 	@Override
 	public void updateTaskInfo(TaskInfo ti)
 	{
-		Cursor c=sql.query("download", null, "id=?", new String[]{ti.getId() + ""}, null, null, null);
-		if (c.moveToFirst() && c.getCount() == 1)
-		{
-			int id=c.getInt(c.getColumnIndex("id"));
-			c.close();
 			ContentValues cv=new ContentValues();
 			cv.put("url", ti.getTaskurl());
-			//cv.put("dir",ti.getDir());
-			//cv.put("name",ti.getTaskname());
-			//cv.put("pause",ti.getSupport());
-			//cv.put("multithread",ti.isMultiThread());
 			cv.put("cookie", ti.getCookie());
-			cv.put("success",ti.isSuccess());
 			cv.put("useragent", ti.getUserAgent());
 			cv.put("mime", ti.getType());
-			//cv.put("sourceurl",ti.getSourceUrl());
-			//cv.put("length",ti.getLength());
 			cv.put("time", System.currentTimeMillis());
-			sql.update("download", cv, "id=?", new String[]{id + ""});
-//		List<DownloadInfo> ldi=getDownloadInfoWithId(id);
-//		if (ldi.size() > 0){
-//			deleteDownloadInfoWithId(ti.getId());
-//			for (DownloadInfo di:ldi)
-//				di.setTaskId(id);
-//			insertDownloadInfo(ldi);
-//		}
+			sql.update("download", cv, "name=?", new String[]{ti.getTaskname()});	
 			EventBus.getDefault().post(new TaskBean(queryTaskInfoWithId(ti.getId()), TaskBean.State.UPDATE));
-		}
-		else
-		{
-			c.close();
-
-		}
+		
 	}
 
 
@@ -193,7 +169,7 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 		EventBus.getDefault().post(new TaskBean(ti, TaskBean.State.DELETE));
 	}
 
-	@Override
+	/**
 	public List<TaskInfo> getAllTaskInfo()
 	{
 		ArrayList<TaskInfo> at=new ArrayList<>();
@@ -226,12 +202,12 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 		return at;
 	}
 
-
+*/
 	@Override
-	public List<TaskInfo> getAllTaskInfoWithState(boolean state)
+	public Map<Integer,TaskInfo> getAllTaskInfoWithState(boolean state)
 	{
 
-		ArrayList<TaskInfo> at=new ArrayList<>();
+		LinkedHashMap<Integer,TaskInfo> at=new LinkedHashMap<>();
 
 		Cursor cursor=sql.query("download", null, "success=?", new String[]{(state == true ?1: 0) + ""}, null, null, state == true ?"time desc": "time asc");
 		while (cursor.moveToNext())
@@ -249,12 +225,11 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 			ti.setType(cursor.getString(cursor.getColumnIndex("mime")));
 			ti.setSourceUrl(cursor.getString(cursor.getColumnIndex("sourceurl")));
 			ti.setLength(cursor.getLong(cursor.getColumnIndex("length")));
-			ti.setForbidden(cursor.getInt(cursor.getColumnIndex("forbidden"))==1);
 			if (!ti.isSuccess())
 			{
 				ti.setDownloadinfo(getDownloadInfoWithId(ti.getId()));
 			}
-			at.add(ti);
+			at.put(ti.getId(),ti);
 		}
 		cursor.close();
 
@@ -281,7 +256,6 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 			ti.setSourceUrl(cursor.getString(cursor.getColumnIndex("sourceurl")));
 			ti.setType(cursor.getString(cursor.getColumnIndex("mime")));
 			ti.setLength(cursor.getLong(cursor.getColumnIndex("length")));
-			ti.setForbidden(cursor.getInt(cursor.getColumnIndex("forbidden"))==1);
 			if (!ti.isSuccess())
 			{
 				ti.setDownloadinfo(getDownloadInfoWithId(ti.getId()));

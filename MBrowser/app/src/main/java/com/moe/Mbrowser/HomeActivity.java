@@ -1,5 +1,4 @@
 package com.moe.Mbrowser;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import com.moe.fragment.MainFragment;
 import com.moe.fragment.Fragment;
@@ -55,12 +54,13 @@ import com.moe.dialog.JavaScriptDialog;
 import com.moe.fragment.BitImageFragment;
 import android.app.SearchManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.app.FragmentActivity;
 
 public class HomeActivity extends FragmentActivity implements Download.Callback
 {
 	private SharedPreferences shared;
 	private Fragment current,main,bookmark,download,skin,bit;
-	private SettingFragment setting=new SettingFragment();
+	private SettingFragment setting;
 	private DownloadDialog dd;
 	private Message callback;
 	private boolean exit=false;
@@ -345,8 +345,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 				super.onBackPressed();
 				break;
 			case SETTING:
-				//if(current!=null&&!current.isHidden())
-				//getSupportFragmentManager().beginTransaction().hide(current).commit();
+				if(setting==null)setting=new SettingFragment();
 				if (setting.isAdded())
 				{
 					getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).show(setting).commit();
@@ -464,7 +463,7 @@ public void onEvent(Integer event){
 			ToolManager.getInstance().findToggle(false);
 			return;
 		}
-		if (!setting.onBackPressed())
+		if (setting!=null&&!setting.onBackPressed())
 		{
 			if (setting.isAdded() && !setting.isHidden())
 			{
@@ -472,7 +471,6 @@ public void onEvent(Integer event){
 				return;
 			}
 		}
-		else return;
 		if (current != null && current.onBackPressed())return;
 		else
 		if (current != null && !current.isHidden())

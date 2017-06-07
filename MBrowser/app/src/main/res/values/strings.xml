@@ -22,5 +22,4 @@
     <string name="save_image">保存图片</string>
 	<string name="clear_search_history">清除输入历史</string>
 	<string name="toolbox">工具箱</string>
-	<string name="behavior">com.moe.utils.CustomBehavior</string>
 </resources>

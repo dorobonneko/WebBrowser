@@ -19,24 +19,37 @@ import com.moe.download.DownloadTask;
 import java.math.BigDecimal;
 import android.view.View.OnLongClickListener;
 import com.moe.utils.Theme;
+import com.moe.utils.LinkedListMap;
 
 public class DownloadItemAdapter extends RecyclerView.Adapter
 {
-	private List<TaskInfo> l1,l2;
+	private LinkedListMap<Integer,TaskInfo> l1,l2;
 	private List<Integer> selected;
-public DownloadItemAdapter(List<TaskInfo> l1,List<TaskInfo> l2,List<Integer> selected){
+public DownloadItemAdapter(LinkedListMap<Integer,TaskInfo> l1,LinkedListMap<Integer,TaskInfo> l2,List<Integer> selected){
 	this.l1=l1;
 	this.l2=l2;
 	this.selected=selected;
 }
+
+public void delete(int id)
+{
+	if(l1.containsKey(id)){
+		notifyItemRemoved(l1.removeKey(id)+1);
+		}
+		else
+	if(l2.containsKey(id)){
+		notifyItemRemoved(l2.removeKey(id)+2+l1.size());
+	}
+}
+
 public TaskInfo getItem(int position){
 	switch(getItemViewType(position)){
 		case 0:
 			return null;
 			case 1:
-			return l1.get(position-1);
+			return l1.getIndex(position-1);
 			case 2:
-			return l2.get(position-l1.size()-2);
+			return l2.getIndex(position-l1.size()-2);
 	}
 		return null;
 		
@@ -63,47 +76,76 @@ public TaskInfo getItem(int position){
 	@Override
 	public void onBindViewHolder(RecyclerView.ViewHolder p1, int p2)
 	{
-		if(p1 instanceof Header){
-			switch(p2){
-				case 0:
-					((Header)p1).title.setText("当前任务");
-					break;
-				default:
-					((Header)p1).title.setText("已完成任务");
+		switch(getItemViewType(p2)){
+			case 0:
+				switch(p2){
+					case 0:
+						((Header)p1).title.setText("当前任务");
+						break;
+					default:
+						((Header)p1).title.setText("已完成任务");
+						break;
+				}
 				break;
-			}
-		}else if(p1 instanceof ViewHolder1){
-			ViewHolder1 vh=(ViewHolder1)p1;
-			TaskInfo ti=l1.get(p2-1);
-			long size=0;
-			long speed;
-			long length=0;
-			if(ti.getDownloadinfo()!=null){
-			for(DownloadInfo di:ti.getDownloadinfo()){
-				size+=di.getCurrent()-di.getStart();
-					length+=di.getEnd();
-			}
-			if(!ti.getM3u8())length=ti.getLength();
-			vh.pb.setProgress((int)(size/(double)length*100));
-			}
-			vh.title.setText(ti.getTaskname());
-			vh.size.setText(new DecimalFormat("0.00").format(size/1024.0/1024)+"/"+new DecimalFormat("0.00").format(length/1024.0/1024)+"MB");
-			if(ti.getTag()!=null){
-				double time=(System.currentTimeMillis()-ti.getTag()[0])/1000.0;
-				long s=size-ti.getTag()[1];
-				speed=(long)(s/time);
-				vh.speed.setVisibility(View.VISIBLE);
-				vh.speed.setText(new DecimalFormat("0.00").format(speed/1024.0/1024)+"MB/s");
-			}else
-			vh.speed.setVisibility(View.INVISIBLE);
+			case 1:
+				ViewHolder1 vh=(ViewHolder1)p1;
+				TaskInfo ti=getItem(p2);
+				switch(ti.getState()){
+					case QUERY:
+						vh.statemsg.setText("查询信息");
+						break;
+					case DOWNLOADING:
+						vh.statemsg.setText("下载中");
+						break;
+					case PAUSE:
+						vh.statemsg.setText("暂停");
+						break;
+					case FAIL:
+						vh.statemsg.setText("失败");
+						break;
+					case INVALIDE:
+						vh.statemsg.setText("地址无效");
+						break;
+					case DISKLESS:
+						vh.statemsg.setText("磁盘空间不足");
+						break;
+					case WAITING:
+						vh.statemsg.setText("等待中");
+						break;
+					case TEMPFILE:
+						vh.statemsg.setText("创建临时文件");
+						break;
+						/*；case SUCCESS:
+						 vh.statemsg.setText("成功");
+						 break;*/
+					case NOPERMISSION:
+						vh.statemsg.setText("无读写权限");
+						break;
+
+				}
+				long size=0;
+				long length=0;
+				if(ti.getDownloadinfo()!=null){
+					for(DownloadInfo di:ti.getDownloadinfo()){
+						size+=di.getCurrent()-di.getStart();
+						length+=di.getEnd();
+					}
+					if(!ti.getM3u8())length=ti.getLength();
+					vh.pb.setProgress((int)(size/(double)length*100));
+				}
+				vh.title.setText(ti.getTaskname());
+				vh.size.setText(new DecimalFormat("0.00").format(size/1024.0/1024)+"/"+new DecimalFormat("0.00").format(length/1024.0/1024)+"MB");
+				vh.speed.setText(ti.getSpeed());
 				if(ti.isDownloading())
-				vh.state.setImageResource(R.drawable.ic_pause);
+					vh.state.setImageResource(R.drawable.ic_pause);
 				else
-				vh.state.setImageResource(R.drawable.ic_play);
-			ti.setTag(System.currentTimeMillis(),size);
-		}else if(p1 instanceof ViewHolder2){
-			((ViewHolder2)p1).title.setText(l2.get(p2-l1.size()-2).getTaskname());
-			((ViewHolder2)p1).summary.setText(new DecimalFormat("0.00").format(l2.get(p2-l1.size()-2).getLength()/1024.0/1024)+"MB");
+					vh.state.setImageResource(R.drawable.ic_play);
+				break;
+			case 2:
+				((ViewHolder2)p1).title.setText(getItem(p2).getTaskname());
+				((ViewHolder2)p1).summary.setText(new DecimalFormat("0.00").format(getItem(p2).getLength()/1024.0/1024)+"MB");
+				
+				break;
 		}
 		if(selected.contains(p2))
 			p1.itemView.setBackgroundColor(Theme.color);
@@ -123,7 +165,7 @@ public TaskInfo getItem(int position){
 		return position==0||position==l1.size()+1?0:position>0&&position<=l1.size()?1:2;
 	}
 	public class ViewHolder1 extends RecyclerView.ViewHolder{
-		private TextView title,speed,size;
+		private TextView title,speed,size,statemsg;
 		private ProgressBar pb;
 		private ImageView state;
 		public ViewHolder1(View v){
@@ -141,6 +183,7 @@ public TaskInfo getItem(int position){
 			size=(TextView)v.findViewById(R.id.notificationview_size);
 			pb=(ProgressBar)v.findViewById(R.id.notificationview_progress);
 			state=(ImageView)v.findViewById(R.id.notificationviewImage_state);
+			statemsg=(TextView)v.findViewById(R.id.notification_view_state);
 			View.OnClickListener vo=new View.OnClickListener(){
 
 					@Override

@@ -4,7 +4,6 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import android.graphics.BitmapFactory;
 import java.io.IOException;
-import com.google.zxing.MultiFormatReader;
 import java.util.HashMap;
 import com.google.zxing.DecodeHintType;
 import java.util.Vector;
@@ -37,7 +36,7 @@ public class BitImageParser
 	public static void decodeImage(byte[] data,Callback call,int width,int height){
 		try
 		{
-			if (call != null)call.onSuccess(new MultiFormatReader().decodeWithState(new BinaryBitmap(new HybridBinarizer(new LuminanceSource(data,width,height)))).getText());
+			if (call != null)call.onSuccess(qr.decode(new BinaryBitmap(new HybridBinarizer(new LuminanceSource(data,width,height)))).getText());
 		}
 		catch (Exception e)
 		{if(call!=null)call.onFail(e);}

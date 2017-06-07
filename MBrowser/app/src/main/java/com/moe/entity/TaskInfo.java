@@ -18,10 +18,18 @@ public class TaskInfo
 	private long length=0;
 	private int id;
 	private DownloadTask.State state=DownloadTask.State.PAUSE;
-	private long time;
-	private long[] tag=null;
 	private boolean forbidden=false;
+	private String speed;
 
+	public void setSpeed(String speed)
+	{
+		this.speed = speed;
+	}
+
+	public String getSpeed()
+	{
+		return speed;
+	}
 	public void setForbidden(boolean forbidden)
 	{
 		this.forbidden = forbidden;
@@ -35,17 +43,7 @@ public class TaskInfo
 	{
 		return "application/x-mpegURL".equalsIgnoreCase(type)||"application/vnd.apple.mpegurl".equalsIgnoreCase(type);
 	}
-	public void setTag(long time,long size)
-	{
-		if(tag==null)tag=new long[2];
-		tag[0]=time;
-		tag[1]=size;
-	}
-
-	public long[] getTag()
-	{
-		return tag;
-	}
+	
 	public void setState(DownloadTask.State state)
 	{
 		this.state = state;
@@ -56,15 +54,7 @@ public class TaskInfo
 		return state;
 	}
 
-	public void setTime(long time)
-	{
-		this.time = time;
-	}
-
-	public long getTime()
-	{
-		return time;
-	}
+	
 	public void setId(int id)
 	{
 		this.id = id;

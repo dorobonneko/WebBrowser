@@ -8,7 +8,6 @@ import java.io.InputStream;
 import com.moe.database.Download;
 import java.io.File;
 import com.moe.Mbrowser.R;
-import de.greenrobot.event.EventBus;
 import android.text.TextUtils;
 import okhttp3.ResponseBody;
 import java.util.zip.GZIPInputStream;
@@ -53,13 +52,14 @@ public class DownloadBlock extends Thread
 			if (!TextUtils.isEmpty(dt.getTaskInfo().getUserAgent()))
 				request.addHeader("User-Agent", dt.getTaskInfo().getUserAgent());
 			//if(ti.getSourceUrl()!=null)
-			if(dt.getTaskInfo().isForbidden())
+			if(!dt.getTaskInfo().isForbidden())
 			request.addHeader("Referer",dt.getTaskInfo().getTaskurl());
 			request.addHeader("Accept", "*/*");
 			request.addHeader("Connection", "Keep-Alive");
 			//request.addHeader("Icy-MetaData", "1");
 			request.addHeader("Accept-Encoding","gzip");
 			request.addHeader("Range", "bytes=" + di.getCurrent() + "-" + (di.getEnd() < 1 ?"": di.getEnd()));
+			if(!dt.getTaskInfo().getM3u8())di.setUrl(dt.getTaskInfo().getTaskurl());
 			try
 			{
 				response = dt.getOkHttpCliebt().newCall(request.url(di.getUrl()).build()).execute();
@@ -99,7 +99,10 @@ public class DownloadBlock extends Thread
 					case 206:
 						raf.seek(di.getCurrent());
 						break;
-					case 503://服务器出错，多线程下载被限制
+					case 403://禁止访问
+					if(dt.getTaskInfo().isForbidden())throw new IOException("资源禁止访问");
+					dt.getTaskInfo().setForbidden(true);
+					start();
 					return;
 					default:
 						throw new IOException(response.code()+"错误");
@@ -111,8 +114,7 @@ public class DownloadBlock extends Thread
 					raf.write(b, 0, len);
 					di.setCurrent(di.getCurrent() + len);
 					dt.getDownload().updateDownloadInfo(di);
-					EventBus.getDefault().post(dt.getTaskInfo());
-				}
+					}
 				di.setSuccess(true);
 				dt.getDownload().updateDownloadInfoWithData(di);
 			}

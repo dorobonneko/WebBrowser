@@ -47,7 +47,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import android.app.NotificationManager;
+import com.moe.internal.NotificationManager;
+import com.moe.utils.LinkedListMap;
+import java.util.TimerTask;
+import java.util.Timer;
 
 public class DownloadService extends Service
 {
@@ -59,6 +62,7 @@ public class DownloadService extends Service
 	private NetworkState network;
 	private OkHttpClient okhttp;
 	private NotificationManager nm;
+	private LinkedListMap<Integer,Timer> timer;
 	@Override
 	public IBinder onBind(Intent p1)
 	{
@@ -70,7 +74,8 @@ public class DownloadService extends Service
 	public void onCreate()
 	{
 		super.onCreate();
-		nm=getSystemService(NotificationManager.class);
+		timer=new LinkedListMap<>();
+		nm=new NotificationManager(this);
 		shared=getSharedPreferences("download",0);
 		EventBus.getDefault().register(this);
 		SSLContext ssl=null;
@@ -98,18 +103,35 @@ public class DownloadService extends Service
 	}
 	private void checkSize(){
 		for(int i=downloadinglist.size();i<Integer.parseInt(getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.SIZE,Download.Setting.SIZE_DEFAULT)].toString());i++){
-			for(Integer key:downloadlist.keySet()){
-				if(!downloadinglist.containsKey(key))
-			downloadinglist.put(key,new DownloadTask(this,downloadlist.get(key),okhttp));
+			for(final Integer key:downloadlist.keySet()){
+				if(!downloadinglist.containsKey(key)){
+					downloadinglist.put(key,new DownloadTask(this,downloadlist.get(key),okhttp));
+					Timer t=new Timer();
+					TimerTask tt=new TimerTask(){
+
+						@Override
+						public void run()
+						{
+							EventBus.getDefault().post(downloadlist.get(key));
+						}
+					};
+					timer.put(key,t);
+					t.schedule(tt,0,1000);
+			}
 			}
 		}
 	}
-	public void taskItemFinish(int url,boolean isSuccess){
-		downloadinglist.remove(url);
-		downloadlist.remove(url);
+	public void taskItemFinish(int id,boolean isSuccess){
+		DownloadTask dt=downloadinglist.remove(id);
+		if(dt!=null)
+		EventBus.getDefault().unregister(dt);
+		TaskInfo ti=downloadlist.remove(id);
+		Timer t=timer.remove(id);
+		if(t!=null)t.cancel();
+		if(ti!=null)
+		EventBus.getDefault().post(ti);
 		checkSize();
-		EventBus.getDefault().post(Message.obitMessage(88888,url));
-	}
+		}
 	@Subscribe
 	public void onTask(TaskBean tb)
 	{
@@ -132,13 +154,20 @@ public class DownloadService extends Service
 				dt=downloadinglist.remove(tb.getTaskInfo().getId());
 				if(dt!=null)dt.pause();
 				downloadlist.remove(tb.getTaskInfo().getId());
+				Timer t=timer.remove(tb.getTaskInfo().getId());
+				if(t!=null)t.cancel();
 				tb.getTaskInfo().setState(DownloadTask.State.PAUSE);
 				EventBus.getDefault().post(tb.getTaskInfo());
 				break;
 			case DELETE:
 				dt=downloadinglist.remove(tb.getTaskInfo().getId());
-				if(dt!=null){dt.pause();dt.cancelNotifycation();}
-				downloadlist.remove(tb.getTaskInfo().getId());
+				if(dt!=null){dt.pause();}
+				TaskInfo ti=downloadlist.remove(tb.getTaskInfo().getId());
+				Timer tt=timer.remove(tb.getTaskInfo().getId());
+				if(tt!=null)tt.cancel();
+				if(ti!=null){
+					ti.setState(DownloadTask.State.DELETE);
+					}
 				nm.cancel(tb.getTaskInfo().getId());
 				break;
 		}
@@ -147,7 +176,6 @@ public class DownloadService extends Service
 	@Subscribe
 	public void download(DownloadTask dt){
 		switch(dt.getStateOfTask()){
-			case DNS:
 			case FAIL:
 			case DISKLESS:
 			case NOPERMISSION:
@@ -172,6 +200,7 @@ public class DownloadService extends Service
 	public void onDestroy()
 	{
 		stopForeground(true);
+		nm.destory();
 		EventBus.getDefault().unregister(this);
 		super.onDestroy();
 	}
@@ -181,23 +210,18 @@ public class DownloadService extends Service
 			@Override
 			public void checkClientTrusted(X509Certificate[] p1, String p2) throws CertificateException
 			{
-				// TODO: Implement this method
 			}
 
 			@Override
 			public void checkServerTrusted(X509Certificate[] p1, String p2) throws CertificateException
-			{
-				// TODO: Implement this method
-			}
+			{}
 
 			@Override
 			public X509Certificate[] getAcceptedIssuers()
 			{
-				// TODO: Implement this method
 				return new X509Certificate[0];
 			}
 		}
-
 	class stateChange extends BroadcastReceiver
 	{
 

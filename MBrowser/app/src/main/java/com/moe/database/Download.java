@@ -5,6 +5,7 @@ import com.moe.download.DownloadTask;
 import com.moe.entity.DownloadInfo;
 import android.os.Environment;
 import com.moe.database.Download.State;
+import java.util.Map;
 
 public interface Download
 {
@@ -18,8 +19,7 @@ public interface Download
 	void deleteTaskInfoWithId(int id);
 	void updateTaskInfo(TaskInfo ti);
 	void updateTaskInfoData(TaskInfo ti);
-	List<TaskInfo> getAllTaskInfo();
-	List<TaskInfo> getAllTaskInfoWithState(boolean state);
+	Map<Integer,TaskInfo> getAllTaskInfoWithState(boolean state);
 	TaskInfo queryTaskInfoWithId(int id);
 	void insertDownloadInfo(TaskInfo ti);
 	void insertDownloadInfo(List<DownloadInfo> di);
