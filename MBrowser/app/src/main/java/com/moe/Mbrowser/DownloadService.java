@@ -118,6 +118,7 @@ public class DownloadService extends Service
 					timer.put(key,t);
 					t.schedule(tt,0,1000);
 					new Thread(downloadinglist.get(key)).start();
+					break;
 			}
 			}
 		}

@@ -245,10 +245,10 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 							switch (p2)
 							{
 								case 0:
-									TaskInfo ti = null;
+									final ArrayList<TaskInfo> at=new ArrayList<>();
 									for (Integer i:selected)
-									{
-										ti = dia.getItem(i);
+										at.add(dia.getItem(i));
+									for(TaskInfo ti:at){
 										dia.delete(ti.getId());
 										download.clearAllTask(new TaskInfo[]{ti}, true);
 										ti.setSuccess(false);
@@ -256,8 +256,9 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 										//download.deleteDownloadInfoWithId(ti.getId());
 										download.addTaskInfo(ti, null);
 									}
-									
+									at.clear();
 									selected.clear();
+									dia.notifyDataSetChanged();
 									break;
 							}
 							p1.dismiss();
@@ -466,9 +467,6 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 					loading.put(tb.getTaskInfo().getId(), tb.getTaskInfo());
 					dia.notifyItemInserted(loading.size()+1);
 				}
-				break;
-			case DELETE:
-				dia.delete(tb.getTaskInfo().getId());
 				break;
 		}
 
