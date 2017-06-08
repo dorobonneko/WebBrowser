@@ -320,7 +320,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		private void urlParse(String url)
 		{
 			switch(Uri.parse(url).getScheme()){
-				case "flashget":
+				case "Flashget":
 				case "thunder":
 				case "qqdl":
 					DownloadItem di=new DownloadItem();

@@ -86,11 +86,13 @@ public class NotificationManager
 		}else{
 			ni.getRemoteViews().setImageViewResource(R.id.notificationviewImage_state, R.drawable.ic_play);
 			}
+		if(ti.getState()!=DownloadTask.State.WAITING)
 		nm.notify(ti.getId(),ni.getNotification());
 			
 	}
 	public void success(TaskInfo ti){
 		NotificationItem ni=llm.getKey(ti.getId());
+		llm.removeKey(ti.getId());
 		nm.cancel(ti.getId());
 		if(ni==null)return;
 			Notification.Builder nb=ni.getBuilder();

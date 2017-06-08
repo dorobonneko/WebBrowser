@@ -30,15 +30,41 @@ import android.os.Handler;
 import android.os.Message;
 import android.net.Uri;
 import android.content.Intent;
+import android.support.v4.content.FileProvider;
+import android.content.ContentProviderResult;
+import android.content.ContentProvider;
+import com.moe.database.Download.State;
+import android.widget.Toast;
 
-public class M3u8AddActivity extends Activity implements View.OnClickListener
+public class M3u8AddActivity extends Activity implements View.OnClickListener,Download.Callback
 {
-	private File file;
+
+	@Override
+	public void callback(TaskInfo ti, final Download.State state)
+	{
+		runOnUiThread(new Runnable(){
+
+				@Override
+				public void run()
+				{
+					switch(state){
+						case SUCCESS:
+							Toast.makeText(M3u8AddActivity.this,"下载中",Toast.LENGTH_SHORT).show();
+							break;
+						case FAIL:
+							Toast.makeText(M3u8AddActivity.this,"添加失败",Toast.LENGTH_SHORT).show();
+							break;
+					}
+				}
+			});
+		
+	}
+
 	private TextInputLayout til;
 	private TextView name,path;
 	private ArrayList<DownloadInfo> ad=new ArrayList<>();
 	private TaskInfo ti;
-	private boolean ready;
+	private boolean ready,error=false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -59,22 +85,20 @@ public class M3u8AddActivity extends Activity implements View.OnClickListener
 		ti=new TaskInfo();
 		ti.setDir(this.getSharedPreferences("download", 0).getString(Download.Setting.DIR, Download.Setting.DIR_DEFAULT));
 		Uri uri=getIntent().getData();
+		String name=null;
 		switch(uri.getScheme()){
 			case "file":
-				file=new File(uri.getPath());
+				name=new File(uri.getPath()).getName();
 				break;
 			case "content":
-				Cursor c=getContentResolver().query(getIntent().getData(), new String[]{MediaStore.Files.FileColumns.DATA}, null, null, null);
-				if (c.moveToNext())
-					file = new File(c.getString(0));
+				Cursor c=getContentResolver().query(getIntent().getData(),new String[]{MediaStore.Files.FileColumns.DISPLAY_NAME},null,null,null);
+				if(c.moveToFirst())
+					name=c.getString(0);
 				c.close();
 				break;
 		}
-		
-		if (!file.exists())return;
-		name.setText(file.getName());
-		path.setText(file.getAbsolutePath());
-		ti.setId(file.getAbsolutePath().hashCode());
+		this.name.setText(name);
+		ti.setId((System.currentTimeMillis()+"").hashCode());
 		parse();
 	}
 	private void parse()
@@ -82,10 +106,11 @@ public class M3u8AddActivity extends Activity implements View.OnClickListener
 		new Thread(){
 			public void run()
 			{
+				InputStream is = null;
 				try
-				{InputStream is=new FileInputStream(file);
+				{
+					is=getContentResolver().openInputStream(getIntent().getData());
 					M3uList ml=M3uParser.parse(is).getList();
-					is.close();
 					ad.clear();
 					switch (ml.getType())
 					{
@@ -118,9 +143,17 @@ public class M3u8AddActivity extends Activity implements View.OnClickListener
 					}
 					ready=true;
 				}
-				catch (IOException i)
+				catch (Exception i)
 				{
+					error=true;
 					handler.obtainMessage(0).sendToTarget();
+				}finally{
+					try
+					{
+						if (is != null)is.close();
+					}
+					catch (IOException e)
+					{}
 				}
 			}
 		}.start();
@@ -137,6 +170,7 @@ public class M3u8AddActivity extends Activity implements View.OnClickListener
 				finish();
 				break;
 			case R.id.m3u8add_view_sure:
+				if(error)return;
 				if (TextUtils.isEmpty(name.getText().toString().trim()))
 					til.setError("名称不能为空");
 				else if(!ready) til.setError("数据正在加载，请稍等");
@@ -145,7 +179,7 @@ public class M3u8AddActivity extends Activity implements View.OnClickListener
 					ti.setTaskname(name.getText().toString().trim());
 					ti.setDownloadinfo(ad);
 					ti.setType("application/x-mpegURL");
-					Sqlite.getInstance(this, Download.class).addTaskInfo(ti, null);
+					Sqlite.getInstance(this, Download.class).addTaskInfo(ti, this);
 					finish();
 				}
 				break;
@@ -165,4 +199,5 @@ public class M3u8AddActivity extends Activity implements View.OnClickListener
 		}
 	
 };
+
 }

@@ -463,14 +463,15 @@ public void onEvent(Integer event){
 			ToolManager.getInstance().findToggle(false);
 			return;
 		}
-		if (setting!=null&&!setting.onBackPressed())
+		if(setting!=null){
+		if (!setting.onBackPressed())
 		{
 			if (setting.isAdded() && !setting.isHidden())
 			{
 				getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).hide(setting).commit();
 				return;
 			}
-		}
+		}else return;}
 		if (current != null && current.onBackPressed())return;
 		else
 		if (current != null && !current.isHidden())

@@ -112,11 +112,12 @@ public class DownloadService extends Service
 						@Override
 						public void run()
 						{
-							EventBus.getDefault().post(downloadlist.get(key));
+							try{EventBus.getDefault().post(downloadlist.get(key));}catch(Exception e){this.cancel();}
 						}
 					};
 					timer.put(key,t);
 					t.schedule(tt,0,1000);
+					new Thread(downloadinglist.get(key)).start();
 			}
 			}
 		}

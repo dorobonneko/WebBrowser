@@ -28,6 +28,11 @@ public class DownloadBlock extends Thread
 		setPriority(Thread.MIN_PRIORITY);
 	}
 
+	public void setSuccess(boolean p0)
+	{
+		di.setSuccess(p0);
+	}
+
 	public void setErrorsize(int errorsize)
 	{
 		this.errorsize = errorsize;
@@ -46,13 +51,15 @@ public class DownloadBlock extends Thread
 	{
 		if (!isSuccess())
 		{
+			try
+			{
 			Request.Builder request=new Request.Builder();
 			if (!TextUtils.isEmpty(dt.getTaskInfo().getCookie()))
 				request.addHeader("Cookie", dt.getTaskInfo().getCookie());
 			if (!TextUtils.isEmpty(dt.getTaskInfo().getUserAgent()))
 				request.addHeader("User-Agent", dt.getTaskInfo().getUserAgent());
 			//if(ti.getSourceUrl()!=null)
-			if(!dt.getTaskInfo().isForbidden())
+			if(!dt.getTaskInfo().isForbidden()&&dt.getTaskInfo().getTaskurl()!=null)
 			request.addHeader("Referer",dt.getTaskInfo().getTaskurl());
 			request.addHeader("Accept", "*/*");
 			request.addHeader("Connection", "Keep-Alive");
@@ -60,9 +67,7 @@ public class DownloadBlock extends Thread
 			request.addHeader("Accept-Encoding","gzip");
 			request.addHeader("Range", "bytes=" + di.getCurrent() + "-" + (di.getEnd() < 1 ?"": di.getEnd()));
 			if(!dt.getTaskInfo().getM3u8())di.setUrl(dt.getTaskInfo().getTaskurl());
-			try
-			{
-				response = dt.getOkHttpCliebt().newCall(request.url(di.getUrl()).build()).execute();
+			response = dt.getOkHttpCliebt().newCall(request.url(di.getUrl()).build()).execute();
 				ResponseBody rb=response.body();
 				is = rb.byteStream();
 				if("gzip".equalsIgnoreCase(response.header("Content-Encoding")))

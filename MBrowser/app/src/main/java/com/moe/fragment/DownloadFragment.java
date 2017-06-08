@@ -249,15 +249,15 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 									for (Integer i:selected)
 									{
 										ti = dia.getItem(i);
+										dia.delete(ti.getId());
 										download.clearAllTask(new TaskInfo[]{ti}, true);
 										ti.setSuccess(false);
 										ti.setDownloadinfo(null);
 										//download.deleteDownloadInfoWithId(ti.getId());
 										download.addTaskInfo(ti, null);
 									}
-
+									
 									selected.clear();
-									refresh();
 									break;
 							}
 							p1.dismiss();

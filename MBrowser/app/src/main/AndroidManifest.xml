@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:md="http://schemas.android.com/apk/res-auto"
     package="com.moe.Mbrowser" >
-	
+
     <application
         android:name="com.moe.application.Application"
         android:icon="@drawable/ic_launcher"
@@ -16,30 +16,37 @@
             android:windowSoftInputMode="adjustPan|adjustUnspecified"
             android:launchMode="singleTask"
             android:name=".HomeActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+			<intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:scheme="http"/>
+                <data android:scheme="https"/>
+				<data android:scheme="thunder"/>
+				<data android:scheme="Flashget"/>
+				<data android:scheme="qqdl"/>
+			</intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-                <data android:scheme="about" />
-                <data android:scheme="javascript" />
-				<data android:scheme="inline" />
-				<data android:scheme="file"/>
-                <data android:mimeType="text/html"/>
-                <data android:mimeType="text/plain"/>
-                <data android:mimeType="application/xhtml+xml"/>
-                <data android:mimeType="application/vnd.wap.xhtml+xml"/>
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:scheme="content"
+					android:host="*"
+					android:mimeType="text/*"
+				/>
+				<data android:scheme="file"
+					android:mimeType="text/*"
+				/>
             </intent-filter>
 			<intent-filter>
 				<action android:name="android.intent.action.WEB_SEARCH" />
 				<action android:name="android.intent.action.SEARCH" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+			<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 		<activity
@@ -50,16 +57,18 @@
 			<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="file" 
-					android:mimeType="text/plain"/>
-				<data android:scheme="file" 
-					android:mimeType="text/html"/>
-				<data android:scheme="file" 
-					android:mimeType="application/x-mpegURL"/>
-				<data android:scheme="file" 
-					android:mimeType="application/vnd.apple.mpegurl"/>
-				<data android:scheme="file" 
-					android:mimeType="text/*"/>
+				<data android:scheme="content"
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.m3u8"/>
+				<data android:scheme="file"
+					android:pathPattern=".*\\.m3u8"/>
+				<data android:scheme="content"
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.m3u"/>
+				<data android:scheme="file"
+					android:pathPattern=".*\\.m3u"/>
 			</intent-filter>
 		</activity>
         <activity android:name=".ExceptionActivity"/>

@@ -45,7 +45,7 @@ import com.moe.m3u.tag.M3uTag;
 import com.moe.m3u.tag.M3uXStreamInfTag;
 import com.moe.m3u.tag.M3uInfTag;
 
-public class DownloadTask extends Thread
+public class DownloadTask implements Runnable
 {
 	private List<DownloadBlock> ldb;
 	private TaskInfo ti;
@@ -64,12 +64,11 @@ public class DownloadTask extends Thread
 		this.download = Sqlite.getInstance(ds, Download.class);
 		okhttp = ok;
 		shared = ds.getSharedPreferences("download", 0);
-		setPriority(Thread.MIN_PRIORITY);
-		start();
 	}
 
 	public void itemFinish(DownloadBlock p0)
 	{
+		if(ldb==null)return;
 		if (p0.isSuccess())
 		{
 			for (DownloadBlock db:ldb)
@@ -81,42 +80,15 @@ public class DownloadTask extends Thread
 			if (ti.getM3u8())
 			{
 				ti.setSuccess(true);
+				ds.taskItemFinish(ti.getId(), true);
 				//合并文件
-				File file=new File(ti.getDir(), ti.getTaskname());
-				File[] lf=file.listFiles();
-				Arrays.sort(lf, new Comparator<File>(){
-
-						@Override
-						public int compare(File p1, File p2)
-						{
-							return Integer.compare(Integer.parseInt(p1.getName()), Integer.parseInt(p2.getName()));
-						}
-					});
-				File tmp=new File(ti.getDir(), System.currentTimeMillis() + "");
-				try
-				{
-					int len=0;
-					byte[] b=new byte[10240];
-					FileOutputStream fos=new FileOutputStream(tmp);
-					for (File l:lf)
-					{
-						FileInputStream fis=new FileInputStream(l);
-						while ((len = fis.read(b)) != -1)
-							fos.write(b, 0, len);
-						fis.close();
-					}
-					fos.flush();
-					fos.close();
-				}
-				catch (Exception e)
-				{}
-				DataUtils.deleteDir(file);
-				tmp.renameTo(file);
-			}
+				m3u8();
+			}else{
 			ti.setSuccess(true);
-			download.updateTaskInfoData(ti);
 			ds.taskItemFinish(ti.getId(), true);
-		}
+			}
+			download.updateTaskInfoData(ti);
+			}
 		else
 		{
 			if (ti.getM3u8())
@@ -124,7 +96,7 @@ public class DownloadTask extends Thread
 				switch (shared.getInt(Download.Setting.M3U8ERROR, Download.Setting.M3U8ERROR_DEFAULT))
 				{
 					case 0:break;
-					case 1:return;
+					case 1:p0.setSuccess(true);itemFinish(p0); return;
 					case 2://重试当前出错任务
 						if (p0.getErrorsize() < Integer.parseInt(ds.getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.RELOADSIZE, Download.Setting.RELOADSIZE_DEFAULT)].toString()))
 						{
@@ -200,7 +172,7 @@ public class DownloadTask extends Thread
 					DownloadBlock db=i.next();
 					if (db != null)
 						db.pause();}
-				ldb.clear();
+				ldb=null;
 				break;
 		}
 
@@ -232,8 +204,10 @@ public class DownloadTask extends Thread
 				if (ldb.size() == 0)
 				{
 					ti.setSuccess(true);
-					download.updateTaskInfoData(ti);
 					ds.taskItemFinish(ti.getId(), true);
+					if(ti.getM3u8())
+						m3u8();
+					download.updateTaskInfoData(ti);
 				}
 				else
 				{
@@ -249,7 +223,7 @@ public class DownloadTask extends Thread
 			if (!TextUtils.isEmpty(ti.getUserAgent()))
 				request.addHeader("User-Agent", ti.getUserAgent());
 			//if(ti.getSourceUrl()!=null)
-			if (!ti.isForbidden())
+			if (!ti.isForbidden()&&ti.getTaskurl()!=null)
 				request.addHeader("Referer", ti.getTaskurl());
 			request.addHeader("Accept", "*/*");
 			request.addHeader("Connection", "Keep-Alive");
@@ -270,7 +244,7 @@ public class DownloadTask extends Thread
 				case 403://有防盗链
 					if (ti.isForbidden())throw new IOException("资源禁止访问");
 					ti.setForbidden(true);
-					start();
+					new Thread(this).start();
 					return;
 				default:
 					//链接无效
@@ -305,7 +279,7 @@ public class DownloadTask extends Thread
 							if (mt instanceof M3uXStreamInfTag)
 							{
 								ti.setTaskurl(((M3uXStreamInfTag)mt).getUrl());
-								start();
+								new Thread(this).start();
 								return;
 							}
 						}
@@ -392,7 +366,39 @@ public class DownloadTask extends Thread
 				response.close();
 		}
 	}
-	
+	private void m3u8(){
+		File file=new File(ti.getDir(), ti.getTaskname());
+		if(file.isFile())return;
+		File[] lf=file.listFiles();
+		Arrays.sort(lf, new Comparator<File>(){
+
+				@Override
+				public int compare(File p1, File p2)
+				{
+					return Integer.compare(Integer.parseInt(p1.getName()), Integer.parseInt(p2.getName()));
+				}
+			});
+		File tmp=new File(ti.getDir(), System.currentTimeMillis() + "");
+		try
+		{
+			int len=0;
+			byte[] b=new byte[10240];
+			FileOutputStream fos=new FileOutputStream(tmp);
+			for (File l:lf)
+			{
+				FileInputStream fis=new FileInputStream(l);
+				while ((len = fis.read(b)) != -1)
+					fos.write(b, 0, len);
+				fis.close();
+			}
+			fos.flush();
+			fos.close();
+		}
+		catch (Exception e)
+		{}
+		DataUtils.deleteDir(file);
+		tmp.renameTo(file);
+	}
 	
 	public enum State
 	{

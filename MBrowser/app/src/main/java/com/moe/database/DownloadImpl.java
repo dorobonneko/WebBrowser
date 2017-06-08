@@ -298,25 +298,27 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 	@Override
 	public void insertDownloadInfo(List<DownloadInfo> ld)
 	{
+		sql.beginTransaction();
 		for (DownloadInfo di:ld)
 		{
 			insertDownloadInfo(di);
 		}
+		sql.setTransactionSuccessful();
+		sql.endTransaction();
 	}
 
 	@Override
 	public void insertDownloadInfo(DownloadInfo di)
 	{
-		ContentValues cv=new ContentValues();
-		cv.put("id", di.getTaskId());
-		cv.put("no", di.getNo());
-		cv.put("start", di.getStart());
-		cv.put("current", di.getCurrent());
-		cv.put("end", di.getEnd());
-		cv.put("url",di.getUrl());
-		cv.put("success",di.isSuccess());
-		sql.insert("downloadinfo", null, cv);
-
+		SQLiteStatement state=sql.compileStatement("insert into downloadinfo (id,no,start,current,end,url,success) values (?,?,?,?,?,?,?)");
+		state.bindLong(1,di.getTaskId());
+		state.bindLong(2,di.getNo());
+		state.bindLong(3,di.getStart());
+		state.bindLong(4,di.getCurrent());
+		state.bindLong(5,di.getEnd());
+		state.bindString(6,di.getUrl());
+		state.bindLong(7,di.isSuccess()?1:0);
+		state.executeInsert();
 	}
 
 
