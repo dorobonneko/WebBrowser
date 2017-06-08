@@ -15,6 +15,21 @@ import com.moe.widget.WebView;
 import android.view.KeyEvent;
 import com.moe.bean.DownloadItem;
 import com.moe.utils.BitImageParser;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import java.io.File;
+import java.io.FileOutputStream;
+import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.content.FileProvider;
+import android.graphics.Bitmap;
+import com.moe.utils.BitMatrixToBitmap;
+import java.io.ByteArrayOutputStream;
+import android.provider.MediaStore;
+import android.content.ContentProvider;
+import android.os.Environment;
+import android.content.ContentValues;
 public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 {
 	private WebView.HitTestResult wh;
@@ -52,7 +67,7 @@ public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 		v.findViewById(R.id.popupmenu_adblock).setOnClickListener(this);
 		bit=v.findViewById(R.id.popupmenu_bitImage);
 		bit.setOnClickListener(this);
-		v.findViewById(R.id.popupmenu_shareWebPage);
+		v.findViewById(R.id.popupmenu_shareWebPage).setOnClickListener(this);
 	}
 
 	public void showAtLocation(WebView p0, int gravity, MotionEvent event)
@@ -136,6 +151,29 @@ public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 				BitImageParser.decodeImageUrl(wh.getExtra(),this);
 				break;
 			case R.id.popupmenu_shareWebPage:
+				try
+				{
+					final Bitmap b=BitMatrixToBitmap.convert(new QRCodeWriter().encode(wv.getUrl(), BarcodeFormat.QR_CODE, 1000, 1000));
+					File file=new File(context.getExternalCacheDir(),System.currentTimeMillis()+"");
+					FileOutputStream fos=new FileOutputStream(file);
+					b.compress(Bitmap.CompressFormat.JPEG,100,fos);
+					fos.flush();
+					fos.close();
+					b.recycle();
+					ContentValues cv=new ContentValues();
+					cv.put(MediaStore.Files.FileColumns.DATA,file.getAbsolutePath());
+					cv.put(MediaStore.Files.FileColumns.DISPLAY_NAME,file.getName());
+					cv.put(MediaStore.Files.FileColumns.SIZE,file.length());
+					Uri newUri=context.getContentResolver().insert(MediaStore.Images.Media.INTERNAL_CONTENT_URI,cv);
+					Intent intent=new Intent(Intent.ACTION_SEND);
+					intent.setType("image/*");
+					intent.putExtra(intent.EXTRA_SUBJECT,wv.getTitle());
+					intent.putExtra(intent.EXTRA_STREAM,newUri);
+					//intent.putExtra(intent.EXTRA_STREAM,FileProvider.getUriForFile(context,context.getPackageName() + ".fileProvider",file));
+					context.startActivity(intent);
+				}
+				catch (Exception e)
+				{}
 				break;
 		}
 		pop.dismiss();

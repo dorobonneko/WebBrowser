@@ -38,7 +38,9 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.File;;
+import java.io.File;
+import android.net.Uri;
+import java.io.InputStream;;
 
 public class BitImageFragment extends Fragment implements SurfaceHolder.Callback,Camera.AutoFocusCallback,Camera.PreviewCallback,BitImageParser.Callback,View.OnClickListener
 {
@@ -101,25 +103,35 @@ public class BitImageFragment extends Fragment implements SurfaceHolder.Callback
 		}
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
-	String url=null;
+	InputStream is;
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		if(requestCode==0x36&&resultCode==Activity.RESULT_OK){
 			
-			if(data.getData().getScheme().equals("content")){
-			Cursor c=getContext().getContentResolver().query(data.getData(),new String[]{MediaStore.Images.ImageColumns.DATA},null,null,null);
-			if(c.moveToFirst()){
-			url=c.getString(0);
-			}
-			c.close();
-			}else{
-				url=data.getDataString();
+			Uri uri=data.getData();
+			switch(uri.getScheme()){
+				case "file":
+					try
+					{
+						is = new FileInputStream(new File(uri.getPath()));
+					}
+					catch (FileNotFoundException e)
+					{}
+					break;
+				case "content":
+					try
+					{
+						is = getContext().getContentResolver().openInputStream(uri);
+					}
+					catch (FileNotFoundException e)
+					{}
+					break;
 			}
 			new Thread(){
 				public void run(){
 					parsing=true;
-					BitImageParser.decodeImage(BitmapFactory.decodeFile(url), BitImageFragment.this);
+					BitImageParser.decodeImage(is, BitImageFragment.this);
 				}
 			}.start();
 			
@@ -283,6 +295,7 @@ public class BitImageFragment extends Fragment implements SurfaceHolder.Callback
 	@Override
 	public void onSuccess(String data)
 	{
+		is=null;
 		parsing = false;
 		getActivity().onBackPressed();
 		EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_NEW_WINDOW, data));
@@ -298,8 +311,8 @@ public class BitImageFragment extends Fragment implements SurfaceHolder.Callback
 		}
 		catch (Exception ee)
 		{}
-		if(url!=null){
-			url=null;
+		if(is!=null&&getView()!=null){
+			is=null;
 			getView().post(new Runnable(){
 
 					@Override

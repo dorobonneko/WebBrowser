@@ -17,26 +17,43 @@ import com.google.zxing.qrcode.QRCodeReader;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import com.google.zxing.MultiFormatReader;
 
 public class BitImageParser
 {
-	private static QRCodeReader qr;
+	private static MultiFormatReader mfr;
+	private static HashMap<DecodeHintType,Object> hm;
 	static{
-		qr=new QRCodeReader();
-		/**mfr=new MultiFormatReader();
-		HashMap<DecodeHintType,Object> hm=new HashMap<>();
+		mfr=new MultiFormatReader();
+		hm=new HashMap<>();
 		Vector<BarcodeFormat> vector=new Vector<>();
 		vector.add(BarcodeFormat.QR_CODE);
 		vector.add(BarcodeFormat.DATA_MATRIX);
 		vector.add(BarcodeFormat.AZTEC);
 		vector.add(BarcodeFormat.MAXICODE);
+		vector.add(BarcodeFormat.CODE_128);
+		vector.add(BarcodeFormat.CODE_39);
+		vector.add(BarcodeFormat.CODE_93);
+		vector.add(BarcodeFormat.CODABAR);
+		vector.add(BarcodeFormat.EAN_13);
+		vector.add(BarcodeFormat.EAN_8);
+		vector.add(BarcodeFormat.ITF);
+		vector.add(BarcodeFormat.PDF_417);
+		vector.add(BarcodeFormat.RSS_14);
+		vector.add(BarcodeFormat.RSS_EXPANDED);
+		vector.add(BarcodeFormat.UPC_A);
+		vector.add(BarcodeFormat.UPC_E);
+		vector.add(BarcodeFormat.UPC_EAN_EXTENSION);
 		hm.put(DecodeHintType.POSSIBLE_FORMATS,vector);
-		mfr.setHints(hm);*/
+		hm.put(DecodeHintType.CHARACTER_SET, "UTF8");
+		mfr.setHints(hm);
 	}
 	public static void decodeImage(byte[] data,Callback call,int width,int height){
 		try
 		{
-			if (call != null)call.onSuccess(qr.decode(new BinaryBitmap(new HybridBinarizer(new LuminanceSource(data,width,height)))).getText());
+			if (call != null)call.onSuccess(mfr.decode(new BinaryBitmap(new HybridBinarizer(new LuminanceSource(data,width,height)))).getText());
 		}
 		catch (Exception e)
 		{if(call!=null)call.onFail(e);}
@@ -45,12 +62,21 @@ public class BitImageParser
 	public static void decodeImage(Bitmap bitmap,Callback call){
 			try
 			{
-				if (call != null)call.onSuccess(qr.decode(new BinaryBitmap(new HybridBinarizer(new LuminanceSource(bitmap)))).getText());
+				if (call != null)call.onSuccess(mfr.decode(new BinaryBitmap(new HybridBinarizer(new LuminanceSource(bitmap)))).getText());
 			}
 			catch (Exception e)
 		{if(call!=null)call.onFail(e);}
 			
 			if(bitmap!=null) bitmap.recycle();
+	}
+	public static void decodeImage(InputStream is,Callback call){
+		decodeImage(BitmapFactory.decodeStream(is),call);
+		try
+		{
+			is.close();
+		}
+		catch (IOException e)
+		{}
 	}
 	public static void decodeImageUrl(String url,Callback call){
 		try
@@ -65,7 +91,7 @@ public class BitImageParser
 			public void run(){
 				try
 				{
-					decodeImage(BitmapFactory.decodeStream(url.openStream()),call);
+					decodeImage(url.openStream(),call);
 				}
 				catch (IOException e)
 				{if(call!=null)call.onFail(e);}

@@ -13,7 +13,7 @@ public class LuminanceSource extends com.google.zxing.LuminanceSource
 		final int[] tmp=new int[bitmap.getWidth()*bitmap.getHeight()];
 		bitmap.getPixels(tmp, 0, getWidth(), 0, 0, getWidth(), getHeight());
 		data=new byte[tmp.length];
-		for(int i=0;i<data.length;i++){
+		for(int i=0;i<tmp.length;i++){
 			data[i]=(byte)tmp[i];
 		}
 	}
