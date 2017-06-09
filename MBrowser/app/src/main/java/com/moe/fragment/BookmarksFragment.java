@@ -27,45 +27,59 @@ import android.os.Vibrator;
 import android.content.Context;
 import com.moe.dialog.AddDialog;
 import com.moe.view.PopupBookmarkMenu;
-import com.moe.dialog.BookmarkEditDialog;
 import com.moe.database.HomePage;
 import com.moe.dialog.SendToHomepageDialog;
 import android.content.res.TypedArray;
 import com.moe.utils.Theme;
 import com.moe.database.Sqlite;
+import com.moe.entity.Bookmark;
+import android.widget.ViewFlipper;
+import android.view.animation.AnimationUtils;
+import java.util.Collections;
 
-public class BookmarksFragment extends Fragment implements View.OnClickListener,ViewPager.OnPageChangeListener,AddFolderDialog.OnSuccessListener,AlertDialog.OnClickListener,BookmarksAdapter.OnItemClickListener,BookmarksAdapter.OnItemLongClickListener,AddDialog.OnAddListener
+public class BookmarksFragment extends Fragment implements View.OnClickListener,AddFolderDialog.OnSuccessListener,AlertDialog.OnClickListener,BookmarksAdapter.OnItemClickListener,BookmarksAdapter.OnItemLongClickListener
 {
 	private ViewPager vp;
 	private ViewPagerAdapter vpa;
 	//数据
-	private ArrayList<RecyclerView> av=new ArrayList<>();
-	private ArrayList bookmark_data=new ArrayList(),history_data=new ArrayList();
+	private ArrayList<View> av=new ArrayList<>();
+	private ArrayList history_data=new ArrayList();
+	private ArrayList<Bookmark> bookmark_data=new ArrayList<>();
 	//适配器
 	private BookmarksAdapter bookmark,history;
 	//数据库
 	private BookMarks bm;
 	private WebHistory wh;
-	//下方按钮
-	private Button folder,edit;
 	//新建文件夹对话框
 	private AddFolderDialog afd;
-	//是否编辑模式
-	private boolean drag=false;
 	//历史记录清空提示
 	private AlertDialog ad;
-	//添加书签
-	private AddDialog aid;
 	//震动
 	private Vibrator vibrator;
-	//当前打开的文件夹
-	private String dir;
 	//长按弹出窗口
 	private PopupBookmarkMenu pbm;
-	//编辑书签
-	private BookmarkEditDialog bed;
 	//发送至桌面前改名dialog
 	private SendToHomepageDialog sthd;
+	private Bookmark folder;
+	private ViewFlipper toolbar;
+	private BookmarkEditFragment bef;
+	public void delete(int index)
+	{
+		bm.delete(bookmark_data.remove(index));
+		bookmark.notifyItemRemoved(index);
+		for(int i=0;i<index;i++){
+			Bookmark b=bookmark_data.get(i);
+			b.setNo(b.getNo()-1);
+		}
+		bookmark.notifyItemRangeChanged(0,index);
+	}
+
+	public void edit(int index)
+	{
+		if(bef==null)bef=new BookmarkEditFragment();
+		bef.setArguments(folder,bookmark_data.get(index));
+		showEdit();
+	}
 
 	public void setCurrent(int p0)
 	{
@@ -73,36 +87,22 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	}
 	public void sendToHomepage(boolean isBookmark, int index)
 	{
-		if(isBookmark)
-			sthd.show((String[])bookmark_data.get(index));
-			else
+		if(isBookmark){
+			String[] data=new String[2];
+			Bookmark b=bookmark_data.get(index);
+			data[0]=b.getSummary();
+			data[1]=b.getTitle();
+			sthd.show(data);
+			}else
 			sthd.show((String[])history_data.get(index));
 	}
-	public void delete(int index)
-	{
-		if(bookmark.getMode()==BookmarksAdapter.Mode.FOLDER){
-			if(!bookmark_data.get(index).equals("默认"))
-				bm.deleteFolder(bookmark_data.get(index).toString());
-				loadFolder();
-		}else{
-			bm.deleteBookmark(((String[])bookmark_data.get(index))[0]);
-			loadBookmarks(dir);
-		}
-	}
+	
 
-	public void edit(int index)
-	{
-		if(bookmark.getMode()==BookmarksAdapter.Mode.FOLDER){
-			if(!bookmark_data.get(index).equals("默认"))
-			afd.show(bookmark_data.get(index));
-		}else{
-			bed.show(((String[])bookmark_data.get(index))[0]);
-		}
-	}
+	
 	public void openInBackground(boolean isBookmark, int index)
 	{
 		if(isBookmark){
-			EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_WINDOW,((String[])bookmark_data.get(index))[0]));
+			EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_WINDOW,bookmark_data.get(index).getSummary()));
 		}else{
 			EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_WINDOW,((String[])history_data.get(index))[0]));
 		}
@@ -110,46 +110,46 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		View view=inflater.inflate(R.layout.bookmarks_view, container, false);
-				return view;
+		return inflater.inflate(R.layout.bookmarks_view, container, false);
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
-		/**TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.colorPrimaryDark});
-		view.setBackgroundColor(ta.getColor(0,R.color.primary_dark));
-		ta.recycle();*/
-		Theme.registerBackground(view);
 		TabLayout tl=(TabLayout)view.findViewById(R.id.bookmarks_tablayout);
 		vp = (ViewPager)view.findViewById(R.id.bookmarks_viewpager);
 		vp.setAdapter(vpa = new ViewPagerAdapter(av));
 		av.clear();
-		av.add(new RecyclerView(getActivity()));
-		av.add(new RecyclerView(getActivity()));
+		av.add(LayoutInflater.from(getContext()).inflate(R.layout.bookmark_view,vp,false));
+		av.add(LayoutInflater.from(getContext()).inflate(R.layout.history_view,vp,false));
 		av.get(0).setTag("书签");
 		av.get(1).setTag("历史");
 		vp.setOffscreenPageLimit(1);
 		vpa.notifyDataSetChanged();
 		tl.setupWithViewPager(vp);
 		tl.setElevation(2f);
-		av.get(0).setAdapter(bookmark = new BookmarksAdapter(getActivity(), bookmark_data));
-		bookmark.setMode(BookmarksAdapter.Mode.FOLDER);
-		av.get(0).setItemAnimator(new DefaultItemAnimator());
-		av.get(0).setLayoutManager(new LinearLayoutManager(getActivity()));
-		av.get(0).addItemDecoration(new CustomDecoration(2));
-		av.get(1).setAdapter(history = new BookmarksAdapter(getActivity(), history_data));
-		history.setMode(BookmarksAdapter.Mode.HISTORY);
-		av.get(1).setItemAnimator(new DefaultItemAnimator());
-		av.get(1).setLayoutManager(new LinearLayoutManager(getActivity()));
+		View view1=av.get(0);
+		RecyclerView rv1=(RecyclerView)view1.findViewById(R.id.bookmark_view_recyclerview);
+		rv1.setAdapter(bookmark = new BookmarksAdapter(getActivity(), bookmark_data,BookmarksAdapter.Type.BOOKMARK));
+		rv1.setLayoutManager(new LinearLayoutManager(getActivity()));
+		rv1.addItemDecoration(new CustomDecoration(2));
 		//av.get(1).addItemDecoration(new CustomDecoration(5, 0x00000000));
-		folder = (Button)view.findViewById(R.id.bookmarksview_newfolder);
-		edit = (Button)view.findViewById(R.id.bookmarksview_edit);
-		vp.setOnPageChangeListener(this);
-		folder.setOnClickListener(this);
-		edit.setOnClickListener(this);
+		view1.findViewById(R.id.bookmarksview_newfolder).setOnClickListener(this);
+		view1.findViewById(R.id.bookmarksview_edit).setOnClickListener(this);
 		ItemTouchHelper ith=new ItemTouchHelper(new ItemTouch());
-		ith.attachToRecyclerView(av.get(0));
+		ith.attachToRecyclerView(rv1);
+		view1.findViewById(R.id.bookmarksview_newBookmark).setOnClickListener(this);
+		view1.findViewById(R.id.bookmarksview_newfolder);
+		view1.findViewById(R.id.bookmarksview_edit);
+		toolbar=(ViewFlipper)view1.findViewById(R.id.bookmarks_view_toolbar);
+		toolbar.setAnimation(AnimationUtils.loadAnimation(toolbar.getContext(),R.anim.right_in));
+		view1.findViewById(R.id.bookmarks_view_cancel).setOnClickListener(this);
+		view1.findViewById(R.id.bookmarks_view_delete).setOnClickListener(this);
+		View view2=av.get(1);
+		RecyclerView rv2=(RecyclerView)view2.findViewById(R.id.history_view_recyclerview);
+		rv2.setAdapter(history = new BookmarksAdapter(getActivity(), history_data,BookmarksAdapter.Type.HISTORY));
+		rv2.setLayoutManager(new LinearLayoutManager(getActivity()));
+		view2.findViewById(R.id.history_view_clear).setOnClickListener(this);
 		super.onViewCreated(view, savedInstanceState);
 	}
 	
@@ -160,11 +160,9 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		bm = Sqlite.getInstance(getActivity(),BookMarks.class);
 		wh = Sqlite.getInstance(getActivity(),WebHistory.class);
 		afd=new AddFolderDialog(getActivity());
-		aid=new AddDialog(getActivity());
 		afd.setOnSuccessListener(this);
-		aid.setOnAddLostener(this);
 		super.onActivityCreated(savedInstanceState);
-		loadFolder();
+		loadBookmarksSon(bm.getRoot());
 		history_data.addAll(wh.getWebHistory());
 		history.notifyDataSetChanged();
 		ad=new AlertDialog(getActivity());
@@ -174,42 +172,13 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		history.setOnItemLongClickListener(this);
 		bookmark.setOnItemClickListener(this);
 		bookmark.setOnItemLongClickListener(this);
-		aid.setTitle("添加书签");
-		aid.setButtonText(0,"添加");
 		pbm=new PopupBookmarkMenu(this);
-		bed=new BookmarkEditDialog(this);
 		sthd=new SendToHomepageDialog(this);
 		Bundle b=getArguments();
 		if(b!=null&&b.getInt("index")==1)
 			vp.setCurrentItem(1);
 	}
-	@Override
-	public void onPageScrolled(int p1, float p2, int p3)
-	{
-		switch(p1){
-			case 0:
-				folder.setVisibility(View.VISIBLE);
-				edit.setText("编辑");
-				break;
-			case 1:
-				folder.setVisibility(View.INVISIBLE);
-				edit.setText("清空");
-				break;
-		}
-	}
-
-	@Override
-	public void onPageSelected(int p1)
-	{
-		
-	}
-
-	@Override
-	public void onPageScrollStateChanged(int p1)
-	{
-		
-	}
-
+	
 	@Override
 	public void OnItemClick(BookmarksAdapter ba, com.moe.adapter.BookmarksAdapter.ViewHolder vh)
 	{
@@ -217,75 +186,72 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 			EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_WINDOW,((String[])history_data.get(vh.getPosition()))[0]));
 			EventBus.getDefault().post(MenuOptions.HOME);
 		}else{
-			if(drag){
+			if(toolbar.getDisplayedChild()==1){
 				//编辑模式
 			}else{
-				if(bookmark.getMode()==BookmarksAdapter.Mode.FOLDER){
-					loadBookmarks(bookmark_data.get(vh.getPosition()).toString());
+				Bookmark b=bookmark_data.get(vh.getPosition());
+				if(b.getType()==0){
+					loadBookmarksSon(bookmark_data.get(vh.getPosition()));
 				}else{
-				EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_WINDOW,((String[])bookmark_data.get(vh.getPosition()))[0]));
+				EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_URL_WINDOW,b.getSummary()));
 				EventBus.getDefault().post(MenuOptions.HOME);
 				}
 			}
 		}
 	}
 
+	private void loadBookmarksSon(Bookmark b){
+		folder=b;
+		bookmark_data.clear();
+		bookmark_data.addAll(bm.query(b));
+		bookmark.notifyDataSetChanged();
+	}
+	
 	@Override
 	public boolean OnItemLongClick(BookmarksAdapter ba, com.moe.adapter.BookmarksAdapter.ViewHolder vh)
 	{
-		if(!drag){
-			pbm.show(vh.itemView,ba==bookmark,bookmark.getMode()==BookmarksAdapter.Mode.FOLDER,vh.getPosition());
+		if(toolbar.getDisplayedChild()==0){
+			int type=0;
+			if(vp.getCurrentItem()==0)
+				type=bookmark_data.get(vh.getPosition()).getType();
+			pbm.show(vh.itemView,vp.getCurrentItem(),type,vh.getPosition());
 		}
-		return !drag;
-	}
-
-	@Override
-	public void onAdd(String url, String title, String dir)
-	{
-		bm.insertBookmark(url,title,dir);
-		loadBookmarks(dir);
+		return toolbar.getDisplayedChild()==0;
 	}
 
 	
-private void loadFolder(){
-	bookmark_data.clear();
-	bookmark_data.addAll(bm.getAllBookmarkGroup());
-	bookmark.setMode(BookmarksAdapter.Mode.FOLDER);
-	bookmark.notifyDataSetChanged();
-	folder.setText("新建文件夹");
-}
-public void loadBookmarks(){
-	loadBookmarks(this.dir);
-}
-private void loadBookmarks(String dir){
-	this.dir=dir;
-	bookmark_data.clear();
-	bookmark_data.addAll(bm.queryBookmark(dir));
-	bookmark.setMode(BookmarksAdapter.Mode.ITEM);
-	bookmark.notifyDataSetChanged();
-	folder.setText("新建书签");
-}
+	
+	
+
 
 	@Override
 	public void onClick(View p1)
 	{
 		switch(p1.getId()){
 			case R.id.bookmarksview_newfolder:
-				if(bookmark.getMode()==BookmarksAdapter.Mode.FOLDER)
-				afd.show();
-				else
-				aid.show(dir);
+				afd.show(folder);
+				break;
+			case R.id.bookmarksview_newBookmark:
+				//新建书签
+				if(bef==null)bef=new BookmarkEditFragment();
+				bef.setArguments(folder,null);
+				showEdit();
 				break;
 			case R.id.bookmarksview_edit:
-				switch(vp.getCurrentItem()){
-					case 0:
-						toggleMode(!drag);
-						break;
-					case 1:
-						if(history_data.size()!=0)
-						ad.show();
-						break;
-				}
+				toolbar.setDisplayedChild(1);
+				break;
+			case R.id.bookmarks_view_cancel:
+				toolbar.setDisplayedChild(0);
+				break;
+			case R.id.bookmarks_view_delete:
+				break;
+			case R.id.bookmarks_view_export:
+				break;
+			case R.id.bookmarks_view_import:
+				break;
+			case R.id.history_view_clear:
+				if(history_data.size()!=0)
+					ad.show();
 				break;
 			case 0:
 				//清空历史记录
@@ -295,46 +261,57 @@ private void loadBookmarks(String dir){
 				break;
 		}
 	}
+
+	private void showEdit()
+	{
+		if(!bef.isAdded())
+			getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in,0).add(R.id.bookmarks_view_float,bef).commit();
+		else
+			getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in,0).show(bef).commit();
+		
+	}
 	@Override
 	public void onHiddenChanged(boolean hidden)
 	{
 		if (hidden)vp.setCurrentItem(0);
 		else
 		{
+			loadBookmarksSon(folder);
 			history_data.clear();
 			history_data.addAll(wh.getWebHistory());
 			history.notifyDataSetChanged();
 		}
 		super.onHiddenChanged(hidden);
 	}
-
+public void refresh(){
+	loadBookmarksSon(folder);
+}
 	@Override
-	public void OnSuccess(String name)
+	public void OnSuccess(Bookmark name)
 	{
-		loadFolder();
+		loadBookmarksSon(folder);
 	}
-	private void toggleMode(boolean f){
-		if(f){
-			drag=true;
-			edit.setText("取消");
-		}else{
-			drag=false;
-			edit.setText("编辑");
-		}
-	}
-
+	
 	@Override
 	public boolean onBackPressed()
 	{
 		if(!isHidden()){
-			if(vp.getCurrentItem()==0){
-		if(drag){
-			toggleMode(false);
-			return true;
-		}else if(bookmark.getMode()==BookmarksAdapter.Mode.ITEM){
-			loadFolder();
-			return true;
-		}
+			if(bef!=null&&!bef.isHidden()&&bef.onBackPressed()){
+				return true;
+			}
+		switch(vp.getCurrentItem()){
+			case 0:
+				if(folder.getParent()==bm.getRoot().getParent())
+					return false;
+					else
+					{
+					Bookmark b=bm.queryWithSon(folder.getParent());
+					if(b==null)b=bm.getRoot();
+						loadBookmarksSon(b);
+						return true;
+					}
+			case 1:
+				return false;
 		}
 		}
 		return false;
@@ -346,7 +323,7 @@ private void loadBookmarks(String dir){
 		public boolean isLongPressDragEnabled()
 		{
 			vibrator.vibrate(50);
-			return drag;
+			return toolbar.getDisplayedChild()==1;
 		}
 		
 		@Override
@@ -357,21 +334,28 @@ private void loadBookmarks(String dir){
 
 		@Override
 		public boolean onMove(RecyclerView p1, RecyclerView.ViewHolder p2, RecyclerView.ViewHolder p3)
-		{
-			if(bookmark.getMode()==BookmarksAdapter.Mode.FOLDER)
-				bm.moveGroupToIndex(bookmark_data.get(p2.getPosition()).toString(),p3.getPosition());
-				else
-				bm.moveToIndex(((String[])bookmark_data.get(p2.getPosition()))[0],p3.getPosition());
-			bookmark_data.add(p3.getPosition(),bookmark_data.remove(p2.getPosition()));
-			bookmark.notifyItemMoved(p2.getPosition(),p3.getPosition());
-							return false;
+		{//no交换
+		int fromPos=p2.getAdapterPosition(),toPos=p3.getAdapterPosition();
+			Bookmark src=bookmark_data.get(fromPos);
+			Bookmark dsc=bookmark_data.get(toPos);
+			int no=dsc.getNo();
+			dsc.setNo(src.getNo());
+			src.setNo(no);
+			bm.trimNo(src);
+			bm.trimNo(dsc);
+			Collections.swap(bookmark_data,fromPos,toPos);
+			bookmark.notifyItemMoved(fromPos,toPos);
+			return true;
 		}
 
-
+		@Override
+		public void onMoved(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, int fromPos, RecyclerView.ViewHolder target, int toPos, int x, int y)
+		{
+		}
 		@Override
 		public void onSwiped(RecyclerView.ViewHolder p1, int p2)
 		{
-			// TODO: Implement this method
+			
 		}
 	}
 }

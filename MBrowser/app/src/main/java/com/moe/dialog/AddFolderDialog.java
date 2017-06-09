@@ -10,26 +10,20 @@ import com.moe.Mbrowser.R;
 import android.view.View;
 import com.moe.database.BookMarks;
 import com.moe.database.Sqlite;
+import com.moe.entity.Bookmark;
 
 public class AddFolderDialog extends Dialog implements View.OnClickListener
 {
 	private EditText et;
 	private TextInputLayout til;
 	private BookMarks bm;
-	private String dir=null;
+	private Bookmark bookmark;
 	public AddFolderDialog(Context context){
 		super(context);
 		bm=Sqlite.getInstance(context,BookMarks.class);
 	}
 
-	public void show(Object get)
-	{
-		dir=get.toString();
-		super.show();
-		til.setErrorEnabled(false);
-		et.setText(dir);
-	}
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -55,11 +49,12 @@ public class AddFolderDialog extends Dialog implements View.OnClickListener
 				if(str.length()==0){
 					til.setError("内容不能为空");
 					}else if(str.length()<=10){
-						if(dir==null)
-						bm.createFolder(str);
-						else
-						bm.changeFolder(str,dir);
-						if(osl!=null)osl.OnSuccess(str);
+						Bookmark b=new Bookmark();
+						b.setParent(bookmark.getSon());
+						b.setTitle(str);
+						b.setType(BookMarks.Type.FOLDER);
+						bm.insert(b);
+						if(osl!=null)osl.OnSuccess(b);
 						dismiss();
 					}
 				break;
@@ -69,10 +64,10 @@ public class AddFolderDialog extends Dialog implements View.OnClickListener
 		}
 	}
 
-	@Override
-	public void show()
+	
+	public void show(Bookmark bookmark)
 	{
-		dir=null;
+		this.bookmark=bookmark;
 		super.show();
 		til.setError(null);
 		et.setText("");
@@ -82,6 +77,6 @@ public void setOnSuccessListener(OnSuccessListener o){
 }
 private OnSuccessListener osl;
 	public abstract interface OnSuccessListener{
-		void OnSuccess(String name);
+		void OnSuccess(Bookmark name);
 	}
 }

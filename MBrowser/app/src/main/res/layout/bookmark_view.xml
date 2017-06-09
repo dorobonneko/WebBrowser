@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+	<android.support.v7.widget.RecyclerView
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:layout_weight="1"
+		android:id="@+id/bookmark_view_recyclerview"/>
+
+	<ViewFlipper
+		android:id="@+id/bookmarks_view_toolbar"
+		android:layout_height="?attr/actionBarSize"
+		android:layout_width="match_parent">
+
+		<RelativeLayout
+			android:layout_height="match_parent"
+			android:layout_width="match_parent">
+
+			<Button
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="新建文件夹"
+				android:background="?android:attr/selectableItemBackgroundBorderless"
+				android:id="@+id/bookmarksview_newfolder"
+				android:layout_centerVertical="true"
+				android:layout_alignParentStart="true"/>
+
+			<Button
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="新建书签"
+				android:layout_centerInParent="true"
+				android:background="?android:attr/selectableItemBackgroundBorderless"
+				android:id="@+id/bookmarksview_newBookmark"/>
+
+			<Button
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="编辑"
+				android:layout_centerInParent="true"
+				android:background="?android:attr/selectableItemBackgroundBorderless"
+				android:id="@+id/bookmarksview_edit"
+				android:layout_alignParentEnd="true"/>
+
+		</RelativeLayout>
+
+		<LinearLayout
+			android:orientation="horizontal"
+			android:layout_height="match_parent"
+			android:layout_width="match_parent">
+
+			<Button
+				android:id="@+id/bookmarks_view_import"
+				android:background="?android:attr/selectableItemBackgroundBorderless"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="导入"/>
+
+			<Button
+				android:id="@+id/bookmarks_view_export"
+				android:background="?android:attr/selectableItemBackgroundBorderless"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="导出"/>
+
+			<Button
+				android:id="@+id/bookmarks_view_delete"
+				android:background="?android:attr/selectableItemBackgroundBorderless"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="删除"/>
+
+			<Button
+				android:id="@+id/bookmarks_view_cancel"
+				android:background="?android:attr/selectableItemBackgroundBorderless"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:text="@string/cancel"/>
+
+		</LinearLayout>
+
+	</ViewFlipper>
+
+</LinearLayout>
+

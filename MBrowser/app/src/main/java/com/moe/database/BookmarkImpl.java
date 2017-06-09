@@ -6,9 +6,20 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
+import com.moe.entity.Bookmark;
+import android.database.sqlite.SQLiteStatement;
 
 class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 {
+
+	@Override
+	public Bookmark getRoot()
+	{
+		return root;
+	}
+
+
+	private Bookmark root;
 	private static BookmarkImpl bi;
 	private SQLiteDatabase sql;
 	static BookmarkImpl getInstance(Context context){
@@ -18,6 +29,11 @@ class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 	private BookmarkImpl(Context context){
 		super(context.getApplicationContext(),"bookmarks",null,3);
 		sql=getReadableDatabase();
+		root=new Bookmark();
+		root.setParent(-1);
+		root.setSon(0);
+		root.setLevel(0);
+		root.setTitle("根目录");
 	}
 
 	@Override
@@ -29,262 +45,151 @@ class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 	@Override
 	public void onCreate(SQLiteDatabase p1)
 	{
-		p1.execSQL("CREATE TABLE bookmarks(url TEXT primary key,title TEXT,no INTEGER,dir TEXT)");
-		p1.execSQL("CREATE TABLE bookmarksgroup(name TEXT primary key,no INTEGER)");
-		ContentValues cv=new ContentValues();
-		cv.put("name", "默认");
-		cv.put("no", 0);
-		p1.insert("bookmarksgroup", null, cv);
+		p1.execSQL("create table bookmarks(son INTEGER primary key AUTOINCREMENT,parent INTEGER,title TEXT,summary TEXT,type INTEGER,no INTEGER)");
 		
 	}
 
+	@Override
+	public void trimNo(Bookmark b)
+	{
+		//改变顺序专用
+		SQLiteStatement state=sql.compileStatement("update bookmarks set no=? where son=?");
+		state.acquireReference();
+		state.bindLong(1,b.getNo());
+		state.bindLong(2,b.getSon());
+		state.executeUpdateDelete();
+		state.close();
+		state.releaseReference();
+	}
 
 	@Override
-	public void updataBookmark(String url, String name, String dir, String currenturl)
+	public List<Bookmark> loop(Bookmark bookmark)
 	{
+		ArrayList<Bookmark> ab=new ArrayList<>();
+		ab.add(bookmark);
+		Cursor c=sql.rawQuery("select * from bookmarks where parent=? and type=0 order by no desc",new String[]{bookmark.getSon()+""});
+		while(c.moveToNext()){
+			Bookmark b=new Bookmark();
+			b.setSon(c.getInt(0));
+			b.setParent(c.getInt(1));
+			b.setTitle(c.getString(2));
+			b.setSummary(c.getString(3));
+			b.setType(c.getInt(4));
+			b.setNo(c.getInt(5));
+			b.setLevel(bookmark.getLevel()+1);
+			ab.addAll(loop(b));
+		}
+		c.close();
+		return ab;
+	}
 
-		Cursor c=sql.query("bookmarks",null,"url=?",new String[]{currenturl},null,null,null);
-		if(c.moveToFirst()){
-			String folder=c.getString(c.getColumnIndex("dir"));
-			c.close();
-
-			if(folder.equals(dir)){
-				ContentValues cv=new ContentValues();
-				cv.put("url",url);
-				cv.put("title",name);
-				sql.update("bookmarks",cv,"url=?",new String[]{currenturl});
+	@Override
+	public void update(Bookmark b)
+	{
+		Bookmark bookmark=queryWithSon(b.getSon());
+		if(b.getParent()==bookmark.getParent()){
+			//(未改文件夹)
+			SQLiteStatement state=sql.compileStatement("update bookmarks set title=?,summary=? where son=?");
+			state.acquireReference();
+			state.bindString(1,b.getTitle());
+			state.bindString(2,b.getSummary());
+			state.bindLong(3,b.getSon());
+			state.executeUpdateDelete();
+			state.close();
+			state.releaseReference();
 			}else{
-				deleteBookmark(currenturl);
-				insertBookmark(url,name,dir);
-			}
-		}else{ 
-			c.close();
+			//更改了文件夹
+			delete(bookmark);//从原文件夹删除
+			insert(b);//插入新数据
 		}
+		
 	}
 
+	@Override
+	public void insert(Bookmark b)
+	{
+		Cursor c=sql.rawQuery("select count(son) from bookmarks where parent=?",new String[]{b.getParent()+""});
+		SQLiteStatement state=sql.compileStatement("insert into bookmarks(parent,title,summary,type,no) values(?,?,?,?,?)");
+		state.bindLong(1,b.getParent());
+		state.bindString(2,b.getTitle());
+		state.bindString(3,b.getSummary());
+		state.bindLong(4,b.getType());
+		if(c.moveToFirst())
+		state.bindLong(5,c.getInt(0));
+		c.close();
+		state.executeInsert();
+	}
 
 	@Override
-	public String[] getBookmark(String url)
+	public void delete(Bookmark b)
 	{
-
-		Cursor c=sql.query("bookmarks",null,"url=?",new String[]{url},null,null,null);
+		if(b.getType()==1){
+			deleteThrow(b);
+		}
+		else{
+			for(Bookmark bb:query(b))
+			delete(bb);
+			deleteThrow(b);
+		}
+	}
+	private void deleteThrow(Bookmark b){
+		sql.beginTransaction();
+		SQLiteStatement state=sql.compileStatement("delete from bookmarks where son=?");
+		state.acquireReference();
+		state.bindLong(1,b.getSon());
+		state.executeUpdateDelete();
+		state.close();
+		state.releaseReference();
+		Cursor c=sql.rawQuery("select son,no from bookmarks where parent=? and no>?",new String[]{b.getParent()+"",b.getNo()+""});
+		while(c.moveToNext()){
+			state=sql.compileStatement("update bookmarks set no=? where son=?");
+			state.acquireReference();
+			state.bindLong(1,c.getInt(1)-1);
+			state.bindLong(2,c.getInt(0));
+			state.executeUpdateDelete();
+			state.close();
+			state.releaseReference();
+		}
+		c.close();
+		sql.setTransactionSuccessful();
+		sql.endTransaction();
+	}
+	@Override
+	public List<Bookmark> query(Bookmark bookmark)
+	{
+		ArrayList<Bookmark> ab=new ArrayList<Bookmark>();
+		Cursor c=sql.rawQuery("select * from bookmarks where parent=? order by no desc",new String[]{bookmark.getSon()+""});
+		while(c.moveToNext()){
+			Bookmark b=new Bookmark();
+			b.setSon(c.getInt(0));
+			b.setParent(c.getInt(1));
+			b.setTitle(c.getString(2));
+			b.setSummary(c.getString(3));
+			b.setType(c.getInt(4));
+			b.setNo(c.getInt(5));
+			b.setLevel(bookmark.getLevel()+1);
+			ab.add(b);
+		}
+		c.close();
+		return ab;
+	}
+	@Override
+	public Bookmark queryWithSon(int son){
+		Bookmark b=null;
+		Cursor c=sql.rawQuery("select * from bookmarks where son=?",new String[]{son+""});
 		if(c.moveToFirst()){
-			String[] str=new String[3];
-			str[0]=url;
-			str[1]=c.getString(c.getColumnIndex("title"));
-			str[2]=c.getString(c.getColumnIndex("dir"));
-			c.close();
-
-			return str;
-		}else{
-			c.close();
-
-		}
-		return null;
-	}
-
-	@Override
-	public void createFolder(String name)
-	{
-		Cursor c=sql.query("bookmarksgroup", null, null, null, null, null, null);
-		ContentValues cv=new ContentValues();
-		cv.put("name", name);
-		cv.put("no", c.getCount());
-		c.close();
-		sql.insert("bookmarksgroup", null, cv);
-	}
-
-	@Override
-	public void deleteFolder(String name)
-	{
-		Cursor tmp=sql.query("bookmarksgroup", null, "name=?", new String[]{name}, null, null, null);
-		if (tmp.moveToFirst())
-		{
-			int index=tmp.getInt(tmp.getColumnIndex("no"));tmp.close();
-			sql.delete("bookmarksgroup", "name=?", new String[]{name});
-			Cursor c=sql.query("bookmarksgroup", null, "no>?", new String[]{index + ""}, null, null, "no desc");
-			while (c.moveToNext())
-			{
-				ContentValues cv=new ContentValues();
-				cv.put("no", c.getInt(c.getColumnIndex("no")) - 1);
-				sql.update("bookmarksgroup", cv, "name=?", new String[]{c.getString(c.getColumnIndex("name"))});
-
-			}
-			c.close();
-			c = sql.query("bookmarks", null, "dir=?", new String[]{name}, null, null, null);
-			while (c.moveToNext())
-			{
-				moveToDirectory(c.getString(c.getColumnIndex("url")),"默认");
-			}
-			c.close();
-		}
-		else tmp.close();
-	}
-	@Override
-	public void insertBookmark(String url, String title)
-	{
-		insertBookmark(url, title, "默认");
-	}
-
-	@Override
-	public void changeFolder(String str, String dir)
-	{
-		ContentValues cv=new ContentValues();
-		cv.put("name", str);
-		sql.update("bookmarksgroup", cv, "name=?", new String[]{dir});
-	}
-
-
-
-
-	@Override
-	public void insertBookmark(String url, String title, String dir)
-	{
-		if (url == null || url.trim().length() == 0)throw new NullPointerException("url is must not null");
-		Cursor c=sql.query("bookmarks", null, "dir=?", new String[]{dir}, null, null, null);
-		ContentValues cv=new ContentValues();
-		cv.put("url", url);
-		cv.put("title", title);
-		cv.put("no", c.getCount());c.close();
-		cv.put("dir", dir);
-		sql.insert("bookmarks", null, cv);
-	}
-
-	@Override
-	public void moveToDirectory(String url, String dir)
-	{
-		Cursor c = sql.query("bookmarks", null, "dir=?", new String[]{"默认"}, null, null, null);
-		int count=c.getCount();c.close();
-		ContentValues cv=new ContentValues();
-		cv.put("dir", dir);
-		cv.put("no", count++);
-		sql.update("bookmarks", cv, "url=?", new String[]{url});
-
-
-	}
-
-	@Override
-	public void deleteBookmark(String url)
-	{
-		Cursor c=sql.query("bookmarks",null,"url=?",new String[]{url},null,null,null);
-		if(c.moveToFirst()){
-			int index=c.getInt(c.getColumnIndex("no"));
-			String dir=c.getString(c.getColumnIndex("dir"));
-			c.close();
-			sql.delete("bookmarks","url=?",new String[]{url});
-			c=sql.query("bookmarks",null,"no>? and dir=?",new String[]{index+"",dir},null,null,"no asc");
-			while(c.moveToNext()){
-				ContentValues cv=new ContentValues();
-				cv.put("no",index--);
-				sql.update("bookmarks",cv,"url=?",new String[]{c.getString(c.getColumnIndex("url"))});
-			}
-			c.close();
-		}else c.close();
-	}
-
-	@Override
-	public synchronized void moveToIndex(final String url, final int index)
-	{
-		new Thread(){
-			public void run(){
-				Cursor src=sql.query("bookmarks", null, "url=?", new String[]{url}, null, null, null);
-				if (src.moveToFirst())
-				{
-					int seat=src.getInt(src.getColumnIndex("no"));
-					String dir=src.getString(src.getColumnIndex("dir"));
-					src.close();
-					int tmp=0;
-					int max=index;
-					//seat最小
-					if (seat > index)
-					{
-						tmp = seat;
-						seat = index;
-						max = tmp;
-					}
-					//从小到大更改序号
-					Cursor c=sql.query("bookmarks", null, "dir=? and no>=? and no<=?", new String[]{dir,seat + "",max + ""}, null, null, "no asc");
-					while (c.moveToNext())
-					{
-						ContentValues cv=new ContentValues();
-						cv.put("no", max--);//从最大逐渐递减
-						sql.update("bookmarks", cv, "url=?", new String[]{c.getString(c.getColumnIndex("url"))});
-					}
-					c.close();
-				}
-				else src.close();
-			}}.start();
-
-	}
-
-	@Override
-	public synchronized void moveGroupToIndex(final String dir, final int index)
-	{
-		new Thread(){
-			public void run(){
-				Cursor src=sql.query("bookmarksgroup", null, "name=?", new String[]{dir}, null, null, null);
-				if (src.moveToFirst())
-				{
-					int seat=src.getInt(src.getColumnIndex("no"));
-					src.close();
-					int tmp=0;
-					int max=index;
-					//seat最小
-					if (seat > index)
-					{
-						tmp = seat;
-						seat = index;
-						max = tmp;
-					}
-					//从小到大更改序号
-					Cursor c=sql.query("bookmarksgroup", null, "no>=? and no<=?", new String[]{seat + "",max + ""}, null, null, "no asc");
-					while (c.moveToNext())
-					{
-						ContentValues cv=new ContentValues();
-						cv.put("no", max--);//从最大逐渐递减
-						sql.update("bookmarksgroup", cv, "name=?", new String[]{c.getString(c.getColumnIndex("name"))});
-					}
-					c.close();
-				}
-				if (!src.isClosed())src.close();
-			}}.start();
-
-	}
-
-
-	@Override
-	public List getAllBookmarkGroup()
-	{
-		ArrayList<String> ao=new ArrayList<>();
-
-		Cursor c=sql.query("bookmarksgroup", null, null, null, null, null, "no asc");
-		while (c.moveToNext())
-		{
-			ao.add(c.getString(c.getColumnIndex("name")));
+			b=new Bookmark();
+			b.setSon(c.getInt(0));
+			b.setParent(c.getInt(1));
+			b.setTitle(c.getString(2));
+			b.setSummary(c.getString(3));
+			b.setType(c.getInt(4));
+			b.setNo(c.getInt(5));
 		}
 		c.close();
-
-		return ao;
-	}
-
-	@Override
-	public List queryBookmark(String name)
-	{
-		if (name == null)throw new NullPointerException("dir is must not null");
-		ArrayList<Object[]> ao=new ArrayList<>();
-
-		Cursor c=sql.query("bookmarks", null, "dir=?", new String[]{name}, null, null, "no asc");
-		while (c.moveToNext())
-		{
-			String[] o=new String[2];
-			o[0] = c.getString(c.getColumnIndex("url"));
-			o[1] = c.getString(c.getColumnIndex("title"));
-			ao.add(o);
-		}
-		c.close();
-
-		return ao;
+		return b;
 	}
 	
+
 	
 }

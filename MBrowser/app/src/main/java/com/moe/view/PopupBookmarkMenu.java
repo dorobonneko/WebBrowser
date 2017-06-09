@@ -34,11 +34,11 @@ public class PopupBookmarkMenu extends android.widget.PopupWindow implements Vie
 		send.setOnClickListener(this);
 		delete.setOnClickListener(this);
 	}
-	public void show(View v,boolean isBookMark,boolean isFolder,int index){
-		this.isBookmark=isBookMark;
+	public void show(View v,int isBookMark,int type,int index){
+		this.isBookmark=isBookMark==0;
 		this.index=index;
-		if(isBookMark){
-			if(isFolder)
+		if(this.isBookmark){
+			if(type==0)
 			{toggle(0);
 				setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, item_height*2, context.getResources().getDisplayMetrics()));
 				

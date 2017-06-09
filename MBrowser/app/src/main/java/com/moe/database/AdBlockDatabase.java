@@ -28,8 +28,11 @@ public class AdBlockDatabase extends SQLiteOpenHelper
 	public void changeHost(String src, String trim)
 	{
 		SQLiteStatement s=sql.compileStatement("update adblock set host=? where host = ?");
+		s.acquireReference();
 		s.bindAllArgsAsStrings(new String[]{trim,src});
 		s.executeUpdateDelete();
+		s.close();
+		s.releaseReference();
 	}
 	static AdBlockDatabase getInstance(Context context){
 		if(abd==null)abd=new AdBlockDatabase(context);
@@ -56,8 +59,11 @@ public class AdBlockDatabase extends SQLiteOpenHelper
 		if(c.moveToFirst()){
 			if(c.getString(1).indexOf(selector+",")==-1){
 				SQLiteStatement s=sql.compileStatement("update adblock set selector=? where host = ?");
+				s.acquireReference();
 				s.bindAllArgsAsStrings(new String[]{c.getString(1)+selector+",",host});
 				s.executeUpdateDelete();
+				s.close();
+				s.releaseReference();
 			}
 		}else{
 		ContentValues cv=new ContentValues();

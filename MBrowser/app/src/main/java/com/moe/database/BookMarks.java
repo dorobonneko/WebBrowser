@@ -1,25 +1,19 @@
 package com.moe.database;
 import java.util.*;
+import com.moe.entity.Bookmark;
 
 public interface BookMarks
 {
-
-	public void updataBookmark(String toString, String p1, String p2, String currenturl);
-
-
-	public String[] getBookmark(String url);
-
-
-	void changeFolder(String str, String dir);
-	void insertBookmark(String url, String title, String dir);
-	void createFolder(String name);
-	void deleteFolder(String name);
-	void insertBookmark(String url,String title);
-	void moveToDirectory(String url,String dir);
-	void deleteBookmark(String url);
-	void moveToIndex(String url,int index);
-	void moveGroupToIndex(String url,int index);
-	List getAllBookmarkGroup();
-	List queryBookmark(String dir);
-	//boolean isBookmark(String url);太耗性能
+	List<Bookmark> loop(Bookmark b);
+	void trimNo(Bookmark b);
+	Bookmark getRoot();
+	void update(Bookmark b);
+	void insert(Bookmark b);
+	void delete(Bookmark b);
+	List<Bookmark> query(Bookmark num);
+	Bookmark queryWithSon(int id);
+	public class Type{
+		public final static int FOLDER=0;
+		public final static int BOOKMARK=1;
+	}
 }

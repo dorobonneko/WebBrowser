@@ -198,9 +198,12 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 				{
 					SQLiteStatement statement=sql.compileStatement("insert into searchhistory values (?,?);");
 					//sql.insert("searchhistory", null, cv);
+					statement.acquireReference();
 					statement.bindString(1, data);
 					statement.bindLong(2, System.currentTimeMillis());
 					statement.executeInsert();
+					statement.close();
+					statement.releaseReference();
 					sql.setTransactionSuccessful();
 				}
 				c.close();

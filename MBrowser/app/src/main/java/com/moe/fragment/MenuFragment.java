@@ -30,8 +30,9 @@ import com.moe.utils.ToolManager;
 import android.content.SharedPreferences;
 import com.moe.widget.WebView;
 import com.moe.dialog.ToolboxDialog;
-import com.moe.dialog.BookmarkEditDialog;
-import com.moe.dialog.BookmarkAddDialog;
+import com.moe.entity.Bookmark;
+import com.moe.database.BookMarks;
+import com.moe.database.Sqlite;
 
 public class MenuFragment extends FragmentPop implements MenuAdapter.OnItemClickListener
 {
@@ -43,8 +44,7 @@ private ArrayList<View> av=new ArrayList<>();
 private int groupSize=0;//计算几组
 private SharedPreferences webview,moe;
 private final static String xmlns="http://schemas.android.com/apk/res/android";
-private BookmarkAddDialog bed;
-    @Override
+@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
 		ViewPager vp=new MenuViewPager(getActivity().getApplicationContext(),av);
@@ -130,11 +130,15 @@ private BookmarkAddDialog bed;
 				EventBus.getDefault().post(SHUTDOWN);
 				break;
 			case R.id.menu_bookmark_plus:
-				if(bed==null)
-					bed=new BookmarkAddDialog(getActivity());
-					final WebView wv=(WebView)ToolManager.getInstance().getContent().getCurrentView();
-					bed.show(wv.getUrl(),wv.getTitle());
-					EventBus.getDefault().post(HIDE);
+				final WebView wv=(WebView)ToolManager.getInstance().getContent().getCurrentView();
+				Bookmark b=new Bookmark();
+				b.setParent(0);
+				b.setTitle(wv.getTitle());
+				b.setSummary(wv.getUrl());
+				b.setSon(b.getTitle().hashCode());
+				b.setType(BookMarks.Type.BOOKMARK);
+				Sqlite.getInstance(getContext(),BookMarks.class).insert(b);
+				EventBus.getDefault().post(HIDE);
 				break;
 			case R.id.menu_gps:
 				webview.edit().putBoolean(WebView.Setting.GPS,!webview.getBoolean(WebView.Setting.GPS,false)).commit();

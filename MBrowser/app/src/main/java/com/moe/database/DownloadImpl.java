@@ -46,9 +46,12 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 	public void renameTask(int id, String name)
 	{
 		SQLiteStatement state=sql.compileStatement("update download set name=? where id=?");
+		state.acquireReference();
 		state.bindString(1,name);
 		state.bindLong(2,id);
 		state.executeUpdateDelete();
+		state.close();
+		state.releaseReference();
 	}
 
 
@@ -311,6 +314,7 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 	public void insertDownloadInfo(DownloadInfo di)
 	{
 		SQLiteStatement state=sql.compileStatement("insert into downloadinfo (id,no,start,current,end,url,success) values (?,?,?,?,?,?,?)");
+		state.acquireReference();
 		state.bindLong(1,di.getTaskId());
 		state.bindLong(2,di.getNo());
 		state.bindLong(3,di.getStart());
@@ -319,6 +323,8 @@ class DownloadImpl extends SQLiteOpenHelper implements Download
 		state.bindString(6,di.getUrl());
 		state.bindLong(7,di.isSuccess()?1:0);
 		state.executeInsert();
+		state.close();
+		state.releaseReference();
 	}
 
 

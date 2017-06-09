@@ -13,12 +13,13 @@ import android.support.v4.util.LruCache;
 import android.graphics.Bitmap;
 import com.moe.utils.ImageDraw;
 import android.content.res.TypedArray;
+import com.moe.entity.Bookmark;
 
 public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.ViewHolder>
 {
 	private Context context;
-	private Mode mode=Mode.FOLDER;
 	private List list;
+	private Type type;
 	private LruCache<Character,Bitmap> lc=new LruCache<Character,Bitmap>((int)Runtime.getRuntime().totalMemory() / 8){
 
 		@Override
@@ -37,15 +38,10 @@ public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.View
 
 		
 	};
-	public BookmarksAdapter(Context context,List list){
+	public BookmarksAdapter(Context context,List list,Type type){
 		this.context=context;
 		this.list=list;
-	}
-	public void setMode(Mode mode){
-		this.mode=mode;
-	}
-	public Mode getMode(){
-		return mode;
+		this.type=type;
 	}
 	@Override
 	public ViewHolder onCreateViewHolder(ViewGroup p1, int p2)
@@ -56,34 +52,39 @@ public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.View
 	@Override
 	public void onBindViewHolder(ViewHolder vh, int p2)
 	{
-		switch(mode){
-			case FOLDER:
-				vh.title.setText(list.get(p2).toString());
-				vh.url.setVisibility(View.GONE);
-				vh.more.setVisibility(View.VISIBLE);
-				vh.icon.setImageResource(R.drawable.ic_folder);
-				break;
-			case ITEM:
-				vh.title.setText(((String[])list.get(p2))[1]);
-				vh.url.setText(((String[])list.get(p2))[0]);
-				vh.url.setVisibility(View.VISIBLE);
-				vh.more.setVisibility(View.GONE);
-				char c=vh.title.getText().charAt(0);
-				Bitmap b=lc.get(c);
-				if(b!=null)
-				vh.icon.setImageBitmap(b);
-				else{
-					b=ImageDraw.TextImage(c,false);
-					lc.put(c,b);
-				vh.icon.setImageBitmap(b);
+		switch(type){
+			case BOOKMARK:
+				Bookmark bookmark=(Bookmark)list.get(p2);
+				vh.title.setText(bookmark.getTitle());
+				vh.url.setText(bookmark.getSummary());
+				switch(bookmark.getType()){
+					case 0:
+						vh.url.setVisibility(View.GONE);
+						vh.more.setVisibility(View.VISIBLE);
+						vh.icon.setImageResource(R.drawable.ic_folder_outline);
+						break;
+					case 1:
+						vh.url.setVisibility(View.VISIBLE);
+						vh.more.setVisibility(View.GONE);
+						char c=bookmark.getTitle().charAt(0);
+						Bitmap b=lc.get(c);
+						if(b!=null)
+							vh.icon.setImageBitmap(b);
+						else{
+							b=ImageDraw.TextImage(c,false);
+							lc.put(c,b);
+							vh.icon.setImageBitmap(b);
+						}
+						break;
 				}
+				
 				break;
 			case HISTORY:
 				vh.title.setText(((String[])list.get(p2))[1]);
 				vh.url.setText(((String[])list.get(p2))[0]);
 				vh.url.setVisibility(View.VISIBLE);
 				vh.more.setVisibility(View.GONE);
-				vh.icon.setImageResource(R.drawable.loading);
+				vh.icon.setImageResource(R.drawable.ic_web);
 				break;
 		}
 	}
@@ -129,9 +130,6 @@ public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.View
 				});
 		}
 	}
-	public enum Mode{
-		FOLDER,ITEM,HISTORY;
-	}
 	public void setOnItemClickListener(OnItemClickListener o){
 		oicl=o;
 	}
@@ -146,4 +144,7 @@ public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.View
 	}
 	private OnItemClickListener oicl;
 	private OnItemLongClickListener oicll;
+	public enum Type{
+		HISTORY,BOOKMARK;
+	}
 }
