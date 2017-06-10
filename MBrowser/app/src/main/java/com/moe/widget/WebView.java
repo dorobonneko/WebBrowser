@@ -63,7 +63,6 @@ import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
-import com.moe.utils.VideoBlock;
 import java.util.Map;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -73,6 +72,9 @@ import com.moe.database.JavaScript;
 import android.text.TextUtils;
 import com.moe.database.AdBlockDatabase;
 import com.moe.utils.Convert;
+import com.moe.utils.UrlBlock;
+import android.webkit.WebChromeClient.CustomViewCallback;
+import java.io.ByteArrayInputStream;
 
 public class WebView extends WebView implements NestedScrollingChild,GestureDetector.OnGestureListener,SharedPreferences.OnSharedPreferenceChangeListener,DownloadListener,AlertDialog.OnClickListener,View.OnTouchListener
 {
@@ -96,14 +98,16 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 	private String homepageurl;
 	//private DomElement de;
 	private ArrayList<String> video=new ArrayList<>();
-	private VideoBlock videoBlock;
+	private UrlBlock urlBlock;
 	private WebChromeClient.CustomViewCallback callback;
 	private List<String> javascript;
 	private float scale;
 	private String adblock;
+	private AdBlockDatabase abd;
     public WebView(final Context context, AddDialog ad)
 	{
         super(context);
+		abd=Sqlite.getInstance(context,AdBlockDatabase.class);
 		shared = context.getSharedPreferences("webview", 0);
 		shared.registerOnSharedPreferenceChangeListener(this);
 		this.ad = ad;
@@ -129,18 +133,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		loadUrl(homepage);
 		setDownloadListener(this);
 		//setOnTouchListener(this);
-		//子线程加载广告规则
-		new Thread(){
-			public void run()
-			{
-				try
-				{
-					videoBlock = videoBlock.getInstance(context.getAssets().open("video"));
-				}
-				catch (IOException e)
-				{}
-			}
-		}.start();
+		urlBlock=UrlBlock.getInstance(context);
     }
 	@JavascriptInterface
 	public void cancelFullscreen()
@@ -155,11 +148,6 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 					//wcc.onHideCustomView();
 				}
 			});
-	}
-	@JavascriptInterface
-	public boolean isVideoBlock(String url)
-	{
-		return videoBlock.isExists(url);
 	}
 	@JavascriptInterface
 	public void source(final String data)
@@ -412,7 +400,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 			{
 				String host=new URL(p2).getHost();
 				javascript = Sqlite.getInstance(getContext(), JavaScript.class).getAllScript(host);
-				adblock = Sqlite.getInstance(getContext(), AdBlockDatabase.class).getData(host);
+				adblock = abd.getData(host);
 			}
 			catch (MalformedURLException e)
 			{}
@@ -444,6 +432,9 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		@Override
 		public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest p2)
 		{
+			if(urlBlock.isExists(p2.getUrl().toString())){
+				return new WebResourceResponse("*/*","utf-8",new ByteArrayInputStream(new byte[0]));
+			}else{
 			String data=p2.getRequestHeaders().get("Accept");
 			if ((data != null && data.indexOf("video/") != -1) || p2.getRequestHeaders().get("Range") != null)
 			{
@@ -452,7 +443,9 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 //			if(videoBlock.isExists(p2.getUrl().toString())){
 //				p2=null;
 //			}
-			return super.shouldInterceptRequest(view, p2);
+			}
+			return null;
+			//return super.shouldInterceptRequest(view, p2);
 		}
 		@Override
 		public void onLoadResource(WebView view, String url)
@@ -506,7 +499,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 			case "bangumi.bilibili.com":
 				loadUrl("javascript:document.querySelector('video').addEventListener('canplay',function(){var button=document.querySelector('.btn-widescreen');button.onclick=function(){if(this.id=='bind'){moe.cancelFullscreen();this.id='';}else{this.id='bind';document.querySelector('.player-container').webkitRequestFullscreen();}}},false);");
 				break;
-			case "m.le.com":
+			/**case "m.le.com":
 				loadUrl("javascript:var video=document.querySelector('video');video.setAttribute('controls','true');if(video.value!='bind'){video.value='bind';video.addEventListener('canplay',function(){if(moe.isVideoBlock(this.src)){this.src='';}else{var child=this.parentNode.nextSibling; if(child)child.parentNode.removeChild(child);}},false); };");
 				break;
 			case "m.tv.sohu.com":
@@ -518,36 +511,38 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 						"if(this.src&&moe.isVideoBlock(this.src)){this.src='';}" +
 						"},false); " +
 						"};");
-				break;
+				break;*/
 			case "m.v.qq.com":
 				loadUrl("javascript:var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind'; " +
 						"video[i].setAttribute('controls','true');" +
 						"video[i].setAttribute('playsinline','false');" +
 						"video[i].setAttribute('webkit-playsinline','false'); " +
 						"video[i].addEventListener('loadstart',function(){" +
-						"if(this.src&&moe.isVideoBlock(this.src)){this.src='';}else{" +
+						//"if(this.src&&moe.isVideoBlock(this.src)){this.src='';}else{" +
 						"var parent=document.querySelector('.site_player');var ts=parent.querySelector('video');if(ts){parent.innerHTML=''; parent.appendChild(ts);}" +
-
-						"}},false); " +
+						//"}+"
+						"},false); " +
 						"};"
 						//"var mircol=document.querySelector('#2016_mini');alert(mircol);mircol.innerHTML='';"
 						);
 				break;
 			default:
-				loadUrl("javascript:var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind'; " +
-						"video[i].setAttribute('controls','true');" +
+				loadUrl("javascript:var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){"+
+				"video[i].setAttribute('controls','true');" +
 						"video[i].setAttribute('playsinline','false');" +
 						"video[i].setAttribute('webkit-playsinline','false'); " +
-						"video[i].addEventListener('loadstart',function(){" +
-						"if(this.src&&moe.isVideoBlock(this.src)){this.src='';}" +
-						"var source=document.getElementsByTagName('source');" +
-						"if(source)for(var s=0;s<source.length;s++){" +
-						"if(moe.isVideoBlock(source[s].src)){source[s]='';}" +
-						"}" +
-						"},false); " +
+						//"video[i].addEventListener('loadstart',function(){" +
+						//"if(this.src&&moe.isVideoBlock(this.src)){this.src='';}" +
+						//"var source=document.getElementsByTagName('source');" +
+						//"if(source)for(var s=0;s<source.length;s++){" +
+						//"if(moe.isVideoBlock(source[s].src)){source[s]='';}" +
+						//"}" +
+						//"},false); " +
 						"};");
 				//loadUrl("javascript:var video=document.getElementsByTagName('source');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind';video[i].addEventListener('loadstart',function(){if(moe.isVideoBlock(this.src)){this.src='';}; },false); }");
-				loadUrl("javascript:var video=document.getElementsByTagName('iframe');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind'; video[i].setAttribute('allowfullscreen','true');video[i].setAttribute('allowTransparency','true'); video[i].addEventListener('load',function(){if(moe.isVideoBlock(this.src)){this.src='';}; },false);}");
+				loadUrl("javascript:var video=document.getElementsByTagName('iframe');for(var i=0;i<video.length;i++){video[i].setAttribute('allowfullscreen','true');video[i].setAttribute('allowTransparency','true');"+
+				//"video[i].addEventListener('load',function(){if(moe.isVideoBlock(this.src)){this.src='';};"+
+				"}");
 				break;
 		}
 
@@ -568,6 +563,12 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 	 }*/
     WebChromeClient wcc=new WebChromeClient(){
 
+		@Override
+		public void onShowCustomView(View view, int requestedOrientation, WebChromeClient.CustomViewCallback callback)
+		{
+			onShowCustomView(view,callback);
+		}
+		
 		@Override
 		public void onShowCustomView(View p1, WebChromeClient.CustomViewCallback p2)
 		{
@@ -638,13 +639,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
         @Override
         public void onReceivedTitle(final WebView p1, final String p2)
         {
-            super.onReceivedTitle(p1, p2);
-            if (osl != null)osl.onReceiverTitle(p2);
-			if (adblock != null)
-				for (String js:adblock.split(","))
-				{
-					loadUrl("javascript:var item=document.querySelector('" + js + "');item.parentNode.removeChild(item);");
-				}
+             if (osl != null)osl.onReceiverTitle(p2);
 			if(!shared.getBoolean(Setting.PRIVATE,false)){
 			final String url=p1.getUrl();
 			new Thread(){
@@ -708,10 +703,12 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
         @Override
         public void onProgressChanged(WebView p1, int p2)
         {
-            // TODO: Implement this method
-            super.onProgressChanged(p1, p2);
-            if (osl != null)osl.onProgress(p2);
-
+           if (osl != null)osl.onProgress(p2);
+			if (adblock != null)
+				for (String js:adblock.split(","))
+				{
+					loadUrl("javascript:var item=document.querySelector('" + js + "');item.parentNode.removeChild(item);");
+				}
         }
 
     };

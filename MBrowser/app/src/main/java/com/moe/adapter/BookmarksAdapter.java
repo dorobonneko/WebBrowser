@@ -14,12 +14,14 @@ import android.graphics.Bitmap;
 import com.moe.utils.ImageDraw;
 import android.content.res.TypedArray;
 import com.moe.entity.Bookmark;
+import com.moe.utils.Theme;
 
 public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.ViewHolder>
 {
 	private Context context;
 	private List list;
 	private Type type;
+	private List<Integer> selected;
 	private LruCache<Character,Bitmap> lc=new LruCache<Character,Bitmap>((int)Runtime.getRuntime().totalMemory() / 8){
 
 		@Override
@@ -38,7 +40,8 @@ public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.View
 
 		
 	};
-	public BookmarksAdapter(Context context,List list,Type type){
+	public BookmarksAdapter(Context context,List list,Type type,List<Integer> sel){
+		this.selected=sel;
 		this.context=context;
 		this.list=list;
 		this.type=type;
@@ -77,7 +80,10 @@ public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.View
 						}
 						break;
 				}
-				
+				if(selected.indexOf(p2)!=-1)
+					vh.itemView.setBackgroundColor(Theme.backgroundColor);
+					else
+					vh.itemView.setBackgroundColor(0x00000000);
 				break;
 			case HISTORY:
 				vh.title.setText(((String[])list.get(p2))[1]);

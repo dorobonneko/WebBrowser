@@ -8,14 +8,19 @@ import java.security.Key;
 
 public class LinkedListMap<K extends Object,V extends Object>
 {
-	private ArrayList<K> key;
+	private ArrayList<Integer> key;
 	private ArrayList<V> value;
 	public LinkedListMap(){
 		key=new ArrayList<>();
 		value=new ArrayList<>();
 	}
+
+	public Collection<V> values()
+	{
+		return value;
+	}
 	public int indexKey(K k){
-		return key.indexOf(k);
+		return key.indexOf(k.hashCode());
 	}
 	public int indexValue(V v){
 		return value.indexOf(v);
@@ -40,7 +45,7 @@ public class LinkedListMap<K extends Object,V extends Object>
 	
 	public V getKey(K p1)
 	{
-		int index=key.indexOf(p1);
+		int index=indexKey(p1);
 		if(index==-1)return null;
 		return value.get(index);
 	}
@@ -55,20 +60,20 @@ public class LinkedListMap<K extends Object,V extends Object>
 	
 	public V put(K p1, V p2)
 	{
-		int index=key.indexOf(p1);
+		int index=indexKey(p1);
 		if(index!=-1){
 			key.remove(index);
 			value.remove(index);
-			key.add(index,p1);
+			key.add(index,p1.hashCode());
 			value.add(index,p2);
 		}else{
-		key.add(p1);
+		key.add(p1.hashCode());
 		value.add(p2);
 		}
 		return p2;
 	}
 	public V put(int index,K k,V v){
-		key.add(index,k);
+		key.add(index,k.hashCode());
 		value.add(index,v);
 		return v;
 	}
@@ -84,7 +89,7 @@ public class LinkedListMap<K extends Object,V extends Object>
 
 	public int removeKey(K p1)
 	{
-		int index=key.indexOf(p1);
+		int index=indexKey(p1);
 		if(index==-1)return -1;
 		key.remove(index);
 		value.remove(index);
@@ -98,7 +103,7 @@ public class LinkedListMap<K extends Object,V extends Object>
 		return index;
 	}
 	public V remove(K k){
-		int index=key.indexOf(k);
+		int index=indexKey(k);
 		if(index==-1)return null;
 		key.remove(index);
 		return value.remove(index);

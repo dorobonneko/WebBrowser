@@ -12,6 +12,8 @@ public class Sqlite
 		return c.cast(BookmarkImpl.getInstance(context));
 		else if(c == JavaScript.class)
 		return c.cast(JavaScriptImlp.getInstance(context));
+		else if(c== UrlBlockDatabase.class)
+		return c.cast(UrlBlockDatabase.getInstance(context));
 		else return c.cast(DataBase.getInstance(context));
 	}
 }

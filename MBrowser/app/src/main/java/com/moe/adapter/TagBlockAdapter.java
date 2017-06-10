@@ -8,7 +8,7 @@ import android.content.res.TypedArray;
 import android.view.Gravity;
 import android.util.TypedValue;
 
-public class AdBlockAdapter extends RecyclerView.Adapter<AdBlockAdapter.ViewHolder>
+public class TagBlockAdapter extends RecyclerView.Adapter<TagBlockAdapter.ViewHolder>
 {
 	private Type type=Type.HOST;
 	private Map<String,String> mss;
@@ -16,7 +16,7 @@ public class AdBlockAdapter extends RecyclerView.Adapter<AdBlockAdapter.ViewHold
 	private String[] key;
 	private int pos;
 	private TextView title;
-	public AdBlockAdapter(Map<String,String> mss,TextView title){
+	public TagBlockAdapter(Map<String,String> mss,TextView title){
 		this.mss=mss;
 		this.title=title;
 	}
@@ -27,7 +27,7 @@ public class AdBlockAdapter extends RecyclerView.Adapter<AdBlockAdapter.ViewHold
 		this.type=type;
 		switch(type){
 			case HOST:
-				title.setText("广告拦截");
+				title.setText("网页元素标签拦截");
 				key=mss.keySet().toArray(new String[0]);
 				break;
 			case SELECTOR:
@@ -50,13 +50,13 @@ public class AdBlockAdapter extends RecyclerView.Adapter<AdBlockAdapter.ViewHold
 		return selector;
 	}
 	@Override
-	public AdBlockAdapter.ViewHolder onCreateViewHolder(ViewGroup p1, int p2)
+	public TagBlockAdapter.ViewHolder onCreateViewHolder(ViewGroup p1, int p2)
 	{
 		return new ViewHolder(new TextView(p1.getContext()));
 	}
 
 	@Override
-	public void onBindViewHolder(AdBlockAdapter.ViewHolder p1, int p2)
+	public void onBindViewHolder(TagBlockAdapter.ViewHolder p1, int p2)
 	{
 		switch(type){
 			case HOST:

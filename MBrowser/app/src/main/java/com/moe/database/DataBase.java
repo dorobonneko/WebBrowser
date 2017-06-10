@@ -126,18 +126,28 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 	@Override
 	public synchronized void insertOrUpdateWebHistory(String url, String title)
 	{
-		if (url.length() != 0)
+		if (TextUtils.isEmpty(url))return;
+		boolean flag=true;
+		SQLiteStatement state=sql.compileStatement("insert into webhistory(time,url,title) values(?,?,?)");
+		state.acquireReference();
+		state.bindLong(1, System.currentTimeMillis());
+		state.bindString(2, url);
+		state.bindString(3, title);
+		try
+		{state.executeInsert();}
+		catch (Exception e)
+		{flag = false;}
+		state.close();
+		state.releaseReference();
+		if (!flag)
 		{
-			ContentValues cv=new ContentValues();
-			cv.put("time", System.currentTimeMillis());
-			cv.put("url", url);
-			cv.put("title", title);
-			try
-			{sql.insertOrThrow("webhistory", null, cv);}
-			catch (Exception e)
-			{
-				sql.update("webhistory", cv, "url=?", new String[]{url});
-			}
+			state = sql.compileStatement("update webhistory set time=? where url=?");
+			state.acquireReference();
+			state.bindLong(1, System.currentTimeMillis());
+			state.bindString(2, url);
+			state.executeUpdateDelete();
+			state.close();
+			state.releaseReference();
 		}
 	}
 
@@ -185,28 +195,27 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 		new Thread(){
 			public void run()
 			{
-				Cursor c=sql.rawQuery("select time from searchhistory where data=?", new String[]{data});
 				sql.beginTransaction();
-				if (c.getCount() == 1)
+				SQLiteStatement statement=sql.compileStatement("insert into searchhistory values (?,?);");
+				//sql.insert("searchhistory", null, cv);
+				statement.acquireReference();
+				statement.bindString(1, data);
+				statement.bindLong(2, System.currentTimeMillis());
+				try
+				{statement.executeInsert();}
+				catch (Exception e)
 				{
-					ContentValues cv=new ContentValues();
-					cv.put("time", System.currentTimeMillis());
-					sql.update("searchhistory", cv, "data=?", new String[]{data});
-					sql.setTransactionSuccessful();
+					SQLiteStatement state=sql.compileStatement("update searchhistory set time=? where data =?");
+					state.acquireReference();
+					state.bindLong(1, System.currentTimeMillis());
+					state.bindString(2, data);
+					state.executeUpdateDelete();
+					state.close();
+					state.releaseReference();
 				}
-				else
-				{
-					SQLiteStatement statement=sql.compileStatement("insert into searchhistory values (?,?);");
-					//sql.insert("searchhistory", null, cv);
-					statement.acquireReference();
-					statement.bindString(1, data);
-					statement.bindLong(2, System.currentTimeMillis());
-					statement.executeInsert();
-					statement.close();
-					statement.releaseReference();
-					sql.setTransactionSuccessful();
-				}
-				c.close();
+				statement.close();
+				statement.releaseReference();
+				sql.setTransactionSuccessful();
 				sql.endTransaction();
 			}
 		}.start();

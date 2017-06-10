@@ -184,7 +184,7 @@ public class DownloadTask implements Runnable
 				try
 				{db.start();}
 				catch (Exception e)
-				{throw new Exception();}
+				{throw e;}
 	}
 
 	@Override

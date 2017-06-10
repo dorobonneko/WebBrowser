@@ -171,7 +171,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 				break;
 
 		}
-
+		if(current!=null)current.onRequestPermissionsResult(requestCode,permissions,grantResults);
 		super.onRequestPermissionsResult(requestCode,permissions,grantResults);
 	}
 

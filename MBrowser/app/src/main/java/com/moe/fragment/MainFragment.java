@@ -295,6 +295,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 			}
 			else
 			{
+				if(!p1.getSharedPreferences("webview",0).getBoolean(WebView.Setting.PRIVATE,false))
 				Sqlite.getInstance(p1, SearchHistory.class).insertSearchHistory(text);
 				text = "http://m.sm.cn/s?q=" + text;
 			}

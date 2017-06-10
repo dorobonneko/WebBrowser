@@ -66,7 +66,7 @@ public class BookmarkEditFragment extends Fragment implements View.OnClickListen
 		}
 		else
 		{
-			folder.setVisibility(View.VISIBLE);
+			
 			title.setText(bookmark.getTitle());
 			folder.setText("位置："+parent.getTitle());
 			switch (bookmark.getType())
@@ -74,8 +74,10 @@ public class BookmarkEditFragment extends Fragment implements View.OnClickListen
 				case 0:
 					bigTitle.setText("编辑文件夹");
 					summary_l.setVisibility(View.GONE);
+					folder.setVisibility(View.GONE);
 					break;
 				case 1:
+					folder.setVisibility(View.VISIBLE);
 					bigTitle.setText("编辑书签");
 					summary_l.setVisibility(View.VISIBLE);
 					summary.setText(bookmark.getSummary());
@@ -140,13 +142,8 @@ public class BookmarkEditFragment extends Fragment implements View.OnClickListen
 								flag = false;
 							}
 							if(flag){
-								Bookmark b=bookmark;
-								if(folder_!=null)
-								b.setParent(folder_.getSon());
-								else
-								b.setParent(parent.getSon());
-								b.setTitle(title.getText().toString());
-								bm.update(b);
+								bookmark.setTitle(title.getText().toString());
+								bm.update(bookmark);
 								finish();
 							}
 							break;
@@ -163,14 +160,13 @@ public class BookmarkEditFragment extends Fragment implements View.OnClickListen
 							}
 							if (flag)
 							{
-								Bookmark b=bookmark;
 								if(folder_!=null)
-									b.setParent(folder_.getSon());
+									bookmark.setParent(folder_.getSon());
 								else
-								b.setParent(parent.getSon());
-								b.setTitle(title.getText().toString());
-								b.setSummary(summary.getText().toString());
-								bm.update(b);
+								bookmark.setParent(parent.getSon());
+								bookmark.setTitle(title.getText().toString());
+								bookmark.setSummary(summary.getText().toString());
+								bm.update(bookmark);
 								finish();
 							}
 							break;
