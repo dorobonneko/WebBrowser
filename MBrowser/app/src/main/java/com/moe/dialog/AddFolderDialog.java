@@ -50,7 +50,7 @@ public class AddFolderDialog extends Dialog implements View.OnClickListener
 					til.setError("内容不能为空");
 					}else if(str.length()<=10){
 						Bookmark b=new Bookmark();
-						b.setParent(bookmark.getSon());
+						b.setParent(bookmark.getPath());
 						b.setTitle(str);
 						b.setType(BookMarks.Type.FOLDER);
 						bm.insert(b);

@@ -1,9 +1,29 @@
 package com.moe.entity;
 
-public class Bookmark
+public class Bookmark implements Cloneable
 {
-	private int parent,son,type,no,level;
-	private String title,summary="";
+	private int type,no,level;
+	private String parent="",title="",summary="";
+
+	public Bookmark clone()
+	{
+		try
+		{
+			return (Bookmark)super.clone();
+		}
+		catch (CloneNotSupportedException e)
+		{}
+		return null;
+	}
+
+	public String getPath()
+	{
+		if(parent.length()>0){
+		if(parent.charAt(parent.length()-1)=='/')
+			return parent+title;
+			}
+		return parent+"/"+title;
+	}
 
 	
 	public void setLevel(int level)
@@ -30,26 +50,15 @@ public class Bookmark
 
 	
 
-	public void setParent(int parent)
+	public void setParent(String parent)
 	{
 		this.parent = parent;
 	}
 
-	public int getParent()
+	public String getParent()
 	{
 		return parent;
 	}
-
-	public void setSon(int son)
-	{
-		this.son = son;
-	}
-
-	public int getSon()
-	{
-		return son;
-	}
-
 	public void setType(int type)
 	{
 		this.type = type;

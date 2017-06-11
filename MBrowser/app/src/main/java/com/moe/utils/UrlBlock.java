@@ -11,6 +11,7 @@ import java.util.List;
 import com.moe.database.Sqlite;
 import com.moe.database.UrlBlockDatabase;
 import java.util.regex.PatternSyntaxException;
+import java.util.Collection;
 
 public class UrlBlock
 {
@@ -21,9 +22,11 @@ public class UrlBlock
 	}
 public boolean isExists(String url)
 {
-	for(Pattern s:video.values())
+	List<Pattern> ls=video.values();
+	for(int i=0;i<ls.size();i++)
 	//while(s.matcher(url).lookingAt())return true;
-	while(s.matcher(url).find())return true;
+	while(ls.get(i).matcher(url).find())
+		return true;
 	return false;
 }
 	
@@ -49,5 +52,8 @@ public boolean isExists(String url)
 	}
 	public void delete(String s){
 		video.removeKey(s);
+	}
+	public void clear(){
+		video.clear();
 	}
 }

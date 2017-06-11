@@ -26,7 +26,7 @@ public class OutProgramWindow extends Dialog implements View.OnClickListener
 
 	public void show(String url)
 	{
-		show();
+		try{show();}catch(Exception e){}
 		this.url=url;
 	}
 	public static OutProgramWindow getInstance(Context context){

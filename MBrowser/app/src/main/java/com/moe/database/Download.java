@@ -37,7 +37,7 @@ public interface Download
 	public class Setting{
 		//默认保存目录
 		public final static String DIR="dir";
-		public final static String DIR_DEFAULT=Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download";
+		public final static String DIR_DEFAULT=Environment.getExternalStorageDirectory().getAbsolutePath()+"/MoeBrowser";
 		//默认下载任务数
 		public final static String SIZE="size";
 		public final static int SIZE_DEFAULT=1;

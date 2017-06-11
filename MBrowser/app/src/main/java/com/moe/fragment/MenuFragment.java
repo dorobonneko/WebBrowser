@@ -132,10 +132,9 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 			case R.id.menu_bookmark_plus:
 				final WebView wv=(WebView)ToolManager.getInstance().getContent().getCurrentView();
 				Bookmark b=new Bookmark();
-				b.setParent(0);
+				b.setParent(Sqlite.getInstance(getContext(),BookMarks.class).getRoot().getPath());
 				b.setTitle(wv.getTitle());
 				b.setSummary(wv.getUrl());
-				b.setSon(b.getTitle().hashCode());
 				b.setType(BookMarks.Type.BOOKMARK);
 				Sqlite.getInstance(getContext(),BookMarks.class).insert(b);
 				EventBus.getDefault().post(HIDE);

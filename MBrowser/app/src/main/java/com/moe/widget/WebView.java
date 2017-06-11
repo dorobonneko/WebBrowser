@@ -133,8 +133,12 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		loadUrl(homepage);
 		setDownloadListener(this);
 		//setOnTouchListener(this);
-		urlBlock=UrlBlock.getInstance(context);
-    }
+		new Thread(){
+			public void run(){
+				urlBlock=UrlBlock.getInstance(context);
+			}
+		}.start();
+	    }
 	@JavascriptInterface
 	public void cancelFullscreen()
 	{
@@ -433,7 +437,9 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest p2)
 		{
 			if(urlBlock.isExists(p2.getUrl().toString())){
-				return new WebResourceResponse("*/*","utf-8",new ByteArrayInputStream(new byte[0]));
+				WebResourceResponse wr=new WebResourceResponse("*/*","unicode",null);
+				wr.setStatusCodeAndReasonPhrase(403,"HTTP/1.1 403");
+				return wr;
 			}else{
 			String data=p2.getRequestHeaders().get("Accept");
 			if ((data != null && data.indexOf("video/") != -1) || p2.getRequestHeaders().get("Range") != null)
@@ -499,10 +505,10 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 			case "bangumi.bilibili.com":
 				loadUrl("javascript:document.querySelector('video').addEventListener('canplay',function(){var button=document.querySelector('.btn-widescreen');button.onclick=function(){if(this.id=='bind'){moe.cancelFullscreen();this.id='';}else{this.id='bind';document.querySelector('.player-container').webkitRequestFullscreen();}}},false);");
 				break;
-			/**case "m.le.com":
-				loadUrl("javascript:var video=document.querySelector('video');video.setAttribute('controls','true');if(video.value!='bind'){video.value='bind';video.addEventListener('canplay',function(){if(moe.isVideoBlock(this.src)){this.src='';}else{var child=this.parentNode.nextSibling; if(child)child.parentNode.removeChild(child);}},false); };");
+			case "m.le.com":
+				loadUrl("javascript:var video=document.querySelector('video');video.setAttribute('controls','true');if(video.value!='bind'){video.value='bind';video.addEventListener('canplay',function(){var child=this.parentNode.nextSibling; if(child)child.parentNode.removeChild(child);},false); };");
 				break;
-			case "m.tv.sohu.com":
+			/**case "m.tv.sohu.com":
 				loadUrl("javascript:var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind'; video[i].setAttribute('controls','true'); video[i].setAttribute('playsinline','false'); video[i].setAttribute('webkit-playsinline','false');   video[i].addEventListener('play',function(){if(moe.isVideoBlock(this.src)){this.currentTime=150;}; },false); };");
 				break;
 			case "m.youku.com":

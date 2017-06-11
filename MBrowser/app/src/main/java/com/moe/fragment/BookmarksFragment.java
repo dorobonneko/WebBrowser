@@ -37,6 +37,20 @@ import android.widget.ViewFlipper;
 import android.view.animation.AnimationUtils;
 import java.util.Collections;
 import android.content.DialogInterface;
+import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import com.moe.database.Download;
+import java.util.Calendar;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import android.widget.Toast;
+import java.util.zip.GZIPOutputStream;
+import android.content.Intent;
+import android.app.Activity;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.List;
 
 public class BookmarksFragment extends Fragment implements View.OnClickListener,AddFolderDialog.OnSuccessListener,AlertDialog.OnClickListener,BookmarksAdapter.OnItemClickListener,BookmarksAdapter.OnItemLongClickListener
 {
@@ -153,6 +167,8 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		toolbar.setAnimation(AnimationUtils.loadAnimation(toolbar.getContext(), R.anim.right_in));
 		view1.findViewById(R.id.bookmarks_view_cancel).setOnClickListener(this);
 		view1.findViewById(R.id.bookmarks_view_delete).setOnClickListener(this);
+		view1.findViewById(R.id.bookmarks_view_import).setOnClickListener(this);
+		view1.findViewById(R.id.bookmarks_view_export).setOnClickListener(this);
 		View view2=av.get(1);
 		RecyclerView rv2=(RecyclerView)view2.findViewById(R.id.history_view_recyclerview);
 		rv2.setAdapter(history = new BookmarksAdapter(getActivity(), history_data, BookmarksAdapter.Type.HISTORY, null));
@@ -243,6 +259,64 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		return toolbar.getDisplayedChild() == 0;
 	}
 
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, final Intent data)
+	{
+		if(requestCode==462&&resultCode==Activity.RESULT_OK){
+			new Thread(){
+				public void run(){
+					InputStream is = null;
+					FileOutputStream fos = null;
+					try
+					{
+						
+						is=new GZIPInputStream(getContext().getContentResolver().openInputStream(data.getData()));
+						File file=getContext().getCacheDir();
+						if(file.exists())file.mkdirs();
+						file=new File(file,System.currentTimeMillis()+"");
+						 fos=new FileOutputStream(file);
+						 byte[] b=new byte[512];
+						 int len=0;
+						 while((len=is.read(b))!=-1)
+							 fos.write(b,0,len);
+							 fos.flush();
+							bm.importData(file);
+							final List<Bookmark> lb=bm.query(folder);
+						getView().post(new Runnable(){
+
+								@Override
+								public void run()
+								{
+									bookmark_data.clear();
+									bookmark_data.addAll(lb);
+									bookmark.notifyDataSetChanged();
+								}
+							});
+					}
+					catch (IOException e)
+					{}
+					finally{
+						try
+						{
+							if (fos != null)fos.close();
+						}
+						catch (IOException e)
+						{}
+						try
+						{
+							if (is != null)is.close();
+						}
+						catch (IOException e)
+						{}
+
+					}
+
+				}
+			}.start();
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
 
 
 
@@ -288,8 +362,63 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 					}).show();
 				break;
 			case R.id.bookmarks_view_export:
+				new Thread(){
+					public void run(){
+						FileInputStream fis = null;
+						GZIPOutputStream gos = null;
+						try
+						{
+							fis=new FileInputStream(getContext().getDatabasePath("bookmarks"));
+							Calendar c=Calendar.getInstance();
+							File dir=new File(Download.Setting.DIR_DEFAULT+"/bookmarks");
+							if(dir.isFile())
+								dir.delete();
+							if(!dir.exists())
+								dir.mkdirs();
+							final File file=new File(dir, "书签" + (c.get(c.MONTH) + 1) + "." + c.get(c.DAY_OF_MONTH) + "-" + c.get(c.HOUR_OF_DAY) + ":" + c.get(c.MINUTE) + ".db");
+						gos=new GZIPOutputStream(new FileOutputStream(file));
+						byte[] b=new byte[512];
+						int len=0;
+						while((len=fis.read(b))!=-1)
+							gos.write(b,0,len);
+							gos.flush();
+							
+							getView().post(new Runnable(){
+
+									@Override
+									public void run()
+									{
+										Toast.makeText(getActivity(),"导出成功："+file.getAbsolutePath(),Toast.LENGTH_SHORT).show();
+									}
+								});
+						}
+						catch (IOException e)
+						{}
+						finally{
+							try
+							{
+								if (gos != null)gos.close();
+							}
+							catch (IOException e)
+							{}
+							try
+							{
+								if (fis != null)fis.close();
+							}
+							catch (IOException e)
+							{}
+
+						}
+
+					}
+				}.start();
 				break;
 			case R.id.bookmarks_view_import:
+				Intent intent=new Intent(Intent.ACTION_GET_CONTENT);
+				intent.setType("*/*");
+				try{getActivity().startActivityForResult(intent,462);}catch(Exception e){
+					Toast.makeText(getActivity(),"无可用程序",Toast.LENGTH_SHORT).show();
+				}
 				break;
 			case R.id.history_view_clear:
 				if (history_data.size() != 0)
@@ -372,7 +501,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 						}
 						else
 						{
-							Bookmark b=bm.queryWithSon(folder.getParent());
+							Bookmark b=bm.queryWithPath(folder.getParent());
 							if (b == null)b = bm.getRoot();
 							loadBookmarksSon(b);
 							return true;

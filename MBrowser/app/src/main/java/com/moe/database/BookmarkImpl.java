@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.moe.entity.Bookmark;
 import android.database.sqlite.SQLiteStatement;
+import java.io.File;
 
 class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 {
@@ -30,8 +31,6 @@ class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 		super(context.getApplicationContext(),"bookmarks",null,3);
 		sql=getReadableDatabase();
 		root=new Bookmark();
-		root.setParent(-1);
-		root.setSon(0);
 		root.setLevel(0);
 		root.setTitle("根目录");
 	}
@@ -45,18 +44,36 @@ class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 	@Override
 	public void onCreate(SQLiteDatabase p1)
 	{
-		p1.execSQL("create table bookmarks(son INTEGER primary key AUTOINCREMENT,parent INTEGER,title TEXT,summary TEXT,type INTEGER,no INTEGER)");
+		p1.execSQL("create table bookmarks(parent TEXT,title TEXT,summary TEXT,type INTEGER,no INTEGER,path TEXT primary key)");
 		
 	}
+
+	@Override
+	public void importData(File file)
+	{
+		SQLiteDatabase sqlite=sql.openDatabase(file.getAbsolutePath(),null,3);
+		Cursor c=sqlite.rawQuery("select * from bookmarks",null);
+		while(c.moveToNext()){
+			Bookmark b=new Bookmark();
+			b.setParent(c.getString(0));
+			b.setTitle(c.getString(1));
+			b.setSummary(c.getString(2));
+			b.setType(c.getInt(3));
+			insert(b);
+		}
+		c.close();
+		sqlite.close();
+	}
+
 
 	@Override
 	public void trimNo(Bookmark b)
 	{
 		//改变顺序专用
-		SQLiteStatement state=sql.compileStatement("update bookmarks set no=? where son=?");
+		SQLiteStatement state=sql.compileStatement("update bookmarks set no=? where path=?");
 		state.acquireReference();
 		state.bindLong(1,b.getNo());
-		state.bindLong(2,b.getSon());
+		state.bindString(2,b.getPath());
 		state.executeUpdateDelete();
 		state.close();
 		state.releaseReference();
@@ -67,15 +84,14 @@ class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 	{
 		ArrayList<Bookmark> ab=new ArrayList<>();
 		ab.add(bookmark);
-		Cursor c=sql.rawQuery("select * from bookmarks where parent=? and type=0 order by no desc",new String[]{bookmark.getSon()+""});
+		Cursor c=sql.rawQuery("select * from bookmarks where parent=? and type=0 order by no desc",new String[]{bookmark.getPath()});
 		while(c.moveToNext()){
 			Bookmark b=new Bookmark();
-			b.setSon(c.getInt(0));
-			b.setParent(c.getInt(1));
-			b.setTitle(c.getString(2));
-			b.setSummary(c.getString(3));
-			b.setType(c.getInt(4));
-			b.setNo(c.getInt(5));
+			b.setParent(c.getString(0));
+			b.setTitle(c.getString(1));
+			b.setSummary(c.getString(2));
+			b.setType(c.getInt(3));
+			b.setNo(c.getInt(4));
 			b.setLevel(bookmark.getLevel()+1);
 			ab.addAll(loop(b));
 		}
@@ -84,16 +100,16 @@ class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 	}
 
 	@Override
-	public void update(Bookmark b)
+	public void update(Bookmark old,Bookmark b)
 	{
-		Bookmark bookmark=queryWithSon(b.getSon());
+		Bookmark bookmark=queryWithPath(old.getPath());
 		if(b.getParent()==bookmark.getParent()){
 			//(未改文件夹)
-			SQLiteStatement state=sql.compileStatement("update bookmarks set title=?,summary=? where son=?");
+			SQLiteStatement state=sql.compileStatement("update bookmarks set title=?,summary=? where path=?");
 			state.acquireReference();
 			state.bindString(1,b.getTitle());
 			state.bindString(2,b.getSummary());
-			state.bindLong(3,b.getSon());
+			state.bindString(3,old.getPath());
 			state.executeUpdateDelete();
 			state.close();
 			state.releaseReference();
@@ -108,16 +124,20 @@ class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 	@Override
 	public void insert(Bookmark b)
 	{
-		Cursor c=sql.rawQuery("select count(son) from bookmarks where parent=?",new String[]{b.getParent()+""});
-		SQLiteStatement state=sql.compileStatement("insert into bookmarks(parent,title,summary,type,no) values(?,?,?,?,?)");
-		state.bindLong(1,b.getParent());
+		Cursor c=sql.rawQuery("select count(path) from bookmarks where parent=?",new String[]{b.getParent()+""});
+		SQLiteStatement state=sql.compileStatement("insert into bookmarks(parent,title,summary,type,no,path) values(?,?,?,?,?,?)");
+		state.acquireReference();
+		state.bindString(1,b.getParent());
 		state.bindString(2,b.getTitle());
 		state.bindString(3,b.getSummary());
 		state.bindLong(4,b.getType());
 		if(c.moveToFirst())
 		state.bindLong(5,c.getInt(0));
 		c.close();
-		state.executeInsert();
+		state.bindString(6,b.getPath());
+		try{state.executeInsert();}catch(Exception e){}
+		state.close();
+		state.releaseReference();
 	}
 
 	@Override
@@ -134,18 +154,18 @@ class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 	}
 	private void deleteThrow(Bookmark b){
 		sql.beginTransaction();
-		SQLiteStatement state=sql.compileStatement("delete from bookmarks where son=?");
+		SQLiteStatement state=sql.compileStatement("delete from bookmarks where path=?");
 		state.acquireReference();
-		state.bindLong(1,b.getSon());
+		state.bindString(1,b.getPath());
 		state.executeUpdateDelete();
 		state.close();
 		state.releaseReference();
-		Cursor c=sql.rawQuery("select son,no from bookmarks where parent=? and no>?",new String[]{b.getParent()+"",b.getNo()+""});
+		Cursor c=sql.rawQuery("select no,path from bookmarks where parent=? and no>?",new String[]{b.getParent()+"",b.getNo()+""});
 		while(c.moveToNext()){
-			state=sql.compileStatement("update bookmarks set no=? where son=?");
+			state=sql.compileStatement("update bookmarks set no=? where path=?");
 			state.acquireReference();
-			state.bindLong(1,c.getInt(1)-1);
-			state.bindLong(2,c.getInt(0));
+			state.bindLong(1,c.getInt(0)-1);
+			state.bindString(2,c.getString(1));
 			state.executeUpdateDelete();
 			state.close();
 			state.releaseReference();
@@ -158,15 +178,14 @@ class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 	public List<Bookmark> query(Bookmark bookmark)
 	{
 		ArrayList<Bookmark> ab=new ArrayList<Bookmark>();
-		Cursor c=sql.rawQuery("select * from bookmarks where parent=? order by no desc",new String[]{bookmark.getSon()+""});
+		Cursor c=sql.rawQuery("select * from bookmarks where parent=? order by no desc",new String[]{bookmark.getPath()});
 		while(c.moveToNext()){
 			Bookmark b=new Bookmark();
-			b.setSon(c.getInt(0));
-			b.setParent(c.getInt(1));
-			b.setTitle(c.getString(2));
-			b.setSummary(c.getString(3));
-			b.setType(c.getInt(4));
-			b.setNo(c.getInt(5));
+			b.setParent(c.getString(0));
+			b.setTitle(c.getString(1));
+			b.setSummary(c.getString(2));
+			b.setType(c.getInt(3));
+			b.setNo(c.getInt(4));
 			b.setLevel(bookmark.getLevel()+1);
 			ab.add(b);
 		}
@@ -174,17 +193,16 @@ class BookmarkImpl extends SQLiteOpenHelper implements BookMarks
 		return ab;
 	}
 	@Override
-	public Bookmark queryWithSon(int son){
+	public Bookmark queryWithPath(String path){
 		Bookmark b=null;
-		Cursor c=sql.rawQuery("select * from bookmarks where son=?",new String[]{son+""});
+		Cursor c=sql.rawQuery("select * from bookmarks where path=?",new String[]{path});
 		if(c.moveToFirst()){
 			b=new Bookmark();
-			b.setSon(c.getInt(0));
-			b.setParent(c.getInt(1));
-			b.setTitle(c.getString(2));
-			b.setSummary(c.getString(3));
-			b.setType(c.getInt(4));
-			b.setNo(c.getInt(5));
+			b.setParent(c.getString(0));
+			b.setTitle(c.getString(1));
+			b.setSummary(c.getString(2));
+			b.setType(c.getInt(3));
+			b.setNo(c.getInt(4));
 		}
 		c.close();
 		return b;

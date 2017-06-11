@@ -123,7 +123,7 @@ public class BookmarkEditFragment extends Fragment implements View.OnClickListen
 					if (flag)
 					{
 						Bookmark b=new Bookmark();
-						b.setParent(parent.getSon());
+						b.setParent(parent.getPath());
 						b.setTitle(title.getText().toString());
 						b.setSummary(summary.getText().toString());
 						b.setType(BookMarks.Type.BOOKMARK);
@@ -142,8 +142,9 @@ public class BookmarkEditFragment extends Fragment implements View.OnClickListen
 								flag = false;
 							}
 							if(flag){
-								bookmark.setTitle(title.getText().toString());
-								bm.update(bookmark);
+								Bookmark b=bookmark.clone();
+								b.setTitle(title.getText().toString());
+								bm.update(bookmark,b);
 								finish();
 							}
 							break;
@@ -160,13 +161,14 @@ public class BookmarkEditFragment extends Fragment implements View.OnClickListen
 							}
 							if (flag)
 							{
+								Bookmark b=bookmark.clone();
 								if(folder_!=null)
-									bookmark.setParent(folder_.getSon());
+									b.setParent(folder_.getPath());
 								else
-								bookmark.setParent(parent.getSon());
-								bookmark.setTitle(title.getText().toString());
-								bookmark.setSummary(summary.getText().toString());
-								bm.update(bookmark);
+								b.setParent(parent.getPath());
+								b.setTitle(title.getText().toString());
+								b.setSummary(summary.getText().toString());
+								bm.update(bookmark,b);
 								finish();
 							}
 							break;

@@ -131,6 +131,9 @@ private List<String> list;
 									UrlBlock.getInstance(getContext(),list);
 									if(error>0)
 										Toast.makeText(getActivity(),"已忽略"+error+"条错误规则",Toast.LENGTH_SHORT).show();
+										else
+										Toast.makeText(getActivity(),"导入成功，无错误",Toast.LENGTH_SHORT).show();
+									
 								}
 							});
 					}
@@ -159,6 +162,7 @@ private List<String> list;
 								list.clear();
 								uba.notifyDataSetChanged();
 								ubd.clear();
+								UrlBlock.getInstance(getContext()).clear();
 							}
 						})
 					.setPositiveButton("取消",null).show();
@@ -229,7 +233,12 @@ private List<String> list;
 		if(pos<2){
 			if(pos==1){
 				Calendar c=Calendar.getInstance();
-				File file=new File(getContext().getSharedPreferences("download",0).getString(Download.Setting.DIR,Download.Setting.DIR_DEFAULT),"广告拦截规则"+(c.get(c.MONTH)+1)+"."+c.get(c.DAY_OF_MONTH)+"-"+c.get(c.HOUR_OF_DAY)+":"+c.get(c.MINUTE)+".ini");
+				File dir=new File(Download.Setting.DIR_DEFAULT+"/adblock");
+				if(dir.isFile())
+					dir.delete();
+				if(!dir.exists())
+					dir.mkdirs();
+				File file=new File(dir,"广告拦截规则"+(c.get(c.MONTH)+1)+"."+c.get(c.DAY_OF_MONTH)+"-"+c.get(c.HOUR_OF_DAY)+":"+c.get(c.MINUTE)+".ini");
 				try
 				{
 					FileOutputStream fos=new FileOutputStream(file);

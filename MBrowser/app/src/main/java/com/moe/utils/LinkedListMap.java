@@ -15,7 +15,7 @@ public class LinkedListMap<K extends Object,V extends Object>
 		value=new ArrayList<>();
 	}
 
-	public Collection<V> values()
+	public ArrayList<V> values()
 	{
 		return value;
 	}
