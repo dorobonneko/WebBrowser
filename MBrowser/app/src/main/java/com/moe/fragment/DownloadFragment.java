@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 import android.os.Bundle;
 import com.moe.Mbrowser.R;
 import android.support.v7.widget.LinearLayoutManager;
-import com.moe.utils.CustomDecoration;
+
 import android.support.v7.widget.SimpleItemAnimator;
 import de.greenrobot.event.EventBus;
 import com.moe.database.Sqlite;
@@ -37,6 +37,8 @@ import java.util.Map;
 import com.moe.Mbrowser.ResourceService;
 import com.moe.Mbrowser.DownloadService;
 import de.greenrobot.event.ThreadMode;
+import com.moe.internal.CustomDecoration;
+import android.app.Service;
 
 public class DownloadFragment extends Fragment implements DownloadItemAdapter.OnClickListener,DownloadItemAdapter.OnLongClickListener,View.OnClickListener,RenameDialog.Callback
 {
@@ -145,7 +147,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		cm = getContext().getSystemService(ClipboardManager.class);
+		cm =(ClipboardManager) getContext().getSystemService(Service.CLIPBOARD_SERVICE);
 		download = Sqlite.getInstance(getContext(), Download.class);
 		refresh();
 		EventBus.getDefault().register(this);
@@ -188,7 +190,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 					break;
 				case 2:
 					Intent intent = new Intent(Intent.ACTION_VIEW);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+					if (Build.VERSION.SDK_INT >19)
 					{
 						intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 						Uri contentUri = FileProvider.getUriForFile(getActivity(), getContext().getPackageName() + ".fileProvider", new File(ti.getDir(), ti.getTaskname()));
@@ -263,7 +265,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 							}
 							p1.dismiss();
 						}
-					}).show();
+					},null).show();
 				break;
 			case R.id.download_view_new://新建任务
 				if (dnd == null)
@@ -319,7 +321,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 								p1.dismiss();
 								p1.dismiss();
 							}
-						}).show();
+						},null).show();
 				break;
 			case R.id.download_view_delete://删除任务
 				new BottomDialog.Builder(getActivity())
@@ -357,7 +359,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 							refresh();
 							p1.dismiss();
 						}
-					}).show();
+					},null).show();
 				break;
 			case R.id.download_view_more://更多
 				if (b_more == null)
@@ -392,7 +394,7 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 								}
 								p1.dismiss();
 							}
-						}).create();}
+						},null).create();}
 				b_more.show();
 				break;
 			case R.id.download_view_cancel:

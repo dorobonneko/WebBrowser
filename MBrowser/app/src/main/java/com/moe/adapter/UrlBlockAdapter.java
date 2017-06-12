@@ -7,12 +7,17 @@ import android.util.TypedValue;
 import java.util.List;
 import android.widget.TextView;
 import android.view.Gravity;
+import android.widget.ViewFlipper;
+import com.moe.internal.Theme;
+import android.os.Build;
 
 public class UrlBlockAdapter extends RecyclerView.Adapter<UrlBlockAdapter.ViewHolder>
 {
 	private List<String> list;
-	public UrlBlockAdapter(List<String> list){
+	private ViewFlipper toolbar;
+	public UrlBlockAdapter(List<String> list,ViewFlipper vf){
 		this.list=list;
+		this.toolbar=vf;
 	}
 	@Override
 	public ViewHolder onCreateViewHolder(ViewGroup p1, int p2)
@@ -30,6 +35,10 @@ public class UrlBlockAdapter extends RecyclerView.Adapter<UrlBlockAdapter.ViewHo
 		}else{
 			p1.title.setText(list.get(p2-2));
 		}
+		if(toolbar.getDisplayedChild()==1&&((Integer)toolbar.getTag()).intValue()==p2)
+			p1.itemView.setBackgroundColor(Theme.color);
+			else
+			p1.itemView.setBackgroundColor(0x00000000);
 	}
 
 	@Override
@@ -48,7 +57,10 @@ public class UrlBlockAdapter extends RecyclerView.Adapter<UrlBlockAdapter.ViewHo
 			v.setClickable(true);
 			v.setTextColor(ta.getColor(2,0));
 			ta.recycle();
+			if(Build.VERSION.SDK_INT>16)
 			v.setPaddingRelative((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0,0,0);
+			else
+			v.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0,0,0);
 			v.setGravity(Gravity.CENTER_VERTICAL);
 			v.setOnClickListener(this);
 		}

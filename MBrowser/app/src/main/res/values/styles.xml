@@ -18,7 +18,7 @@
 		<!--<item name="android:textColor">@color/textColor</item>-->
 		<item name="android:windowIsFloating">false</item>
 		<item name="android:windowFrame">@null</item>
-		<item name="android:shadowColor">@color/window_background</item>
+		<item name="android:shadowColor">@color/border</item>
 		<item name="android:shadowRadius">1</item>
 		    </style>
     <style name="Dialog" parent="Theme.AppCompat.Light.Dialog">
@@ -32,15 +32,12 @@
         <item name="android:windowIsTranslucent">true</item>
 		<!--<item name="android:windowBackground">@color/window_background</item>-->
         <!--屏幕背景不变暗-->
-        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:backgroundDimEnabled">true</item>
 		<item name="android:textColor">@color/textColor</item>
 		<item name="android:textColorHint">@color/primary_dark</item>
 		<item name="android:colorControlNormal">@color/primary_dark</item>
 		<item name="android:colorControlHighlight">@color/border</item>
     </style>  
-     <style name="searchDialog" parent="@style/Dialog">
-         <item name="android:backgroundDimEnabled">true</item>
-     </style>
     <style name="PopupWindowAnim"> 
         <item name="android:windowEnterAnimation">@anim/popin</item> 
         <item name="android:windowExitAnimation">@anim/popout</item>

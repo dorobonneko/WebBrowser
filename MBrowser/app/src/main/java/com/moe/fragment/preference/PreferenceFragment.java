@@ -3,7 +3,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.content.res.TypedArray;
 import com.moe.Mbrowser.R;
-import com.moe.utils.Theme;
+import com.moe.internal.Theme;
 
 public abstract class PreferenceFragment extends android.preference.PreferenceFragment
 {

@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.RectF;
 
 public class ImageDraw
 {
@@ -25,7 +26,9 @@ public class ImageDraw
 			p.setStrokeWidth(2f);
 			p.setStyle(Paint.Style.STROKE);
 			//p.setStrokeCap(Paint.Cap.ROUND);
-			c.drawArc(5,5,b.getWidth()-5,b.getHeight()-5,0,360,false,p);
+			RectF rectf=new RectF();
+			rectf.set(5,5,b.getWidth()-5,b.getHeight()-5);
+			c.drawArc(rectf,0,360,false,p);
 			}
 		return b;
 	}

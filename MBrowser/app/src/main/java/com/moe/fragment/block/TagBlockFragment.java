@@ -43,7 +43,7 @@ public class TagBlockFragment extends PreferenceFragment implements View.OnClick
 	{
 		RecyclerView rv=(RecyclerView)view.findViewById(R.id.block_view_list);
 		view.findViewById(R.id.block_view_add).setOnClickListener(this);
-		rv.setLayoutManager(new LinearLayoutManager(getContext()));
+		rv.setLayoutManager(new LinearLayoutManager(getActivity()));
 		rv.setAdapter(aba = new TagBlockAdapter(mss = new LinkedHashMap<>(), (TextView)view.findViewById(R.id.block_view_title)));
 		aba.setOnClickListener(this);
 		aba.setOnLongClickListener(this);
@@ -55,15 +55,15 @@ public class TagBlockFragment extends PreferenceFragment implements View.OnClick
 	{
 
 		super.onActivityCreated(savedInstanceState);
-		abd = Sqlite.getInstance(getContext(), AdBlockDatabase.class);
+		abd = Sqlite.getInstance(getActivity(), AdBlockDatabase.class);
 		mss.putAll(abd.getAllData());
 		aba.setType(TagBlockAdapter.Type.HOST, 0);
 		aba.notifyDataSetChanged();
 	}
 	private void createAdd()
 	{
-		til = new TextInputLayout(getContext());
-		msg = new EditText(getContext());
+		til = new TextInputLayout(getActivity());
+		msg = new EditText(getActivity());
 		msg.setSingleLine(true);
 		til.addView(msg);
 		til.setErrorEnabled(true);

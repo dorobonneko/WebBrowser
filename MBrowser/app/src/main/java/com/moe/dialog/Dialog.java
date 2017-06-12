@@ -7,7 +7,6 @@ import android.widget.ImageView;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.view.Gravity;
-import android.view.ViewGroupOverlay;
 import android.view.ViewGroup;
 import android.view.LayoutInflater;
 import android.app.Activity;
@@ -45,6 +44,7 @@ public class Dialog extends android.app.Dialog
         getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
                               WindowManager.LayoutParams.MATCH_PARENT);*/
         super.onCreate(savedInstanceState);
+		getWindow().setDimAmount(0.3f);
         ViewGroup.LayoutParams vl=new ViewGroup.LayoutParams(getWindow().getWindowManager().getDefaultDisplay().getWidth(),ViewGroup.LayoutParams.WRAP_CONTENT);
        super.setContentView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_view,null),vl);
         mTitle=(TextView)super.findViewById(R.id.dialogview_title);

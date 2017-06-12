@@ -5,9 +5,7 @@ import android.view.ViewGroup;
 import android.widget.ViewFlipper;
 import android.view.LayoutInflater;
 import android.view.View;
-import com.moe.utils.Theme;
 import com.moe.Mbrowser.R;
-import com.moe.utils.ToolManager;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import com.moe.database.Sqlite;
@@ -25,6 +23,9 @@ import android.content.Intent;
 import com.moe.database.SearchHistory;
 import android.app.SearchManager;
 import android.content.IntentFilter;
+import com.moe.internal.Theme;
+import com.moe.internal.ToolManager;
+import android.content.SharedPreferences;
 
 public class MainFragment extends Fragment implements FragmentPop.OnHideListener,AddDialog.OnAddListener
 {
@@ -287,6 +288,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
         @Override
         public void onReceive(Context p1, Intent p2)
         {
+			SharedPreferences webview=p1.getSharedPreferences("webview",0);
             String text=p2.getStringExtra(SearchManager.QUERY);
 			if (text.indexOf("://") != -1 || text.indexOf(".") != -1)
 			{
@@ -295,9 +297,9 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 			}
 			else
 			{
-				if(!p1.getSharedPreferences("webview",0).getBoolean(WebView.Setting.PRIVATE,false))
+				if(!webview.getBoolean(WebView.Setting.PRIVATE,false))
 				Sqlite.getInstance(p1, SearchHistory.class).insertSearchHistory(text);
-				text = "http://m.sm.cn/s?q=" + text;
+				text = webview.getString("searchValue",p1.getResources().getTextArray(R.array.search_value)[0].toString()).replace("$s",text);
 			}
 			openUrl(text);
 		}

@@ -14,7 +14,7 @@ import android.graphics.Bitmap;
 import com.moe.utils.ImageDraw;
 import android.content.res.TypedArray;
 import com.moe.entity.Bookmark;
-import com.moe.utils.Theme;
+import com.moe.internal.Theme;
 
 public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.ViewHolder>
 {

@@ -375,7 +375,18 @@ public class DownloadTask implements Runnable
 				@Override
 				public int compare(File p1, File p2)
 				{
-					return Integer.compare(Integer.parseInt(p1.getName()), Integer.parseInt(p2.getName()));
+					int i1=Integer.parseInt(p1.getName()),i2=Integer.parseInt(p2.getName());
+					if(Build.VERSION.SDK_INT>18)
+					return Integer.compare(i1,i2);
+					else
+					{
+						if(i1>i2)
+							return 1;
+						else if(i1==i2)
+							return 0;
+						else
+							return -1;
+					}
 				}
 			});
 		File tmp=new File(ti.getDir(), System.currentTimeMillis() + "");

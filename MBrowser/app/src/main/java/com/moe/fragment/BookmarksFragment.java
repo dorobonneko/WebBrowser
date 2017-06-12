@@ -14,7 +14,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import com.moe.database.BookMarks;
 import com.moe.database.WebHistory;
-import com.moe.utils.CustomDecoration;
 import android.widget.Button;
 import com.moe.dialog.AddFolderDialog;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -30,7 +29,6 @@ import com.moe.view.PopupBookmarkMenu;
 import com.moe.database.HomePage;
 import com.moe.dialog.SendToHomepageDialog;
 import android.content.res.TypedArray;
-import com.moe.utils.Theme;
 import com.moe.database.Sqlite;
 import com.moe.entity.Bookmark;
 import android.widget.ViewFlipper;
@@ -51,6 +49,7 @@ import android.app.Activity;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.List;
+import com.moe.internal.CustomDecoration;
 
 public class BookmarksFragment extends Fragment implements View.OnClickListener,AddFolderDialog.OnSuccessListener,AlertDialog.OnClickListener,BookmarksAdapter.OnItemClickListener,BookmarksAdapter.OnItemLongClickListener
 {
@@ -149,7 +148,6 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		vp.setOffscreenPageLimit(1);
 		vpa.notifyDataSetChanged();
 		tl.setupWithViewPager(vp);
-		tl.setElevation(2f);
 		View view1=av.get(0);
 		RecyclerView rv1=(RecyclerView)view1.findViewById(R.id.bookmark_view_recyclerview);
 		rv1.setAdapter(bookmark = new BookmarksAdapter(getActivity(), bookmark_data, BookmarksAdapter.Type.BOOKMARK, selected));

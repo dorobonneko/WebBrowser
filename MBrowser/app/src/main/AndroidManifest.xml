@@ -47,13 +47,14 @@
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+				
             </intent-filter>
         </activity>
 		<activity
 			android:excludeFromRecents="true"
 			android:name=".M3u8AddActivity"
 			android:label="m3u8视频文件"
-			android:theme="@style/searchDialog">
+			android:theme="@style/Dialog">
 			<intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

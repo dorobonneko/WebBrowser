@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.CheckBox;
 import com.moe.utils.DataUtils;
 import android.widget.Toast;
-import com.moe.utils.Theme;
 import android.graphics.Color;
 
 public class DataManager extends Activity implements View.OnClickListener

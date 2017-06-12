@@ -5,14 +5,13 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical"
-	android:paddingLeft="2dp"
-	android:gravity="bottom|center">
+	android:gravity="bottom|center"
+	android:background="#fff">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
-		android:background="@drawable/conners_white"
 		md:elevation="2dp">
 
 		<LinearLayout
@@ -20,9 +19,10 @@
 			android:layout_width="match_parent"
 			android:orientation="horizontal"
 			android:gravity="center"
-			android:background="@drawable/conners_over">
+			android:background="@color/border">
 
 			<TextView
+				android:textColor="?android:attr/textColorPrimary"
 				android:layout_height="wrap_content"
 				android:layout_width="wrap_content"
 				android:text="即将打开外部程序"/>
@@ -30,6 +30,7 @@
 		</LinearLayout>
 
 		<Button
+			android:textColor="?android:attr/textColorSecondary"
 			android:layout_height="?attr/actionBarSize"
 			android:layout_width="match_parent"
 			android:text="该网站一直允许"
@@ -44,6 +45,7 @@
 			android:background="@color/border"/>
 
 		<Button
+			android:textColor="?android:attr/textColorSecondary"
 			android:layout_height="?attr/actionBarSize"
 			android:layout_width="match_parent"
 			android:text="仅本次允许"
@@ -57,6 +59,7 @@
 			android:background="@color/border"/>
 
 		<Button
+			android:textColor="?android:attr/textColorSecondary"
 			android:layout_height="?attr/actionBarSize"
 			android:layout_width="match_parent"
 			android:text="该网站一直不允许"
@@ -66,21 +69,18 @@
 
 	</LinearLayout>
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="@drawable/conners_white_no_bottom"
-		android:layout_marginTop="24dp">
-
+	<View
+		android:background="@color/border"
+		android:layout_height="3dp"
+		android:layout_width="match_parent"/>
 		<Button
+			android:textColor="?android:attr/textColorSecondary"
 			android:layout_height="?attr/actionBarSize"
 			android:layout_width="match_parent"
 			android:text="取消"
 			android:gravity="center"
 			android:id="@+id/outprogram_cancel"
 			android:background="?attr/selectableItemBackground"/>
-
-	</LinearLayout>
 
 </LinearLayout>
 

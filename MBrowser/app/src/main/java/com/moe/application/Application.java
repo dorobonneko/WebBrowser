@@ -1,5 +1,5 @@
 package com.moe.application;
-import com.moe.utils.CatchHandler;
+import com.moe.internal.CatchHandler;
 
 public class Application extends android.app.Application
 {

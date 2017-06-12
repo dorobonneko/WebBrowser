@@ -6,7 +6,6 @@ import android.util.AttributeSet;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.Paint;
-import com.moe.utils.Theme;
 import android.graphics.Bitmap;
 import android.os.Parcelable;
 

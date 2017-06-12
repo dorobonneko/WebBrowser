@@ -16,6 +16,7 @@ import android.app.ActivityManager;
 import com.moe.bean.NetworkState;
 import java.util.ArrayList;
 import java.util.List;
+import android.os.Build;
 
 public class ResourceService extends Service
 {
@@ -33,7 +34,7 @@ public class ResourceService extends Service
 	{
 		super.onCreate();
 		registerReceiver(network,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-		startForeground(0,new Notification.Builder(this).setOngoing(true).build());
+		startForeground(0,Build.VERSION.SDK_INT>15?new Notification.Builder(this).setOngoing(true).build():new Notification.Builder(this).setOngoing(true).getNotification());
 		EventBus.getDefault().register(this);
 	}
 
@@ -58,7 +59,7 @@ public class ResourceService extends Service
 		}
 	}
 	public static boolean isRunning(Context context){
-		ActivityManager am=context.getSystemService(ActivityManager.class);
+		ActivityManager am=(ActivityManager)context.getSystemService(Service.ACTIVITY_SERVICE);
 		for(ActivityManager.RunningServiceInfo ar:am.getRunningServices(Integer.MAX_VALUE)){
 			if(ar.service.getClassName().equals("com.moe.Mbrowser.DownloadService")){
 				return true;

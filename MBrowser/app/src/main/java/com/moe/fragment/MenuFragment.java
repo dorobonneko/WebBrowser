@@ -4,7 +4,6 @@ import android.view.View;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.support.v4.view.ViewPager;
-import com.moe.utils.Theme;
 import android.widget.LinearLayout;
 import android.util.TypedValue;
 import android.widget.TextView;
@@ -26,13 +25,13 @@ import android.view.Gravity;
 import android.widget.AdapterView.OnItemClickListener;
 import de.greenrobot.event.EventBus;
 import com.moe.bean.MenuOptions;
-import com.moe.utils.ToolManager;
 import android.content.SharedPreferences;
 import com.moe.widget.WebView;
 import com.moe.dialog.ToolboxDialog;
 import com.moe.entity.Bookmark;
 import com.moe.database.BookMarks;
 import com.moe.database.Sqlite;
+import com.moe.internal.ToolManager;
 
 public class MenuFragment extends FragmentPop implements MenuAdapter.OnItemClickListener
 {
@@ -142,6 +141,10 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 			case R.id.menu_gps:
 				webview.edit().putBoolean(WebView.Setting.GPS,!webview.getBoolean(WebView.Setting.GPS,false)).commit();
 				updateGps();
+				EventBus.getDefault().post(HIDE);
+				break;
+			case R.id.menu_videofullscreen:
+				((WebView)ToolManager.getInstance().getContent().getCurrentView()).loadUrl("javascript:var video=document.querySelector('video');if(video)video.webkitRequestFullscreen();else{video=document.querySelector('iframe');if(video)video.webkitRequestFullscreen();};");
 				EventBus.getDefault().post(HIDE);
 				break;
 			default:

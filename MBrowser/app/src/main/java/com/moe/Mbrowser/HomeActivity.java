@@ -29,8 +29,6 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import java.io.File;
 import android.os.Environment;
-import com.moe.utils.Theme;
-import com.moe.utils.ToolManager;
 import com.moe.fragment.SkinFragment;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +53,11 @@ import com.moe.fragment.BitImageFragment;
 import android.app.SearchManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.app.FragmentActivity;
+import com.moe.internal.Theme;
+import com.moe.internal.ToolManager;
+import android.os.Build;
+import android.content.ClipboardManager;
+import android.widget.Button;
 
 public class HomeActivity extends FragmentActivity implements Download.Callback
 {
@@ -67,6 +70,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 	private ToolboxDialog toolbox;
 	private android.support.v7.app.AlertDialog ad;
 	private JavaScriptDialog jsd;
+	private ClipboardManager cm;
 	@Override
 	public void callback(final TaskInfo ti, Download.State state)
 	{
@@ -119,6 +123,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+		cm=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 		shared = getSharedPreferences("moe", 0);
 		setContentView(R.layout.main);
@@ -133,6 +138,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 			findViewById(R.id.main3).setBackgroundColor(0x50000000);
 		startService(new Intent(this, ResourceService.class));
 		EventBus.getDefault().register(this);
+		if(Build.VERSION.SDK_INT>19)
 		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
 		{
 			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 55);
@@ -267,7 +273,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 				}*/
 				final ArrayList<String> as=(ArrayList<String>)callback.obj;
 				if(as.size()==0)
-					Toast.makeText(this,"没有结果，请先播放视频然后重试！",400).show();
+					Toast.makeText(this,"没有结果！",Toast.LENGTH_SHORT).show();
 					else
 				new BottomDialog.Builder(this).addArrayItem(as.toArray(new String[0]), new DialogInterface.OnClickListener(){
 
@@ -277,7 +283,16 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 						  EventBus.getDefault().post(new WindowEvent( WindowEvent.WHAT_URL_WINDOW,as.get(p2)));
 						  p1.dismiss();
 						}
-					}).show();
+						}, new View.OnLongClickListener(){
+
+							@Override
+							public boolean onLongClick(View p1)
+							{
+								cm.setText(((Button)p1).getText());
+								Toast.makeText(HomeActivity.this,"已复制",Toast.LENGTH_SHORT).show();
+								return true;
+							}
+						}).show();
 					break;
 		}
 	}

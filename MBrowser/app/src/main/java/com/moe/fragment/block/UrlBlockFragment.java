@@ -33,9 +33,12 @@ import android.app.Activity;
 import android.net.Uri;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import com.moe.utils.UrlBlock;
+import com.moe.internal.UrlBlock;
+import android.widget.ViewFlipper;
+import com.moe.utils.ListIndex;
+import android.widget.ImageView;
 
-public class UrlBlockFragment extends PreferenceFragment implements View.OnClickListener,DialogInterface.OnClickListener,UrlBlockAdapter.OnItemClickListener
+public class UrlBlockFragment extends PreferenceFragment implements View.OnClickListener,DialogInterface.OnClickListener,UrlBlockAdapter.OnItemClickListener,ListIndex.Callback
 {
 private UrlBlockAdapter uba;
 private List<String> list;
@@ -44,6 +47,12 @@ private List<String> list;
 	private EditText msg;
 	private String data;
 	private UrlBlockDatabase ubd;
+	private RecyclerView rv;
+	private ViewFlipper toolbar;
+	private TextView key,count;
+	private List<Integer> index;
+	private ImageView up,down;
+	private int currentIndex;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -53,11 +62,23 @@ private List<String> list;
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
-		RecyclerView rv=(RecyclerView)view.findViewById(R.id.urlblock_view_list);
+		rv=(RecyclerView)view.findViewById(R.id.urlblock_view_list);
 		view.findViewById(R.id.urlblock_view_add).setOnClickListener(this);
 		view.findViewById(R.id.urlblock_view_recycler).setOnClickListener(this);
-		rv.setLayoutManager(new LinearLayoutManager(getContext()));
-		rv.setAdapter(uba=new UrlBlockAdapter(list=new ArrayList<>()));
+		up=(ImageView)view.findViewById(R.id.urlblock_view_up);
+		up.setOnClickListener(this);
+		down=(ImageView)view.findViewById(R.id.urlblock_view_down);
+		down.setOnClickListener(this);
+		view.findViewById(R.id.urlblock_view_search).setOnClickListener(this);
+		view.findViewById(R.id.urlblock_view_close).setOnClickListener(this);
+		view.findViewById(R.id.urlblock_view_search_next).setOnClickListener(this);
+		view.findViewById(R.id.urlblock_view_finddown).setOnClickListener(this);
+		view.findViewById(R.id.urlblock_view_findup).setOnClickListener(this);
+		toolbar=(ViewFlipper)view.findViewById(R.id.urlblock_view_toolbar);
+		count=(TextView)view.findViewById(R.id.urlblock_view_count);
+		key=(TextView)view.findViewById(R.id.urlblock_viewkey);
+		rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+		rv.setAdapter(uba=new UrlBlockAdapter(list=new ArrayList<>(),toolbar));
 		uba.setOnItemClickListener(this);
 		super.onViewCreated(view, savedInstanceState);
 	}
@@ -65,16 +86,17 @@ private List<String> list;
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
-		ubd=Sqlite.getInstance(getContext(),UrlBlockDatabase.class);
+		ubd=Sqlite.getInstance(getActivity(),UrlBlockDatabase.class);
 		super.onActivityCreated(savedInstanceState);
 		list.addAll(ubd.query());
 		uba.notifyDataSetChanged();
+		ListIndex.getInstance().setCallback(this);
 	}
 	
 	private void createAdd()
 	{
-		til = new TextInputLayout(getContext());
-		msg = new EditText(getContext());
+		til = new TextInputLayout(getActivity());
+		msg = new EditText(getActivity());
 		msg.setSingleLine(true);
 		til.addView(msg);
 		til.setErrorEnabled(true);
@@ -96,7 +118,7 @@ private List<String> list;
 						error=0;
 						try
 						{
-							br = new BufferedReader(new InputStreamReader(getContext().getContentResolver().openInputStream(data.getData())));
+							br = new BufferedReader(new InputStreamReader(getActivity().getContentResolver().openInputStream(data.getData())));
 							String line=null;
 							while ((line = br.readLine()) != null)
 							{
@@ -128,7 +150,7 @@ private List<String> list;
 									list.clear();
 									list.addAll(ubd.query());
 									uba.notifyDataSetChanged();
-									UrlBlock.getInstance(getContext(),list);
+									UrlBlock.getInstance(getActivity(),list);
 									if(error>0)
 										Toast.makeText(getActivity(),"已忽略"+error+"条错误规则",Toast.LENGTH_SHORT).show();
 										else
@@ -162,14 +184,74 @@ private List<String> list;
 								list.clear();
 								uba.notifyDataSetChanged();
 								ubd.clear();
-								UrlBlock.getInstance(getContext()).clear();
+								UrlBlock.getInstance(getActivity()).clear();
 							}
 						})
 					.setPositiveButton("取消",null).show();
 				}
 				break;
+			case R.id.urlblock_view_down:
+				rv.scrollToPosition(list.size()+1);
+				break;
+			case R.id.urlblock_view_up:
+				rv.scrollToPosition(0);
+				break;
+			case R.id.urlblock_view_search:
+				toolbar.setDisplayedChild(1);
+				count.setText(null);
+				break;
+			case R.id.urlblock_view_close:
+				toolbar.setDisplayedChild(0);
+				if(index.size()>0)
+					uba.notifyItemChanged(index.get(currentIndex)+2);
+				break;
+			case R.id.urlblock_view_search_next:
+				if(!TextUtils.isEmpty(key.getText()))
+				ListIndex.getInstance().query(list,key.getText().toString());
+				break;
+			case R.id.urlblock_view_finddown:
+				if(currentIndex<index.size()-1){
+					int pre=index.get(currentIndex)+2;
+					int pos=index.get(++currentIndex)+2;
+					rv.scrollToPosition(pos);
+					toolbar.setTag(pos);
+					uba.notifyItemChanged(pre);
+					uba.notifyItemChanged(pos);
+					count.setText((currentIndex+1)+"/"+index.size());
+					}
+				break;
+			case R.id.urlblock_view_findup:
+				if(currentIndex>0){
+					int pre=index.get(currentIndex)+2;
+					int pos=index.get(--currentIndex)+2;
+					rv.scrollToPosition(pos);
+					toolbar.setTag(pos);
+					uba.notifyItemChanged(pre);
+					uba.notifyItemChanged(pos);
+					count.setText((currentIndex+1)+"/"+index.size());
+					}
+				break;
 		}
 	}
+
+	@Override
+	public void finded(List<Integer> li)
+	{
+		index=li;
+		if(li.size()>0){
+			count.setText("1/"+li.size());
+			int pos=li.get(0)+2;
+			rv.scrollToPosition(pos);
+			currentIndex=0;
+			uba.notifyItemChanged(pos);
+			toolbar.setTag(pos);
+			}
+			else
+			count.setText("0/0");
+		
+	}
+
+	
 	@Override
 	public void onClick(DialogInterface p1, int p2)
 	{
@@ -181,7 +263,7 @@ private List<String> list;
 					ubd.delete(list.remove(index));
 					uba.notifyItemRemoved(index+2);
 					DialogUtils.changeState(add,true);
-					UrlBlock.getInstance(getContext()).delete(data);
+					UrlBlock.getInstance(getActivity()).delete(data);
 				}
 				break;
 			case AlertDialog.BUTTON_NEGATIVE:
@@ -203,7 +285,7 @@ private List<String> list;
 						if(ubd.insert(dd)){
 							list.add(dd);
 							uba.notifyItemInserted(list.size()+1);
-							UrlBlock.getInstance(getContext()).insert(dd);
+							UrlBlock.getInstance(getActivity()).insert(dd);
 						}else{
 							Toast.makeText(getActivity(),"存在相同规则",Toast.LENGTH_SHORT).show();
 						}
@@ -214,8 +296,8 @@ private List<String> list;
 						list.remove(index);
 						list.add(index,dd);
 						uba.notifyItemChanged(index+2);
-						UrlBlock.getInstance(getContext()).delete(data);
-						UrlBlock.getInstance(getContext()).insert(dd);
+						UrlBlock.getInstance(getActivity()).delete(data);
+						UrlBlock.getInstance(getActivity()).insert(dd);
 					}
 					DialogUtils.changeState(add,true);
 					}
@@ -289,6 +371,12 @@ private void show(String data){
 	public boolean onBackPressed()
 	{
 		if(!isHidden()){
+			if(toolbar.getDisplayedChild()==1){
+				toolbar.setDisplayedChild(0);
+				if(index.size()>0)
+					uba.notifyItemChanged(index.get(currentIndex)+2);
+				
+				}else
 			getFragmentManager().beginTransaction().hide(this).commit();
 			return true;
 			}

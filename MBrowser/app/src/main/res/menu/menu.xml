@@ -51,5 +51,9 @@
 			android:icon="@drawable/ic_map_marker_off"
 			android:id="@+id/menu_gps"
 			android:title="gps"/>
+		<item
+			android:icon="@drawable/menu_fullscreen"
+			android:id="@+id/menu_videofullscreen"
+			android:title="视频全屏"/>
 	</group>
 </menu>

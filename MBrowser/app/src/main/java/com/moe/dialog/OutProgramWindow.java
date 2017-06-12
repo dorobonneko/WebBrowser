@@ -20,7 +20,7 @@ public class OutProgramWindow extends Dialog implements View.OnClickListener
 	private static OutProgramWindow opw;
 	private BlackList bl;
 	private OutProgramWindow(Context context){
-		super(context,R.style.searchDialog);
+		super(context,R.style.Dialog);
 		bl=Sqlite.getInstance(context,BlackList.class);
 	}
 
@@ -39,6 +39,7 @@ public class OutProgramWindow extends Dialog implements View.OnClickListener
 		getWindow().setGravity(Gravity.BOTTOM);
 		getWindow().setWindowAnimations(R.style.PopupWindowAnim);
 		super.onCreate(savedInstanceState);
+		getWindow().setDimAmount(0.1f);
 		setContentView(LayoutInflater.from(getContext()).inflate(R.layout.out_program_view,null),new ViewGroup.LayoutParams(getWindow().getWindowManager().getDefaultDisplay().getWidth(),ViewGroup.LayoutParams.WRAP_CONTENT));
 		findViewById(R.id.outprogram_allow).setOnClickListener(this);
 		findViewById(R.id.outprogram_allow_once).setOnClickListener(this);

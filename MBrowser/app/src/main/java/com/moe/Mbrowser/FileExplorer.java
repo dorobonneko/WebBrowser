@@ -26,6 +26,7 @@ import android.support.v4.app.ActivityCompat;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.widget.TextView;
+import android.os.Build;
 public class FileExplorer extends Activity implements View.OnClickListener,ListView.OnItemClickListener{
 private ArrayList<String> list=new ArrayList<>();
 	private HashMap<String,File> folder=new HashMap<>();
@@ -40,6 +41,7 @@ private ArrayList<String> list=new ArrayList<>();
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		if(Build.VERSION.SDK_INT>19)
 		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED&&ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
 		{
 			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 55);

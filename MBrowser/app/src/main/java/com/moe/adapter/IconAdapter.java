@@ -39,7 +39,7 @@ public class IconAdapter extends RecyclerView.Adapter implements View.OnClickLis
         GridLayoutManager.LayoutParams gl=new GridLayoutManager.LayoutParams(GridLayoutManager.LayoutParams.WRAP_CONTENT,GridLayoutManager.LayoutParams.WRAP_CONTENT);
         gl.setMargins(20,20,20,20);
         ll.setLayoutParams(gl);
-        ll.setBackground(context.getResources().getDrawable(R.drawable.round_dialog));
+        ll.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.round_dialog));
         //ll.setPadding(20,20,20,20);
         //CircleImageView civ=new CircleImageView(context,0xffff00ff,1.5f);
         ImageView iv=new ImageView(context);

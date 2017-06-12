@@ -10,6 +10,7 @@ import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.ImageView;
 import com.moe.Mbrowser.R;
+import android.os.Build;
 
 public class FolderSelectAdapter extends RecyclerView.Adapter<FolderSelectAdapter.ViewHolder>
 {
@@ -30,7 +31,10 @@ public class FolderSelectAdapter extends RecyclerView.Adapter<FolderSelectAdapte
 	@Override
 	public void onBindViewHolder(FolderSelectAdapter.ViewHolder p1, int p2)
 	{
+		if(Build.VERSION.SDK_INT>19)
 		p1.itemView.setPaddingRelative(list.get(p2).getLevel()*p1.iv.getDrawable().getIntrinsicWidth(),0,0,0);
+		else
+		p1.itemView.setPadding(list.get(p2).getLevel()*p1.iv.getDrawable().getIntrinsicWidth(),0,0,0);
 		p1.title.setText(list.get(p2).getTitle());
 	}
 

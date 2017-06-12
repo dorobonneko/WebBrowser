@@ -1,4 +1,4 @@
-package com.moe.utils;
+package com.moe.internal;
 import java.util.ArrayList;
 import android.view.View;
 import java.util.Iterator;
@@ -11,6 +11,7 @@ import org.xmlpull.v1.XmlPullParser;
 import java.io.ByteArrayInputStream;
 import com.moe.Mbrowser.R;
 import android.graphics.Color;
+import android.os.Build;
 
 public class Theme
 {
@@ -35,7 +36,10 @@ public class Theme
 		av.add(v);
 	}
 	public static void unRegisterBackground(View v){
+		if(Build.VERSION.SDK_INT>16)
 		v.setBackground(null);
+			else
+		v.setBackgroundDrawable(null);
 		background.remove(v);
 	}
 	public static void updateTheme(int color)

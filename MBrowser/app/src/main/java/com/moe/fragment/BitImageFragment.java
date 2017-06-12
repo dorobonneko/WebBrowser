@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import com.moe.Mbrowser.R;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
-import android.hardware.camera2.CameraManager;
 import android.hardware.Camera;
 import java.io.IOException;
 import android.support.v4.content.ContextCompat;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 import android.graphics.PixelFormat;
 import java.util.List;
 import com.moe.widget.CameraBorder;
-import com.moe.utils.Theme;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -40,7 +38,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.File;
 import android.net.Uri;
-import java.io.InputStream;;
+import java.io.InputStream;
+import com.moe.internal.Theme;
+import android.os.Build;;
 
 public class BitImageFragment extends Fragment implements SurfaceHolder.Callback,Camera.AutoFocusCallback,Camera.PreviewCallback,BitImageParser.Callback,View.OnClickListener
 {
@@ -75,7 +75,7 @@ public class BitImageFragment extends Fragment implements SurfaceHolder.Callback
 	{
 		super.onActivityCreated(savedInstanceState);
 		cb.setSize(getActivity().getWindowManager().getDefaultDisplay().getWidth() / 2, getActivity().getWindowManager().getDefaultDisplay().getWidth() / 2);
-		if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+		if (Build.VERSION.SDK_INT>19&&ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
 		{
 			ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, 22);
 		}

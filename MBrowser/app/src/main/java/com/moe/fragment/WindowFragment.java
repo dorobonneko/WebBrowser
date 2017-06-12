@@ -17,15 +17,15 @@ import com.moe.bean.WindowEvent;
 import de.greenrobot.event.EventBus;
 import android.widget.*;
 import com.moe.widget.*;
-import com.moe.utils.ToolManager;
 import com.moe.bean.Message;
 import de.greenrobot.event.Subscribe;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.TypedValue;
-import com.moe.utils.CustomDecoration;
-import com.moe.utils.Theme;
 import android.content.SharedPreferences;
+import com.moe.internal.CustomDecoration;
+import com.moe.internal.Theme;
+import com.moe.internal.ToolManager;
 
 public class WindowFragment extends FragmentPop implements WinListAdapter.OnItemClickListener,ViewFlipper.OnChangeListener
 ,View.OnClickListener

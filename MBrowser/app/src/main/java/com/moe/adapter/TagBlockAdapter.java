@@ -7,6 +7,7 @@ import android.widget.TextView;
 import android.content.res.TypedArray;
 import android.view.Gravity;
 import android.util.TypedValue;
+import android.os.Build;
 
 public class TagBlockAdapter extends RecyclerView.Adapter<TagBlockAdapter.ViewHolder>
 {
@@ -83,7 +84,11 @@ public class TagBlockAdapter extends RecyclerView.Adapter<TagBlockAdapter.ViewHo
 			v.setForeground(ta.getDrawable(1));
 			v.setClickable(true);
 			ta.recycle();
+			if(Build.VERSION.SDK_INT>16)
 			v.setPaddingRelative((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0,0,0);
+			else
+			v.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0,0,0);
+			
 			name=(TextView)v;
 			name.setGravity(Gravity.CENTER_VERTICAL);
 			name.setOnClickListener(this);

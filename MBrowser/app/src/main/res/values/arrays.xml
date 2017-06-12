@@ -56,4 +56,15 @@
 			<item>中断当前出错的资源</item>
 			<item>重新下载出错的资源</item>
 		</string-array>
+		<string-array name="search">
+			<item>神马</item>
+			<item>百度</item>
+			<item>谷歌</item>
+			<item>自定义</item>
+		</string-array>
+		<string-array name="search_value">
+		<item>http://m.sm.cn/s?q=$s</item>
+		<item>https://m.baidu.com/s?word=$s</item>
+		<item>https://www.google.com/search?q=$s</item>
+		</string-array>
 	</resources>

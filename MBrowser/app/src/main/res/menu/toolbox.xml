@@ -1,23 +1,27 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     
     <item
-        android:id="@+id/webpageSarch"
+        android:id="@+id/toolbox_webpageSarch"
 		android:icon="@drawable/ic_search"
         android:title="网页搜索"/>
 	<item
-        android:id="@+id/webpageSave"
+        android:id="@+id/toolbox_webpageSave"
 		android:icon="@drawable/ic_export"
         android:title="网页保存"/>
     <item
-        android:id="@+id/videoFind"
+        android:id="@+id/toolbox_videoFind"
 		android:icon="@drawable/ic_video"
         android:title="视频嗅探"/>
 	<item
-        android:id="@+id/webSource"
+        android:id="@+id/toolbox_webSource"
 		android:icon="@drawable/ic_eye"
         android:title="网页源码"/>
 	<item
-		android:id="@+id/javascript"
+		android:id="@+id/toolbox_javascript"
 		android:icon="@drawable/ic_script"
 		android:title="网页脚本"/>
+	<item
+		android:id="@+id/toolbox_stop"
+		android:icon="@drawable/ic_block_helper"
+		android:title="已屏蔽链接"/>
 </menu>

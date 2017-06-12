@@ -1,4 +1,4 @@
-package com.moe.utils;
+package com.moe.internal;
 import android.content.Context;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

@@ -21,6 +21,7 @@ import com.moe.download.DownloadTask;
 import de.greenrobot.event.ThreadMode;
 import com.moe.utils.LinkedListMap;
 import com.moe.entity.NotificationItem;
+import android.app.Service;
 
 public class NotificationManager
 {
@@ -30,7 +31,7 @@ public class NotificationManager
 	public NotificationManager(Context context){
 		this.context=context;
 		llm=new LinkedListMap<>();
-		nm=context.getSystemService(NotificationManager.class);
+		nm=(NotificationManager)context.getSystemService(Service.NOTIFICATION_SERVICE);
 		EventBus.getDefault().register(this);
 	}
 
@@ -57,7 +58,6 @@ public class NotificationManager
 				.setSmallIcon(R.drawable.ic_launcher)
 				.setContent(ni.getRemoteViews())
 				.setTicker("下载")
-				.setPriority(Notification.PRIORITY_MAX)
 				.setContentIntent(pi));
 			ni.getRemoteViews().setOnClickPendingIntent(R.id.notificationviewImage_state, PendingIntent.getBroadcast(context, 0, new Intent("com.moe.notification.state").putExtra("id", ti.getId()), PendingIntent.FLAG_UPDATE_CURRENT));
 			ni.getRemoteViews().setTextViewText(R.id.notificationview_title, ti.getTaskname());
@@ -102,7 +102,7 @@ public class NotificationManager
 			nb.setOngoing(false);
 			nb.setAutoCancel(true);
 			Intent intent = new Intent(Intent.ACTION_VIEW);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+			if (Build.VERSION.SDK_INT >19)
 			{
 				intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 				Uri contentUri = FileProvider.getUriForFile(context, context.getPackageName() + ".fileProvider", new File(ti.getDir(), ti.getTaskname()));
@@ -116,7 +116,7 @@ public class NotificationManager
 
 			PendingIntent pi=PendingIntent.getActivity(context, 233, intent, PendingIntent.FLAG_ONE_SHOT);
 			nb.setContentIntent(pi);
-			nm.notify(ti.getId(), nb.build());
+		nm.notify(ti.getId(),Build.VERSION.SDK_INT >15?nb.build():nb.getNotification());
 		
 	}
 	public void destory(){

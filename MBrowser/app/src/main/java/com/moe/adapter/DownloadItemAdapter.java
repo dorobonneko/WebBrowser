@@ -18,8 +18,10 @@ import com.moe.entity.DownloadInfo;
 import com.moe.download.DownloadTask;
 import java.math.BigDecimal;
 import android.view.View.OnLongClickListener;
-import com.moe.utils.Theme;
+
 import com.moe.utils.LinkedListMap;
+import com.moe.internal.Theme;
+import android.os.Build;
 
 public class DownloadItemAdapter extends RecyclerView.Adapter
 {
@@ -177,7 +179,10 @@ public TaskInfo getItem(int position){
 			v.setClickable(true);
 			v.setForeground(ta.getDrawable(1));
 			ta.recycle();
+			if(Build.VERSION.SDK_INT>16)
 			v.setPaddingRelative((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0,(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0);
+			else
+			v.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0,(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0);
 			title=(TextView)v.findViewById(R.id.notificationview_title);
 			speed=(TextView)v.findViewById(R.id.notificationview_speed);
 			size=(TextView)v.findViewById(R.id.notificationview_size);
@@ -218,12 +223,21 @@ public TaskInfo getItem(int position){
 			v.setForeground(ta.getDrawable(1));
 			title=(TextView)((ViewGroup)v).getChildAt(0);
 			summary=(TextView)((ViewGroup)v).getChildAt(1);
+			if(Build.VERSION.SDK_INT>22){
 			title.setTextAppearance(android.R.style.TextAppearance_Large);
 			summary.setTextAppearance(android.R.style.TextAppearance_Small);
+			}else{
+			title.setTextAppearance(title.getContext(),android.R.style.TextAppearance_Large);
+			summary.setTextAppearance(summary.getContext(),android.R.style.TextAppearance_Small);
+			}
 			title.setSingleLine();
 			summary.setSingleLine();
 			ta.recycle();
+			if(Build.VERSION.SDK_INT>16)
 			v.setPaddingRelative((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0,(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0);
+			else
+			v.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0,(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,v.getResources().getDisplayMetrics()),0);
+			
 			itemView.setOnClickListener(new View.OnClickListener(){
 
 					@Override

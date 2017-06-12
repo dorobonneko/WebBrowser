@@ -9,7 +9,6 @@ import com.moe.fragment.preference.WebFragment;
 import android.view.View;
 import android.content.res.TypedArray;
 import android.app.FragmentTransaction;
-import com.moe.utils.Theme;
 import com.moe.fragment.preference.AdBkockFragment;
 import android.content.Intent;
 

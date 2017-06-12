@@ -1,4 +1,4 @@
-package com.moe.utils;
+package com.moe.internal;
 import android.view.View;
 import com.moe.dialog.SearchDialog;
 import android.widget.TextView;
@@ -29,6 +29,9 @@ import com.moe.dialog.ToolboxDialog;
 import com.moe.bean.WindowEvent;
 import com.moe.fragment.BookmarksFragment;
 import com.moe.database.Sqlite;
+import com.moe.utils.ImageDraw;
+import android.app.Service;
+import android.os.Build;
 
 public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeListener,WebView.OnStateListener,TextWatcher,WebView.FindListener,View.OnLongClickListener
 {
@@ -53,7 +56,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	private int active,count;
 	private InputMethodManager imm;
 	private ToolManager(View v){
-		imm=v.getContext().getSystemService(InputMethodManager.class);
+		imm=(InputMethodManager)v.getContext().getSystemService(Service.INPUT_METHOD_SERVICE);
 		search=new SearchDialog(v.getContext());
 		bm=Sqlite.getInstance(v.getContext(),BookMarks.class);
 		toolbar = v.findViewById(R.id.mainview_searchbar);
@@ -130,7 +133,11 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	@Override
 	public void afterTextChanged(Editable p1)
 	{
+		if(Build.VERSION.SDK_INT>15)
 		((WebView)content.getCurrentView()).findAllAsync(p1.toString());
+		else
+		findCount.setText("0/"+((WebView)content.getCurrentView()).findAll(p1.toString()));
+		
 	}
 
 	@Override
@@ -169,6 +176,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		return findToggle.getDisplayedChild()==1;
 	}
 	public void findToggle(boolean toggle){
+		if(Build.VERSION.SDK_INT<16)return;
 		if(toggle){
 			findToggle.setDisplayedChild(1);
 			((WebView)content.getCurrentView()).setFindListener(this);

@@ -19,7 +19,7 @@ public class DownloadNewDialog extends Dialog implements View.OnClickListener,Do
 	private Button add,cancel;
 	private Callback call;
 	public DownloadNewDialog(Context context,Callback call){
-		super(context,R.style.searchDialog);
+		super(context,R.style.Dialog);
 		this.call=call;
 	}
 

@@ -8,14 +8,17 @@ import com.moe.Mbrowser.R;
 import com.moe.entity.TaskInfo;
 import android.content.ClipboardManager;
 import android.content.res.TypedArray;
+import android.text.method.ScrollingMovementMethod;
+import android.app.Service;
+import android.os.Build;
 
 public class TaskInfoDialog extends android.app.Dialog implements View.OnLongClickListener
 {
 	private TextView name,url,source,pause,thread,dir;
 	private ClipboardManager cm;
 	public TaskInfoDialog(Context context){
-		super(context,R.style.searchDialog);
-		cm=context.getSystemService(ClipboardManager.class);
+		super(context,R.style.Dialog);
+		cm=(ClipboardManager)context.getSystemService(Service.CLIPBOARD_SERVICE);
 	}
 
 	@Override
@@ -32,6 +35,8 @@ public class TaskInfoDialog extends android.app.Dialog implements View.OnLongCli
 		pause=new TextView(getContext());
 		thread=new TextView(getContext());
 		dir=new TextView(getContext());
+		url.setMovementMethod(ScrollingMovementMethod.getInstance());
+		source.setMovementMethod(ScrollingMovementMethod.getInstance());
 		/**dir.setOnClickListener(this);
 		name.setOnClickListener(this);
 		url.setOnClickListener(this);
@@ -56,7 +61,10 @@ public class TaskInfoDialog extends android.app.Dialog implements View.OnLongCli
 		View v=ll.getChildAt(i);
 		v.setOnLongClickListener(this);
 		v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,(int)ta.getDimension(0,0)));
-		v.setForeground(ta.getDrawable(1));
+		if(Build.VERSION.SDK_INT>16)
+		v.setBackground(ta.getDrawable(1));
+			else
+		v.setBackgroundDrawable(ta.getDrawable(1));
 		v.setClickable(true);
 		}
 		ta.recycle();

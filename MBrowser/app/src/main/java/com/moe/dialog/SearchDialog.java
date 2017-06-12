@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.view.Gravity;
 import com.moe.widget.ToolEditText;
 import android.util.TypedValue;
-import com.moe.utils.Theme;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.KeyEvent;
@@ -21,14 +20,14 @@ import android.support.v7.widget.*;
 import com.moe.database.*;
 import com.moe.adapter.*;
 import com.moe.utils.*;
-import android.view.ViewAnimationUtils;
 import android.animation.Animator;
 import android.support.design.widget.TextInputLayout;
-import android.hardware.input.InputManager;
 import android.view.inputmethod.InputMethodManager;
 import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.app.SearchManager;
+import com.moe.internal.CustomDecoration;
+import android.app.Service;
 
 public class SearchDialog extends android.app.Dialog implements ToolEditText.OnEditorActionListener,ToolEditText.OnTextChangedListener,Dialog.OnDismissListener
 {
@@ -39,9 +38,9 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
 	private InputMethodManager imm;
     public SearchDialog(Context context)
 	{
-        super(context, R.style.searchDialog);
+        super(context, R.style.Dialog);
 		tet = new ToolEditText(context, this);
-		imm = context.getSystemService(InputMethodManager.class);
+		imm = (InputMethodManager)context.getSystemService(Service.INPUT_METHOD_SERVICE);
 		//sh=DataBase.getInstance(context);
     }
 
@@ -106,7 +105,7 @@ public class SearchDialog extends android.app.Dialog implements ToolEditText.OnE
 	@Override
 	public void onDismiss(DialogInterface p1)
 	{
-		getContext().getSystemService(InputMethodManager.class).toggleSoftInputFromWindow(tet.getApplicationWindowToken(), imm.SHOW_IMPLICIT, imm.HIDE_NOT_ALWAYS);
+		imm.toggleSoftInputFromWindow(tet.getApplicationWindowToken(), imm.SHOW_IMPLICIT, imm.HIDE_NOT_ALWAYS);
 	}
 
 

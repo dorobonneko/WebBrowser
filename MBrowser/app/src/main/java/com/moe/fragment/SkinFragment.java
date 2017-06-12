@@ -8,7 +8,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.GridLayoutManager;
 import com.moe.adapter.SkinAdapter;
 import android.content.SharedPreferences;
-import com.moe.utils.Theme;
+import com.moe.internal.Theme;
+
 
 public class SkinFragment extends Fragment implements SkinAdapter.OnItemSelectedListener
 {

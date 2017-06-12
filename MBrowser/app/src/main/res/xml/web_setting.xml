@@ -8,6 +8,12 @@
 		<com.moe.preference.SeekBarPreference
 			android:key="textSize"
 			android:title="文字大小"/>
+		<com.moe.preference.DropDownPreference
+			android:key="search"
+			android:title="搜索引擎"
+			android:entries="@array/search"
+			android:value="@array/search_value"/>
+		
 		<SwitchPreference
 			android:key="multiWindows"
 			android:title="多窗口模式"

@@ -1,4 +1,4 @@
-package com.moe.utils;
+package com.moe.internal;
 import java.util.ArrayList;
 import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,6 +12,7 @@ import com.moe.database.Sqlite;
 import com.moe.database.UrlBlockDatabase;
 import java.util.regex.PatternSyntaxException;
 import java.util.Collection;
+import com.moe.utils.LinkedListMap;
 
 public class UrlBlock
 {

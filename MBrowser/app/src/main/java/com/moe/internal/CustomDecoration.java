@@ -1,4 +1,4 @@
-package com.moe.utils;
+package com.moe.internal;
 import android.support.v7.widget.*;
 import android.graphics.*;
 import android.view.*;

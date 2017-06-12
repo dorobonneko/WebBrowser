@@ -5,40 +5,126 @@
 	android:layout_height="fill_parent"
 	android:orientation="vertical">
 
-	<LinearLayout
+	<ViewFlipper
+		android:id="@+id/urlblock_view_toolbar"
 		android:layout_height="?attr/actionBarSize"
-		android:layout_width="match_parent"
-		android:orientation="horizontal"
-		android:gravity="center_vertical">
+		android:layout_width="match_parent">
 
-		<TextView
-			android:paddingStart="15dp"
-			android:textColor="?attr/colorAccent"
+		<LinearLayout
 			android:layout_height="match_parent"
-			android:layout_width="wrap_content"
-			android:text="网址拦截"
-			android:layout_weight="1.0"
-			android:gravity="left|center_vertical"/>
+			android:layout_width="match_parent"
+			android:orientation="horizontal"
+			android:gravity="center_vertical">
 
-		<ImageButton
-			android:layout_marginEnd="15dp"
-			android:background="?attr/selectableItemBackgroundBorderless"
-			android:id="@+id/urlblock_view_recycler"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:src="@drawable/ic_recycle"
-			android:scaleType="centerInside"/>
+			<TextView
+				android:paddingStart="15dp"
+				android:textColor="?attr/colorAccent"
+				android:layout_height="match_parent"
+				android:layout_width="wrap_content"
+				android:text="网址拦截"
+				android:layout_weight="1.0"
+				android:gravity="left|center_vertical"/>
 
-		<ImageButton
-			android:layout_marginEnd="15dp"
-			android:background="?attr/selectableItemBackgroundBorderless"
-			android:id="@+id/urlblock_view_add"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:src="@drawable/ic_plus"
-			android:scaleType="centerInside"/>
+			<ImageButton
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:id="@+id/urlblock_view_search"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:src="@drawable/ic_search"
+				android:scaleType="centerInside"/>
 
-	</LinearLayout>
+			<ImageButton
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:id="@+id/urlblock_view_up"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:src="@drawable/ic_chevron_double_up"
+				android:scaleType="centerInside"
+				android:layout_marginStart="5dp"/>
+
+			<ImageButton
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:id="@+id/urlblock_view_down"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:src="@drawable/ic_chevron_double_down"
+				android:scaleType="centerInside"
+				android:layout_marginStart="5dp"/>
+
+			<ImageButton
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:id="@+id/urlblock_view_recycler"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:src="@drawable/ic_recycle"
+				android:scaleType="centerInside"
+				android:layout_marginStart="5dp"/>
+
+			<ImageButton
+				android:layout_marginEnd="15dp"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:id="@+id/urlblock_view_add"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:src="@drawable/ic_plus"
+				android:scaleType="centerInside"
+				android:layout_marginStart="5dp"/>
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_height="match_parent"
+			android:layout_width="match_parent"
+			android:orientation="horizontal"
+			android:gravity="center">
+
+			<EditText
+				android:id="@+id/urlblock_viewkey"
+				android:layout_height="match_parent"
+				android:layout_width="wrap_content"
+				android:layout_weight="1.0"
+				android:singleLine="true"/>
+
+			<TextView
+				android:id="@+id/urlblock_view_count"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"/>
+
+			<ImageButton
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:id="@+id/urlblock_view_search_next"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:src="@drawable/ic_search"
+				android:scaleType="centerInside"/>
+
+			<ImageButton
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:id="@+id/urlblock_view_findup"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:src="@drawable/find_up"
+				android:scaleType="centerInside"/>
+
+			<ImageButton
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:id="@+id/urlblock_view_finddown"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:src="@drawable/find_down"
+				android:scaleType="centerInside"/>
+
+			<ImageButton
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:id="@+id/urlblock_view_close"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
+				android:src="@drawable/ic_close"
+				android:scaleType="centerInside"/>
+
+		</LinearLayout>
+
+	</ViewFlipper>
 
 	<android.support.v7.widget.RecyclerView
 		android:id="@+id/urlblock_view_list"

@@ -44,6 +44,7 @@ public class ViewFlipper extends ViewFlipper
     @Override
     public void removeViewAt(int index)
     {
+		((WebView)getChildAt(index)).destroy();
 		super.removeViewAt(index);
 		Iterator<OnChangeListener> i=ocl.iterator();
 		while(i.hasNext())
@@ -53,13 +54,7 @@ public class ViewFlipper extends ViewFlipper
 			EventBus.getDefault().post(WindowFragment.CLOSE);}
     }
 
-	@Override
-	public void onViewRemoved(View child)
-	{
-		super.onViewRemoved(child);
-		if(child instanceof WebView)
-			((WebView)child).destroy();
-	}
+	
 
     @Override
     public void setDisplayedChild(int whichChild)

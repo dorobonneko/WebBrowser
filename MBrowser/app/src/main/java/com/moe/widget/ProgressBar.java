@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import com.moe.utils.Theme;
+import com.moe.internal.Theme;
 
 public class ProgressBar extends View
 {

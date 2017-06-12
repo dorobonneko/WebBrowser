@@ -1,6 +1,7 @@
 package com.moe.entity;
 import android.app.Notification;
 import android.widget.RemoteViews;
+import android.os.Build;
 
 public class NotificationItem
 {
@@ -32,7 +33,8 @@ public class NotificationItem
 
 	public Notification getNotification()
 	{
-		if(notification==null)notification=builder.build();
+		if(notification==null)
+			notification=Build.VERSION.SDK_INT>15?builder.build():builder.getNotification();
 		return notification;
 	}
 

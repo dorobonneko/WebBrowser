@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import com.moe.database.BookMarks;
 import com.moe.database.Sqlite;
 import android.support.v7.widget.RecyclerView.Adapter;
-import com.moe.utils.CustomDecoration;
+import com.moe.internal.CustomDecoration;
+
 
 public class FolderSelectFragment extends Fragment implements FolderSelectAdapter.OnItemClickListener
 {

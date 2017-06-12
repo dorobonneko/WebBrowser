@@ -12,7 +12,8 @@ import android.widget.SeekBar;
 import android.widget.AbsListView;
 import android.util.TypedValue;
 import android.content.res.TypedArray;
-import com.moe.utils.Theme;
+import com.moe.internal.Theme;
+import android.os.Build;
 
 public class SeekBarPreference extends Preference implements SeekBar.OnSeekBarChangeListener
 {
@@ -67,7 +68,11 @@ public class SeekBarPreference extends Preference implements SeekBar.OnSeekBarCh
 		content.addView(sb);
 		//View v=super.onCreateView(parent);
 		//content.setPadding(0,6,0,6);
+		if(Build.VERSION.SDK_INT>17)
 		content.setPaddingRelative((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,getContext().getResources().getDisplayMetrics()),0,(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,getContext().getResources().getDisplayMetrics()),0);
+		else
+		content.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,getContext().getResources().getDisplayMetrics()),0,(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,getContext().getResources().getDisplayMetrics()),0);
+		
 		//content.setLayoutParams());
 		TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.R.attr.listPreferredItemHeight});
 		content.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,(int)ta.getDimension(0,0)));
@@ -82,9 +87,7 @@ public class SeekBarPreference extends Preference implements SeekBar.OnSeekBarCh
 		sb.setOnSeekBarChangeListener(this);
 		sb.setProgress(index);
 		if(mTitle!=null)title.setText(mTitle);
-		TypedArray ta=getContext().obtainStyledAttributes(new int[]{android.R.attr.colorAccent});
-		current.setTextColor(ta.getColor(0,Theme.color));
-		ta.recycle();
+		current.setTextColor(Theme.color);
 		setEnabled(enable);
 		setMax(max);
 		super.onBindView(view);

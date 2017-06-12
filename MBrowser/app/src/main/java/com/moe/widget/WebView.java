@@ -72,9 +72,10 @@ import com.moe.database.JavaScript;
 import android.text.TextUtils;
 import com.moe.database.AdBlockDatabase;
 import com.moe.utils.Convert;
-import com.moe.utils.UrlBlock;
 import android.webkit.WebChromeClient.CustomViewCallback;
 import java.io.ByteArrayInputStream;
+import com.moe.internal.UrlBlock;
+import android.os.Build;
 
 public class WebView extends WebView implements NestedScrollingChild,GestureDetector.OnGestureListener,SharedPreferences.OnSharedPreferenceChangeListener,DownloadListener,AlertDialog.OnClickListener,View.OnTouchListener
 {
@@ -104,6 +105,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 	private float scale;
 	private String adblock;
 	private AdBlockDatabase abd;
+	private ArrayList<String> block=new ArrayList<>();
     public WebView(final Context context, AddDialog ad)
 	{
         super(context);
@@ -205,6 +207,10 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 
 		//loadUrl("javascript:var url='';var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){url=url+video[i].src+';';var source=video[i].getElementsByTagName('source');for(var n=0;n<source.length;n++){url=url+source[n].src+';'}}video=document.getElementsByTagName('iframe');for(var i=0;i<video.length;i++){url=url+video[i].src+';';}video=document.getElementsByTagName('embed');for(var i=0;i<video.length;i++){url=url+video[i].src+';';}moe.result(url);");
 
+	}
+	public void blockUrl(){
+		EventBus.getDefault().post(new com.moe.bean.Message(6, block));
+		
 	}
 
 	/**视频嗅探原规则，已抛弃
@@ -398,6 +404,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
             if (osl != null)
                 osl.onStart(p2);
 			video.clear();
+			block.clear();
             super.onPageStarted(p1, p2, p3);
 			//加载自动执行的脚本和广告拦截数据
 			try
@@ -432,11 +439,22 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 			{urlParse(p2);}
 		}
 
+		@Override
+		public WebResourceResponse shouldInterceptRequest(WebView view, String url)
+		{
+			if(urlBlock.isExists(url)){
+				block.add(url);
+			return super.shouldInterceptRequest(view,(String)null);
+				}else
+			return super.shouldInterceptRequest(view, url);
+		}
+
 
 		@Override
 		public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest p2)
 		{
 			if(urlBlock.isExists(p2.getUrl().toString())){
+				block.add(p2.getUrl().toString());
 				WebResourceResponse wr=new WebResourceResponse("*/*","unicode",null);
 				wr.setStatusCodeAndReasonPhrase(403,"HTTP/1.1 403");
 				return wr;
@@ -601,7 +619,6 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 			return new ProgressBar(getContext());
 		}
 
-
 		@Override
 		public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams)
 		{
@@ -752,6 +769,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
 		//预览模式
         webSetting.setAppCacheEnabled(true);
         //启用缓存
+		if(Build.VERSION.SDK_INT>16)
         webSetting.setMediaPlaybackRequiresUserGesture(true);
         //媒体手动播放
         webSetting.setTextZoom(shared.getInt(Setting.TEXTSIZE, 50) + 50);
@@ -773,6 +791,7 @@ public class WebView extends WebView implements NestedScrollingChild,GestureDete
         // this.getSettingsExtension().setPageCacheCapacity(IX5WebSettings.DEFAULT_CACHE_CAPACITY);//extension
         // settings 的设计
 		webSetting.setUserAgentString(shared.getBoolean(Setting.DESKTOP, false) == true ?getResources().getTextArray(R.array.uavalue)[1].toString(): shared.getString(Setting.USERAGENT, webSetting.getUserAgentString()));
+		if(Build.VERSION.SDK_INT>20)
 		webSetting.setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
 		//加载不安全的视图模式
 
