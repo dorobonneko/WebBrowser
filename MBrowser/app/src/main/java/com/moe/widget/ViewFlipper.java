@@ -8,9 +8,11 @@ import android.widget.ImageButton;
 import com.moe.Mbrowser.R;
 import de.greenrobot.event.EventBus;
 import com.moe.bean.WindowEvent;
-import com.moe.fragment.*;
-import com.moe.utils.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import com.moe.fragment.WindowFragment;
+import com.moe.webkit.WebView;
+
 
 public class ViewFlipper extends ViewFlipper
 {

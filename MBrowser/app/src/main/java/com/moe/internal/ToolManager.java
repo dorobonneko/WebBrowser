@@ -9,7 +9,6 @@ import com.moe.Mbrowser.R;
 import de.greenrobot.event.EventBus;
 import com.moe.fragment.MenuFragment;
 import com.moe.fragment.WindowFragment;
-import com.moe.widget.WebView;
 import android.support.v4.content.LocalBroadcastManager;
 import com.moe.bean.Message;
 import android.support.design.widget.AppBarLayout;
@@ -32,6 +31,7 @@ import com.moe.database.Sqlite;
 import com.moe.utils.ImageDraw;
 import android.app.Service;
 import android.os.Build;
+import com.moe.webkit.WebView;
 
 public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeListener,WebView.OnStateListener,TextWatcher,WebView.FindListener,View.OnLongClickListener
 {

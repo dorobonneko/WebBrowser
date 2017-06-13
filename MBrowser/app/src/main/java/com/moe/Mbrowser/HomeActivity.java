@@ -36,7 +36,6 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import com.moe.dialog.BottomDialog;
 import android.content.DialogInterface;
-import com.moe.widget.WebView;
 import com.moe.bean.WindowEvent;
 import java.util.ArrayList;
 import android.webkit.GeolocationPermissions;

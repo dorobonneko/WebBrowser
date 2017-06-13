@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="webview_callback"></item>
+    <item type="id" name="webview_url"></item>  
+	<item type="id" name="webview_adblock"></item>    
+	
+</resources>
+

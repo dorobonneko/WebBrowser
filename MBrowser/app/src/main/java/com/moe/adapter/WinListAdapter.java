@@ -15,6 +15,7 @@ import com.moe.bean.*;
 import com.moe.fragment.*;
 import com.moe.widget.*;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import com.moe.webkit.WebView;
 
 public class WinListAdapter extends RecyclerView.Adapter<WinListAdapter.ViewHolder>
 {

@@ -3,11 +3,12 @@ import android.os.Bundle;
 import com.moe.Mbrowser.R;
 import com.moe.preference.SeekBarPreference;
 import android.preference.Preference;
-import com.moe.widget.WebView;
 import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.support.design.widget.TextInputLayout;
 import android.widget.EditText;
+import com.moe.webkit.WebView;
+import com.moe.webkit.WebSettings;
 
 public class WebFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener
 {
@@ -37,28 +38,28 @@ public class WebFragment extends PreferenceFragment implements Preference.OnPref
 				switch((Integer)p2){
 					case 0:
 						android.webkit.WebView wv=new android.webkit.WebView(getActivity());
-						getPreferenceManager().getSharedPreferences().edit().putString(WebView.Setting.USERAGENT,wv.getSettings().getUserAgentString()).commit();
+						getPreferenceManager().getSharedPreferences().edit().putString(WebSettings.Setting.USERAGENT,wv.getSettings().getUserAgentString()).commit();
 						findPreference("customUa").setEnabled(false);
 						wv.destroy();
 						break;
 					case 1:
-						getPreferenceManager().getSharedPreferences().edit().putString(WebView.Setting.USERAGENT,getResources().getTextArray(R.array.uavalue)[1].toString()).commit();	
+						getPreferenceManager().getSharedPreferences().edit().putString(WebSettings.Setting.USERAGENT,getResources().getTextArray(R.array.uavalue)[1].toString()).commit();	
 						findPreference("customUa").setEnabled(false);
 						
 						break;
 					case 2:
-						getPreferenceManager().getSharedPreferences().edit().putString(WebView.Setting.USERAGENT,getResources().getTextArray(R.array.uavalue)[2].toString()).commit();	
+						getPreferenceManager().getSharedPreferences().edit().putString(WebSettings.Setting.USERAGENT,getResources().getTextArray(R.array.uavalue)[2].toString()).commit();	
 						findPreference("customUa").setEnabled(false);
 						
 						break;
 					case 3:
-						getPreferenceManager().getSharedPreferences().edit().putString(WebView.Setting.USERAGENT,getPreferenceManager().getSharedPreferences().getString("customUa","")).commit();
+						getPreferenceManager().getSharedPreferences().edit().putString(WebSettings.Setting.USERAGENT,getPreferenceManager().getSharedPreferences().getString("customUa","")).commit();
 						findPreference("customUa").setEnabled(true);
 						break;
 				}
 				break;
 				case "customUa":
-				getPreferenceManager().getSharedPreferences().edit().putString(WebView.Setting.USERAGENT,p2.toString()).commit();	
+				getPreferenceManager().getSharedPreferences().edit().putString(WebSettings.Setting.USERAGENT,p2.toString()).commit();	
 					break;
 				case "search":
 					switch((Integer)p2){

@@ -26,12 +26,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import de.greenrobot.event.EventBus;
 import com.moe.bean.MenuOptions;
 import android.content.SharedPreferences;
-import com.moe.widget.WebView;
 import com.moe.dialog.ToolboxDialog;
 import com.moe.entity.Bookmark;
 import com.moe.database.BookMarks;
 import com.moe.database.Sqlite;
 import com.moe.internal.ToolManager;
+import com.moe.webkit.WebView;
+import com.moe.webkit.WebSettings;
 
 public class MenuFragment extends FragmentPop implements MenuAdapter.OnItemClickListener
 {
@@ -103,7 +104,7 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 				EventBus.getDefault().post(HIDE);
 				break;
 			case R.id.menu_noimage:
-				webview.edit().putBoolean(WebView.Setting.BLOCKIMAGES,!webview.getBoolean(WebView.Setting.BLOCKIMAGES,false)).commit();
+				webview.edit().putBoolean(WebSettings.Setting.BLOCKIMAGES,!webview.getBoolean(WebSettings.Setting.BLOCKIMAGES,false)).commit();
 				updateBlockImage();
 				EventBus.getDefault().post(HIDE);
 				break;
@@ -112,14 +113,14 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 				EventBus.getDefault().post(SHUTDOWN);
 				break;
 			case R.id.menu_autoscreen:
-				webview.edit().putBoolean(WebView.Setting.WIDEVIEW,!webview.getBoolean(WebView.Setting.WIDEVIEW,true)).commit();
-				Toast.makeText(getActivity(),webview.getBoolean(WebView.Setting.WIDEVIEW,true)==true?"自适应布局已开启":"自适应布局已关闭",Toast.LENGTH_SHORT).show();
+				webview.edit().putBoolean(WebSettings.Setting.WIDEVIEW,!webview.getBoolean(WebSettings.Setting.WIDEVIEW,true)).commit();
+				Toast.makeText(getActivity(),webview.getBoolean(WebSettings.Setting.WIDEVIEW,true)==true?"自适应布局已开启":"自适应布局已关闭",Toast.LENGTH_SHORT).show();
 				EventBus.getDefault().post(HIDE);
 				updateAutoScreen();
 				break;
 			case R.id.menu_desktop:
-				webview.edit().putBoolean(WebView.Setting.DESKTOP,!webview.getBoolean(WebView.Setting.DESKTOP,false)).commit();
-				Toast.makeText(getActivity(),webview.getBoolean(WebView.Setting.DESKTOP,true)==true?"桌面模式已开启":"桌面模式已关闭",Toast.LENGTH_SHORT).show();
+				webview.edit().putBoolean(WebSettings.Setting.DESKTOP,!webview.getBoolean(WebSettings.Setting.DESKTOP,false)).commit();
+				Toast.makeText(getActivity(),webview.getBoolean(WebSettings.Setting.DESKTOP,true)==true?"桌面模式已开启":"桌面模式已关闭",Toast.LENGTH_SHORT).show();
 				ToolManager.getInstance().refresh();
 				EventBus.getDefault().post(HIDE);
 				updateDesktopMode();
@@ -139,7 +140,7 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 				EventBus.getDefault().post(HIDE);
 				break;
 			case R.id.menu_gps:
-				webview.edit().putBoolean(WebView.Setting.GPS,!webview.getBoolean(WebView.Setting.GPS,false)).commit();
+				webview.edit().putBoolean(WebSettings.Setting.GPS,!webview.getBoolean(WebSettings.Setting.GPS,false)).commit();
 				updateGps();
 				EventBus.getDefault().post(HIDE);
 				break;
@@ -168,7 +169,7 @@ private void updateFull(){
 private void updateBlockImage(){
 	MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(0)).getAdapter());
 	MenuItem mi=ma.get(4);
-	if(webview.getBoolean(WebView.Setting.BLOCKIMAGES,false)){
+	if(webview.getBoolean(WebSettings.Setting.BLOCKIMAGES,false)){
 		mi.setIcon(getResources().getDrawable(R.drawable.menu_image_broken));
 	mi.setColor(R.color.accent);
 	}else{
@@ -179,7 +180,7 @@ private void updateBlockImage(){
 private void updateAutoScreen(){
 	MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(0)).getAdapter());
 	MenuItem mi=ma.get(6);
-	if(webview.getBoolean(WebView.Setting.WIDEVIEW,true)){
+	if(webview.getBoolean(WebSettings.Setting.WIDEVIEW,true)){
 		mi.setColor(R.color.accent);
 	}else{
 		mi.setColor(R.color.textColor);
@@ -188,7 +189,7 @@ private void updateAutoScreen(){
 private void updateDesktopMode(){
 	MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(0)).getAdapter());
 	MenuItem mi=ma.get(9);
-	if(webview.getBoolean(WebView.Setting.DESKTOP,false)){
+	if(webview.getBoolean(WebSettings.Setting.DESKTOP,false)){
 		mi.setColor(R.color.accent);
 	}else{
 		mi.setColor(R.color.textColor);
@@ -206,7 +207,7 @@ private void updateNightMode(){
 	private void updateGps(){
 		MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(1)).getAdapter());
 		MenuItem mi=ma.get(0);
-		if(webview.getBoolean(WebView.Setting.GPS,false)){
+		if(webview.getBoolean(WebSettings.Setting.GPS,false)){
 			mi.setColor(R.color.accent);
 			mi.setIcon(getResources().getDrawable(R.drawable.ic_map_marker));
 		}else{

@@ -15,8 +15,6 @@ import com.moe.Mbrowser.R;
 import android.widget.TextView;
 import com.moe.bean.WindowEvent;
 import de.greenrobot.event.EventBus;
-import android.widget.*;
-import com.moe.widget.*;
 import com.moe.bean.Message;
 import de.greenrobot.event.Subscribe;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -26,8 +24,12 @@ import android.content.SharedPreferences;
 import com.moe.internal.CustomDecoration;
 import com.moe.internal.Theme;
 import com.moe.internal.ToolManager;
+import android.widget.ImageView;
+import com.moe.webkit.WebView;
+import com.moe.webkit.WebSettings;
 
-public class WindowFragment extends FragmentPop implements WinListAdapter.OnItemClickListener,ViewFlipper.OnChangeListener
+public class WindowFragment extends FragmentPop implements WinListAdapter.OnItemClickListener,
+ViewFlipper.OnChangeListener
 ,View.OnClickListener
 {
 
@@ -37,7 +39,8 @@ public class WindowFragment extends FragmentPop implements WinListAdapter.OnItem
 	private ImageView security;
 	private WinListAdapter wla;
 	private SharedPreferences webview;
-    @Override
+   
+	@Override
     public void onAdd(WebView vf, int index)
     {
 		if (wla != null)
@@ -117,7 +120,7 @@ public class WindowFragment extends FragmentPop implements WinListAdapter.OnItem
                 EventBus.getDefault().post(new WindowEvent(WindowEvent.WHAT_NEW_WINDOW));
                 break;
 			case R.id.windowview_security:
-				webview.edit().putBoolean(WebView.Setting.PRIVATE,!webview.getBoolean(WebView.Setting.PRIVATE,false)).commit();
+				webview.edit().putBoolean(WebSettings.Setting.PRIVATE,!webview.getBoolean(WebSettings.Setting.PRIVATE,false)).commit();
 				EventBus.getDefault().post(CLOSE);
 				updateSecurity();
 				break;
@@ -160,7 +163,7 @@ public class WindowFragment extends FragmentPop implements WinListAdapter.OnItem
 	}
 	private void updateSecurity()
 	{
-		if(webview.getBoolean(WebView.Setting.PRIVATE,false))
+		if(webview.getBoolean(WebSettings.Setting.PRIVATE,false))
 			security.setImageResource(R.drawable.ic_security);
 			else
 			security.setImageResource(R.drawable.ic_shield_outline);

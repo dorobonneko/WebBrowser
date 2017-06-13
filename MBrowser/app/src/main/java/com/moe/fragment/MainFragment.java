@@ -12,7 +12,6 @@ import com.moe.database.Sqlite;
 import de.greenrobot.event.EventBus;
 import android.support.v4.content.LocalBroadcastManager;
 import android.graphics.Color;
-import com.moe.widget.WebView;
 import de.greenrobot.event.Subscribe;
 import com.moe.bean.WindowEvent;
 import de.greenrobot.event.ThreadMode;
@@ -26,6 +25,8 @@ import android.content.IntentFilter;
 import com.moe.internal.Theme;
 import com.moe.internal.ToolManager;
 import android.content.SharedPreferences;
+import com.moe.webkit.WebView;
+import com.moe.webkit.WebSettings;
 
 public class MainFragment extends Fragment implements FragmentPop.OnHideListener,AddDialog.OnAddListener
 {
@@ -66,33 +67,37 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 		super.onViewCreated(view, savedInstanceState);
 	}
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		// TODO: Implement this method
+		super.onCreate(savedInstanceState);
 		hp = Sqlite.getInstance(getActivity(), HomePage.class);
 		ad = new AddDialog(getActivity());
         EventBus.getDefault().register(this);
-        super.onActivityCreated(savedInstanceState);
-		setPadding(isfull);
-        pop.setLayoutParams(new CoordinatorLayout.LayoutParams(getActivity().getWindowManager().getDefaultDisplay().getWidth(), getActivity().getWindowManager().getDefaultDisplay().getHeight()));
         //注册fragment隐藏监听
         menu.setOnHideListener(this);
         window.setOnHideListener(this);
-        //((WindowFragment)window).setViewFlipper(content);
-        menutool.setInAnimation(getActivity(), R.anim.bottom_up);
-		menutool.setOutAnimation(getActivity(), R.anim.up_up);
-        //默认启动一个空白窗口
-        openNewWindow();
 		LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(new TextQuery(), new IntentFilter("com.moe.search"));
 		ad.setOnAddLostener(this);
-		//初始化颜色
+
+	}
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState)
+    {
+		super.onActivityCreated(savedInstanceState);
+		setPadding(isfull);
+        pop.setLayoutParams(new CoordinatorLayout.LayoutParams(getActivity().getWindowManager().getDefaultDisplay().getWidth(), getActivity().getWindowManager().getDefaultDisplay().getHeight()));
+		menutool.setInAnimation(getActivity(), R.anim.bottom_up);
+		menutool.setOutAnimation(getActivity(), R.anim.up_up);
 		Theme.updateTheme(Color.parseColor(getResources().getTextArray(R.array.skin_color)[getContext().getSharedPreferences("moe", 0).getInt("color", 0)].toString()));
+		openNewWindow();
 		if (getArguments() != null)
 		{
 			String url=getArguments().getString("url");
-			if (url != null)openUrl(url);
-			else
-				LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY, getArguments().getString(SearchManager.QUERY)));
+			if (url == null)url = getArguments().getString(SearchManager.QUERY);
+			LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY, url));
 		}
 	}
 
@@ -231,6 +236,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
         WebView wv=new WebView(getActivity(), ad);
 		int index=content.getChildCount();
         content.addView(wv, index);
+		wv.stopLoading();
 		wv.loadUrl(url);
     }
 //打开一个网页窗口并跳转过去
@@ -240,6 +246,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 		int index=content.getChildCount();
         content.addView(wv, index);
 		content.setDisplayedChild(index);
+		wv.stopLoading();
 		wv.loadUrl(url);
 		return wv;
     }
@@ -288,7 +295,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
         @Override
         public void onReceive(Context p1, Intent p2)
         {
-			SharedPreferences webview=p1.getSharedPreferences("webview",0);
+			SharedPreferences webview=p1.getSharedPreferences("webview", 0);
             String text=p2.getStringExtra(SearchManager.QUERY);
 			if (text.indexOf("://") != -1 || text.indexOf(".") != -1)
 			{
@@ -297,9 +304,9 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 			}
 			else
 			{
-				if(!webview.getBoolean(WebView.Setting.PRIVATE,false))
-				Sqlite.getInstance(p1, SearchHistory.class).insertSearchHistory(text);
-				text = webview.getString("searchValue",p1.getResources().getTextArray(R.array.search_value)[0].toString()).replace("$s",text);
+				if (!webview.getBoolean(WebSettings.Setting.PRIVATE, false))
+					Sqlite.getInstance(p1, SearchHistory.class).insertSearchHistory(text);
+				text = webview.getString("searchValue", p1.getResources().getTextArray(R.array.search_value)[0].toString()).replace("$s", text);
 			}
 			openUrl(text);
 		}

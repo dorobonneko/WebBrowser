@@ -11,7 +11,6 @@ import android.widget.Toast;
 import de.greenrobot.event.EventBus;
 import com.moe.bean.WindowEvent;
 import android.view.MotionEvent;
-import com.moe.widget.WebView;
 import android.view.KeyEvent;
 import com.moe.bean.DownloadItem;
 import com.moe.utils.BitImageParser;
@@ -30,6 +29,7 @@ import android.provider.MediaStore;
 import android.content.ContentProvider;
 import android.os.Environment;
 import android.content.ContentValues;
+import com.moe.webkit.WebView;
 public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 {
 	private WebView.HitTestResult wh;
@@ -109,6 +109,13 @@ public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 			case HitTestResult.PHONE_TYPE:
 				break;
             case HitTestResult.UNKNOWN_TYPE:
+				url1.setVisibility(View.GONE);
+				url2.setVisibility(View.GONE);
+				url3.setVisibility(View.GONE);
+				img_r.setVisibility(View.GONE);
+				img_s.setVisibility(View.GONE);
+				bit.setVisibility(View.GONE);
+				pop.setHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, item_height*3, p0.getResources().getDisplayMetrics()));
 				break;
         }
 		pop.showAtLocation(p0,gravity, (int)event.getX(), (int)event.getY() - pop.getHeight() / 2);

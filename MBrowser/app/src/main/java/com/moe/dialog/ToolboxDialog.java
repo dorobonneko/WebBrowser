@@ -14,9 +14,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import com.moe.adapter.MenuAdapter;
 import android.view.View;
-import com.moe.widget.WebView;
 import de.greenrobot.event.EventBus;
 import com.moe.internal.ToolManager;
+import com.moe.webkit.WebView;
 
 public class ToolboxDialog extends android.app.Dialog implements MenuAdapter.OnItemClickListener
 {

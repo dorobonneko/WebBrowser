@@ -11,9 +11,9 @@ import java.util.List;
 import com.moe.adapter.JavaScriptAdapter;
 import com.moe.database.JavaScript;
 import com.moe.database.Sqlite;
-import com.moe.widget.WebView;
 import android.widget.Toast;
 import com.moe.internal.ToolManager;
+import com.moe.webkit.WebView;
 
 public class JavaScriptDialog implements JavaScriptAdapter.OnClickListener
 {
