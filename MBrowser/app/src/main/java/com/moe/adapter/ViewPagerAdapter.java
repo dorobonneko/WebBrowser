@@ -36,8 +36,13 @@ public ViewPagerAdapter(List list){
 	@Override
 	public void destroyItem(ViewGroup container, int position, Object object)
 	{
-		container.removeView(lv.get(position));
-		super.destroyItem(container, position, object);
+		container.removeView((View)object);
+	}
+
+	@Override
+	public void destroyItem(View container, int position, Object object)
+	{
+		destroyItem((ViewGroup)container,position,object);
 	}
 
 	@Override

@@ -23,6 +23,7 @@ public class AdBkockFragment extends PreferenceFragment implements View.OnClickL
 		view.findViewById(R.id.adblock_view_url).setOnClickListener(this);
 		view.findViewById(R.id.adblock_view_tag).setOnClickListener(this);
 		super.onViewCreated(view, savedInstanceState);
+		view.setOnClickListener(null);
 	}
 
 	@Override

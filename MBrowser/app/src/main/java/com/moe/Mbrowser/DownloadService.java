@@ -51,6 +51,7 @@ import com.moe.internal.NotificationManager;
 import com.moe.utils.LinkedListMap;
 import java.util.TimerTask;
 import java.util.Timer;
+import com.moe.net.OkHttp;
 
 public class DownloadService extends Service
 {
@@ -78,25 +79,7 @@ public class DownloadService extends Service
 		nm=new NotificationManager(this);
 		shared=getSharedPreferences("download",0);
 		EventBus.getDefault().register(this);
-		SSLContext ssl=null;
-		try
-		{
-			ssl = SSLContext.getInstance("TLS");
-			ssl.init(null, new TrustManager[]{new CustomTrustManager()}, new SecureRandom());
-		}
-		catch (NoSuchAlgorithmException e)
-		{}
-		catch (KeyManagementException e)
-		{}
-		okhttp = new OkHttpClient.Builder().sslSocketFactory(ssl.getSocketFactory()).hostnameVerifier(new HostnameVerifier(){
-
-				@Override
-				public boolean verify(String p1, SSLSession p2)
-				{
-					// TODO: Implement this method
-					return true;
-				}
-			}).connectTimeout(30,TimeUnit.SECONDS).readTimeout(30,TimeUnit.SECONDS).build();
+		okhttp=OkHttp.getOkHttp();
 		startForeground(0, new Notification());
 		EventBus.getDefault().post(this);
 		registerReceiver(new stateChange(),new IntentFilter("com.moe.notification.state"));
@@ -207,23 +190,7 @@ public class DownloadService extends Service
 		super.onDestroy();
 	}
 
-	public class CustomTrustManager implements X509TrustManager{
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] p1, String p2) throws CertificateException
-			{
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] p1, String p2) throws CertificateException
-			{}
-
-			@Override
-			public X509Certificate[] getAcceptedIssuers()
-			{
-				return new X509Certificate[0];
-			}
-		}
+	
 	class stateChange extends BroadcastReceiver
 	{
 

@@ -11,6 +11,7 @@ import android.support.v4.content.*;
 import android.app.*;
 import android.os.Handler;
 import android.os.Message;
+import com.moe.fragment.InputFragment;
 
 public class SearchHistoryAdapter extends RecyclerView.Adapter
 {
@@ -18,14 +19,14 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter
 	private SearchHistory sh;
 	private WebHistory wh;
 	private EditText et;
-	private Dialog d;
+	private InputFragment if_;
 	private List list=new ArrayList<>();
 
-	public SearchHistoryAdapter(Context context, EditText et, Dialog d)
+	public SearchHistoryAdapter(Context context, EditText et, InputFragment if_)
 	{
 		this.context = context;
 		this.et = et;
-		this.d = d;
+		this.if_ = if_;
 		sh = Sqlite.getInstance(context,SearchHistory.class);
 		wh = Sqlite.getInstance(context,WebHistory.class);
 		refresh();
@@ -154,7 +155,8 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter
 							else
 							{
 								LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY, url.getText().toString()));
-								d.dismiss();}
+								if_.getActivity().onBackPressed();
+								}
 
 						}
 					});	

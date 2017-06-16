@@ -74,7 +74,7 @@ a:active { text-decoration: none;color:#424242;} /* 选定的链接 */
 	var div=document.createElement("div");
 	//div.width="100%";
 	//div.height="310px";
-	div.style.fontSize="8px";
+	div.style.fontSize="80%";
 	var a=document.createElement("a");
 	a.href="javascript:void(0)";
 	a.value=json[i].url;
@@ -83,7 +83,7 @@ a:active { text-decoration: none;color:#424242;} /* 选定的链接 */
 	a.addEventListener("click",function(){onClick(this);});
 	//a.setAttribute("width","90px");
 	var img=document.createElement("img");
-	img.setAttribute("width","42px");
+	img.setAttribute("width","65%");
 	img.src=moe.getIcon(json[i].title);
 	a.appendChild(div);
 	div.appendChild(img);
@@ -101,8 +101,8 @@ a:active { text-decoration: none;color:#424242;} /* 选定的链接 */
   
 </head>
 
-<body style="width:360px;margin:0 auto;background-color:#fff;"> 
-<div style="height:31px;text-align:center;"><!------顶部占位-------></div>
+<body style="width:device-width;margin:0 auto;text-align:center;background-color:#fff;"> 
+<div style="height:31px;"><!------顶部占位-------></div>
 <!--<div id="1" style="width:360px;height:110px;"/>-->
 
   <table id="table" style="table-layout:fixed;" cellspacing="10px" width="100%" >
@@ -111,16 +111,11 @@ a:active { text-decoration: none;color:#424242;} /* 选定的链接 */
 
 
 
-<div id="001" style="width:360;height:24px;"></div>
+<div style="height:24px;"></div>
+
 <a href="javascript:void(0);">
-<div id="002" style="width:360px;height:42px;background-color:#fff;">
-<div id="003" style="width:360;height:9px;"></div>
-<div id="004" style="width:260px;height:24px;background-color:rgb(250,250,250);margin-left:50px;border-radius:80px;">
-<div id="005" style="height:7px;"></div>
-<div id="006" style="text-align:center;font-size:10px;">
+<div style="width:70%;height:28px;margin:auto;font-size:80%;border-radius:80px;background-color:rgb(250,250,250);line-height:28px;">
 <font color="#888888">Browser</font>
-</div>
-</div>
 </div>
 </a>
 </body>

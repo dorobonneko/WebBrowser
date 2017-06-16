@@ -78,6 +78,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	private Bookmark folder;
 	private ViewFlipper toolbar;
 	private BookmarkEditFragment bef;
+	private int viewPagerIndex=0;
 	public void delete(int index)
 	{
 		bm.delete(bookmark_data.remove(index));
@@ -99,7 +100,10 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 
 	public void setCurrent(int p0)
 	{
+		if(vp!=null)
 		vp.setCurrentItem(p0);
+		else
+		viewPagerIndex=p0;
 	}
 	public void sendToHomepage(boolean isBookmark, int index)
 	{
@@ -196,9 +200,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		bookmark.setOnItemLongClickListener(this);
 		pbm = new PopupBookmarkMenu(this);
 		sthd = new SendToHomepageDialog(this);
-		Bundle b=getArguments();
-		if (b != null && b.getInt("index") == 1)
-			vp.setCurrentItem(1);
+		vp.setCurrentItem(viewPagerIndex);
 	}
 
 	@Override

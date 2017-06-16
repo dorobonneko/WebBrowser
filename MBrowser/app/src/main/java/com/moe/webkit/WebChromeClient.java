@@ -113,7 +113,7 @@ public class WebChromeClient extends WebChromeClient
 	@Override
 	public void onReceivedTitle(final android.webkit.WebView p1, final String p2)
 	{
-		if (wv.getListener() != null)wv.getListener().onReceiverTitle(p2);
+		if (wv.getListener() != null)wv.getListener().onReceiverTitle(wv,p2);
 		if (!wv.getSharedPreferences().getBoolean(WebSettings.Setting.PRIVATE, false))
 		{
 			final String url=p1.getUrl();
@@ -175,7 +175,7 @@ public class WebChromeClient extends WebChromeClient
 	@Override
 	public void onProgressChanged(android.webkit.WebView p1, int p2)
 	{
-		if (wv.getListener() != null)wv.getListener().onProgress(p2);
+		if (wv.getListener() != null)wv.getListener().onProgress(wv,p2);
 		if (wv.getTag(R.id.webview_adblock)!= null)
 			for (String js:wv.getTag(R.id.webview_adblock).toString().split(","))
 			{

@@ -1,6 +1,5 @@
 package com.moe.internal;
 import android.view.View;
-import com.moe.dialog.SearchDialog;
 import android.widget.TextView;
 import com.moe.widget.ProgressBar;
 import android.widget.ImageButton;
@@ -31,13 +30,13 @@ import com.moe.database.Sqlite;
 import com.moe.utils.ImageDraw;
 import android.app.Service;
 import android.os.Build;
-import com.moe.webkit.WebView;
+import com.moe.webkit.WebViewManagerView;
+import android.webkit.WebView;
 
-public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeListener,WebView.OnStateListener,TextWatcher,WebView.FindListener,View.OnLongClickListener
+public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeListener,WebViewManagerView.OnStateListener,TextWatcher,WebView.FindListener,View.OnLongClickListener
 {
 
 	private int index=0;
-	private SearchDialog search;
 	private TextView title;
 	private ProgressBar pb;
 	private ImageButton back,forward,home,win,menu;
@@ -57,7 +56,6 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	private InputMethodManager imm;
 	private ToolManager(View v){
 		imm=(InputMethodManager)v.getContext().getSystemService(Service.INPUT_METHOD_SERVICE);
-		search=new SearchDialog(v.getContext());
 		bm=Sqlite.getInstance(v.getContext(),BookMarks.class);
 		toolbar = v.findViewById(R.id.mainview_searchbar);
         toolbar.setOnClickListener(this);
@@ -134,9 +132,9 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	public void afterTextChanged(Editable p1)
 	{
 		if(Build.VERSION.SDK_INT>15)
-		((WebView)content.getCurrentView()).findAllAsync(p1.toString());
+		((WebViewManagerView)content.getCurrentView()).findAllAsync(p1.toString());
 		else
-		findCount.setText("0/"+((WebView)content.getCurrentView()).findAll(p1.toString()));
+		findCount.setText("0/"+((WebViewManagerView)content.getCurrentView()).findAll(p1.toString()));
 		
 	}
 
@@ -179,7 +177,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		if(Build.VERSION.SDK_INT<16)return;
 		if(toggle){
 			findToggle.setDisplayedChild(1);
-			((WebView)content.getCurrentView()).setFindListener(this);
+			((WebViewManagerView)content.getCurrentView()).setFindListener(this);
 			findKey.setText(null);
 			active=0;
 			count=0;
@@ -188,15 +186,15 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 			}
 			else{
 			findToggle.setDisplayedChild(0);
-				((WebView)content.getCurrentView()).setFindListener(null);
-				((WebView)content.getCurrentView()).clearMatches();
+				((WebViewManagerView)content.getCurrentView()).setFindListener(null);
+				((WebViewManagerView)content.getCurrentView()).clearMatches();
 				findCount.setText(null);
 			}
 	}
 	
 	public void refresh()
 	{
-		((WebView)content.getCurrentView()).reload();
+		((WebViewManagerView)content.getCurrentView()).reload();
 	}
 
 	public static void destroy()
@@ -220,8 +218,8 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 				// String url="";
 				EventBus.getDefault().post(MenuFragment.HIDE);
 				EventBus.getDefault().post(WindowFragment.CLOSE);
-				search.show(((WebView)content.getCurrentView()).getUrl());
-                //搜索
+				EventBus.getDefault().post(MenuOptions.SEARCH);
+				//搜索
                 break;
             case R.id.mainview_bar_menu:
 				checkToggle();
@@ -242,23 +240,26 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
             case R.id.mainview_bar_pre:
 				checkToggle();
                 EventBus.getDefault().post(WindowFragment.CLOSE);
-               final  WebView wv=((WebView)content.getCurrentView());
+               final  WebViewManagerView wv=((WebViewManagerView)content.getCurrentView());
 			   if(wv.canGoBack())
 				   wv.goBack();
 				   else if(content.getChildCount()>1)
 				content.removeViewAt(content.getDisplayedChild());
-                break;
+               //checkButtonState(wv);
+				break;
             case R.id.mainview_bar_next:
-				checkToggle();
                 EventBus.getDefault().post(WindowFragment.CLOSE);
-                ((WebView)content.getCurrentView()).goForward();
+                WebViewManagerView wvmv=((WebViewManagerView)content.getCurrentView());
+				wvmv.goForward();
+				checkToggle();
+				//checkButtonState(wvmv);
                 break;
             case R.id.mainview_bar_win:
 				checkToggle();
                 EventBus.getDefault().post(WindowFragment.OPEN);
                 break;
 			case R.id.mainview_refresh:
-				final WebView wvv=(WebView)content.getCurrentView();
+				final WebViewManagerView wvv=(WebViewManagerView)content.getCurrentView();
 				if(wvv.getState())
 					wvv.stopLoading();
 					else
@@ -299,11 +300,11 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 				break;
 			case R.id.main_view_finddown:
 				if(canNext())
-				((WebView)content.getCurrentView()).findNext(true);
+				((WebViewManagerView)content.getCurrentView()).findNext(true);
 				break;
 			case R.id.main_view_findup:
 				if(canForward())
-				((WebView)content.getCurrentView()).findNext(false);
+				((WebViewManagerView)content.getCurrentView()).findNext(false);
 				break;
 			case R.id.mainview_bitImageScanner:
 				EventBus.getDefault().post(MenuOptions.BITIMAGESCANNER);
@@ -315,7 +316,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 			findToggle(false);
 	}
 	@Override
-	public void onAdd(WebView vf, int index)
+	public void onAdd(WebViewManagerView vf, int index)
 	{
 		win.setImageBitmap(ImageDraw.squareImage(content.getChildCount()));
 	}
@@ -331,9 +332,9 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	@Override
 	public void onToggle(int index)
 	{
-		WebView wv=(WebView)content.getCurrentView();
+		WebViewManagerView wv=(WebViewManagerView)content.getCurrentView();
 		if(wv!=null)wv.setOnStateListener(null);
-		wv=(WebView)content.getChildAt(index);
+		wv=(WebViewManagerView)content.getChildAt(index);
 		if(wv==null)return;
 		title.setText(wv.getTitle());
 		if(wv.getState()){
@@ -375,7 +376,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		refresh.setImageResource(R.drawable.menu_refresh);
 		this.title.setText(title);
 		pb.setVisibility(pb.GONE);
-		checkButtonState((WebView)content.getCurrentView());
+		checkButtonState((WebViewManagerView)content.getCurrentView());
 		EventBus.getDefault().post(Message.obitMessage(0,index));
 		
 	}
@@ -385,10 +386,26 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	{
 		this.title.setText(title);
 		EventBus.getDefault().post(Message.obitMessage(0,index));
-		checkButtonState((WebView)content.getCurrentView());
+		checkButtonState((WebViewManagerView)content.getCurrentView());
 	}
+
+	@Override
+	public void onLoad(WebViewManagerView wvmv)
+	{
+		checkButtonState(wvmv);
+		title.setText(wvmv.getCurrent().getTitle());
+		if(wvmv.getState()){
+			pb.setVisibility(pb.VISIBLE);
+			pb.setProgress(wvmv.getProgress());
+			refresh.setImageResource(R.drawable.ic_close);
+		}else{
+			pb.setVisibility(pb.GONE);
+			refresh.setImageResource(R.drawable.menu_refresh);
+		}
+	}
+
 	
-	public void checkButtonState(WebView wv){
+	public void checkButtonState(WebViewManagerView wv){
 		if(wv.canGoBack())
 			back.setImageResource(R.drawable.bar_back);
 			else if(content.getChildCount()>1)

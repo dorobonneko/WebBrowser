@@ -25,7 +25,7 @@ import com.moe.internal.CustomDecoration;
 import com.moe.internal.Theme;
 import com.moe.internal.ToolManager;
 import android.widget.ImageView;
-import com.moe.webkit.WebView;
+import com.moe.webkit.WebViewManagerView;
 import com.moe.webkit.WebSettings;
 
 public class WindowFragment extends FragmentPop implements WinListAdapter.OnItemClickListener,
@@ -41,7 +41,7 @@ ViewFlipper.OnChangeListener
 	private SharedPreferences webview;
    
 	@Override
-    public void onAdd(WebView vf, int index)
+    public void onAdd(WebViewManagerView vf, int index)
     {
 		if (wla != null)
 			wla.notifyItemInserted(index);

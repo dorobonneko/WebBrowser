@@ -25,8 +25,9 @@ import android.content.IntentFilter;
 import com.moe.internal.Theme;
 import com.moe.internal.ToolManager;
 import android.content.SharedPreferences;
-import com.moe.webkit.WebView;
+import com.moe.webkit.WebViewManagerView;
 import com.moe.webkit.WebSettings;
+import android.webkit.WebView;
 
 public class MainFragment extends Fragment implements FragmentPop.OnHideListener,AddDialog.OnAddListener
 {
@@ -87,8 +88,9 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     public void onActivityCreated(Bundle savedInstanceState)
     {
 		super.onActivityCreated(savedInstanceState);
-		setPadding(isfull);
-        pop.setLayoutParams(new CoordinatorLayout.LayoutParams(getActivity().getWindowManager().getDefaultDisplay().getWidth(), getActivity().getWindowManager().getDefaultDisplay().getHeight()));
+		//setPadding(isfull);
+		pop.setPadding(0, 0, 0, (int)getResources().getDimension(R.dimen.actionBarSize));
+        //pop.setLayoutParams(new CoordinatorLayout.LayoutParams(getActivity().getWindowManager().getDefaultDisplay().getWidth(), getActivity().getWindowManager().getDefaultDisplay().getHeight()));
 		menutool.setInAnimation(getActivity(), R.anim.bottom_up);
 		menutool.setOutAnimation(getActivity(), R.anim.up_up);
 		Theme.updateTheme(Color.parseColor(getResources().getTextArray(R.array.skin_color)[getContext().getSharedPreferences("moe", 0).getInt("color", 0)].toString()));
@@ -105,7 +107,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 	public void onAdd(String url, String title, String dir)
 	{
 		hp.insertItem(url, title);
-		((WebView)content.getCurrentView()).reload();
+		((WebViewManagerView)content.getCurrentView()).reload();
 	}
 
 
@@ -124,7 +126,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 				openNewWindow(event.obj.toString());
 				break;
 			case event.WHAT_JS_NEW_WINDOW:
-				((WebView.WebViewTransport)((Message)event.obj).obj).setWebView(openNewWindow());
+				((WebView.WebViewTransport)((Message)event.obj).obj).setWebView(openNewWindow().getCurrent());
 				((Message)event.obj).sendToTarget();
 				break;
 			case event.WHAT_TOGGLE_WINDOW:
@@ -134,11 +136,11 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 				openUrl(event.obj.toString());
 				break;
 			case event.WHAT_JS_CLOSE_WINDOW:
-				content.removeView((WebView)event.obj);
+				content.removeView((WebViewManagerView)event.obj);
 				break;
 			case event.WHAT_DATA_NEW_WINDOW:
-				WebView wv=new WebView(getActivity(), ad);
-				wv.loadDataWithBaseURL(((WebView)content.getCurrentView()).getUrl(), event.obj.toString(), "text/plain", "utf-8", "");
+				WebViewManagerView wv=new WebViewManagerView(getActivity(), ad);
+				wv.loadDataWithBaseURL(((WebViewManagerView)content.getCurrentView()).getUrl(), event.obj.toString(), "text/plain", "utf-8", "");
 				int index=content.getChildCount();
 				content.addView(wv, index);
 				content.setDisplayedChild(index);				
@@ -194,7 +196,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 				menutool.setDisplayedChild(0);
 				break;
 			case ToolManager.HOME:
-				((WebView)content.getCurrentView()).goHome();
+				((WebViewManagerView)content.getCurrentView()).goHome();
 				break;
 		}
 	}
@@ -228,21 +230,21 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     //当前窗口打开url
     public void openUrl(String url)
     {
-		((WebView)content.getCurrentView()).loadUrl(url.trim());
+		((WebViewManagerView)content.getCurrentView()).loadUrl(url.trim());
     }
     //后台打开一个网页窗口
     public void openNewWindowInBackground(String url)
     {
-        WebView wv=new WebView(getActivity(), ad);
+        WebViewManagerView wv=new WebViewManagerView(getActivity(), ad);
 		int index=content.getChildCount();
         content.addView(wv, index);
 		wv.stopLoading();
 		wv.loadUrl(url);
     }
 //打开一个网页窗口并跳转过去
-    public WebView openNewWindow(String url)
+    public WebViewManagerView openNewWindow(String url)
     {
-        WebView wv=new WebView(getActivity(), ad);
+        WebViewManagerView wv=new WebViewManagerView(getActivity(), ad);
 		int index=content.getChildCount();
         content.addView(wv, index);
 		content.setDisplayedChild(index);
@@ -251,9 +253,9 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 		return wv;
     }
 //打开一个空白窗口并跳转过去
-    public WebView openNewWindow()
+    public WebViewManagerView openNewWindow()
     {
-        WebView wv=new WebView(getActivity(), ad);
+        WebViewManagerView wv=new WebViewManagerView(getActivity(), ad);
 		int index=content.getChildCount();
         content.addView(wv, index);
 		content.setDisplayedChild(index);
@@ -272,8 +274,8 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     public boolean onBackPressed()
     {
         if (!hidePop())
-            if (((WebView)content.getCurrentView()).canGoBack())
-            {  ((WebView)content.getCurrentView()).goBack();
+            if (((WebViewManagerView)content.getCurrentView()).canGoBack())
+            {  ((WebViewManagerView)content.getCurrentView()).goBack();
 				return true;
             }
 			else if (content.getChildCount() > 1)

@@ -141,10 +141,11 @@ class DataBase extends SQLiteOpenHelper implements SearchHistory,WebHistory,Blac
 		state.releaseReference();
 		if (!flag)
 		{
-			state = sql.compileStatement("update webhistory set time=? where url=?");
+			state = sql.compileStatement("update webhistory set time=?,title=? where url=?");
 			state.acquireReference();
 			state.bindLong(1, System.currentTimeMillis());
-			state.bindString(2, url);
+			state.bindString(2,title);
+			state.bindString(3, url);
 			state.executeUpdateDelete();
 			state.close();
 			state.releaseReference();

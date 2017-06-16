@@ -15,7 +15,7 @@ import com.moe.bean.*;
 import com.moe.fragment.*;
 import com.moe.widget.*;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import com.moe.webkit.WebView;
+import com.moe.webkit.WebViewManagerView;
 
 public class WinListAdapter extends RecyclerView.Adapter<WinListAdapter.ViewHolder>
 {
@@ -47,9 +47,9 @@ public class WinListAdapter extends RecyclerView.Adapter<WinListAdapter.ViewHold
             vh.itemView.setBackgroundResource(R.drawable.win_item_selected);
 		else
 			vh.itemView.setBackgroundResource(R.drawable.win_item_normal);
-		vh.setTitle(((WebView)vf.getChildAt(p2)).getTitle());
-		vh.setUrl(((WebView)vf.getChildAt(p2)).getUrl());
-		vh.state.setState(((WebView)vf.getChildAt(p2)).getState());
+		vh.setTitle(((WebViewManagerView)vf.getChildAt(p2)).getTitle());
+		vh.setUrl(((WebViewManagerView)vf.getChildAt(p2)).getUrl());
+		vh.state.setState(((WebViewManagerView)vf.getChildAt(p2)).getState());
     }
 
     @Override

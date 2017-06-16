@@ -11,7 +11,7 @@ import com.moe.bean.WindowEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import com.moe.fragment.WindowFragment;
-import com.moe.webkit.WebView;
+import com.moe.webkit.WebViewManagerView;
 
 
 public class ViewFlipper extends ViewFlipper
@@ -40,13 +40,13 @@ public class ViewFlipper extends ViewFlipper
 		super.addView(child, index);
           Iterator<OnChangeListener> i=ocl.iterator();
 		  while(i.hasNext())
-            i.next().onAdd((WebView)child, index);
+            i.next().onAdd((WebViewManagerView)child, index);
     }
 
     @Override
     public void removeViewAt(int index)
     {
-		((WebView)getChildAt(index)).destroy();
+		((WebViewManagerView)getChildAt(index)).destroy();
 		super.removeViewAt(index);
 		Iterator<OnChangeListener> i=ocl.iterator();
 		while(i.hasNext())
@@ -68,7 +68,7 @@ public class ViewFlipper extends ViewFlipper
     }
     public abstract interface OnChangeListener
 	{
-        void onAdd(WebView vf, int index);
+        void onAdd(WebViewManagerView vf, int index);
         void onRemove(int index);
         void onToggle(int index);
     }

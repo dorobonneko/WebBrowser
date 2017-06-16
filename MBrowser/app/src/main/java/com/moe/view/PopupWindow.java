@@ -29,7 +29,8 @@ import android.provider.MediaStore;
 import android.content.ContentProvider;
 import android.os.Environment;
 import android.content.ContentValues;
-import com.moe.webkit.WebView;
+import com.moe.webkit.WebViewManagerView;
+import android.webkit.WebView;
 public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 {
 	private WebView.HitTestResult wh;
@@ -39,7 +40,7 @@ public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 	private Context context;
 	private View url1,url2,url3,img_r,img_s,bit;
 	private int item_height=32;
-	private WebView wv=null;
+	private WebViewManagerView wv=null;
 	private MotionEvent event;
 	private PopupWindow(Context c){
 		this.context=c;
@@ -70,11 +71,11 @@ public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 		v.findViewById(R.id.popupmenu_shareWebPage).setOnClickListener(this);
 	}
 
-	public void showAtLocation(WebView p0, int gravity, MotionEvent event)
+	public void showAtLocation(WebViewManagerView p0, int gravity, MotionEvent event)
 	{
 		this.wv=p0;
 		this.event=event;
-		wh=wv.getHitTestResult();
+		wh=wv.getCurrent().getHitTestResult();
 		switch (wh.getType())
 		{
             case HitTestResult.ANCHOR_TYPE:
@@ -150,8 +151,8 @@ public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 				float x;
 				float y;
 				
-					x=event.getX()/wv.getScale();
-					y=event.getY()/wv.getScale();
+					x=event.getX()/wv.getCurrent().getScale();
+					y=event.getY()/wv.getCurrent().getScale();
 					wv.loadUrl("javascript:function get(dom){if(dom.getAttribute('id')==''||dom.getAttribute('id')==undefined){if(dom.getAttribute('class')==''||dom.getAttribute('class')==undefined){get(dom.parentNode);}else{moe.getElement(dom.tagName,dom.getAttribute('id'),dom.getAttribute('class'));}}else{ moe.getElement(dom.tagName,dom.getAttribute('id'),dom.getAttribute('class'));}}get(document.elementFromPoint("+x+","+y+"));");
 				break;
 			case R.id.popupmenu_bitImage://二维码识别

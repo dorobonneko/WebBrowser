@@ -16,7 +16,8 @@ import com.moe.adapter.MenuAdapter;
 import android.view.View;
 import de.greenrobot.event.EventBus;
 import com.moe.internal.ToolManager;
-import com.moe.webkit.WebView;
+import com.moe.webkit.WebViewManagerView;
+import com.moe.bean.MenuOptions;
 
 public class ToolboxDialog extends android.app.Dialog implements MenuAdapter.OnItemClickListener
 {
@@ -63,20 +64,22 @@ public class ToolboxDialog extends android.app.Dialog implements MenuAdapter.OnI
 				ToolManager.getInstance().findToggle(true);
 				break;
 			case R.id.toolbox_webpageSave:
-				((WebView)ToolManager.getInstance().getContent().getCurrentView()).saveWebArchive();
+				((WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView()).saveWebArchive();
 				break;
 			case R.id.toolbox_videoFind:
-				((WebView)ToolManager.getInstance().getContent().getCurrentView()).videoFind();
+				((WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView()).videoFind();
 				break;
 			case R.id.toolbox_webSource:
-				((WebView)ToolManager.getInstance().getContent().getCurrentView()).watchSource();
+				((WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView()).watchSource();
 				break;
 			case R.id.toolbox_javascript:
 				EventBus.getDefault().post(JavaScriptDialog.SHOW);
 				break;
 			case R.id.toolbox_stop:
-				((WebView)ToolManager.getInstance().getContent().getCurrentView()).blockUrl();
-				
+				((WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView()).blockUrl();
+				break;
+			case R.id.toolbox_network_log:
+				EventBus.getDefault().post(MenuOptions.NETWORKLOG);
 				break;
 		}
 		dismiss();

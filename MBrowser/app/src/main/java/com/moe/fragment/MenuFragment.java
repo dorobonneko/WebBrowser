@@ -31,7 +31,7 @@ import com.moe.entity.Bookmark;
 import com.moe.database.BookMarks;
 import com.moe.database.Sqlite;
 import com.moe.internal.ToolManager;
-import com.moe.webkit.WebView;
+import com.moe.webkit.WebViewManagerView;
 import com.moe.webkit.WebSettings;
 
 public class MenuFragment extends FragmentPop implements MenuAdapter.OnItemClickListener
@@ -78,6 +78,7 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 		updateNightMode();
 		updateDesktopMode();
 		updateGps();
+		updateScale();
     }
 
 	@Override
@@ -130,7 +131,7 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 				EventBus.getDefault().post(SHUTDOWN);
 				break;
 			case R.id.menu_bookmark_plus:
-				final WebView wv=(WebView)ToolManager.getInstance().getContent().getCurrentView();
+				final WebViewManagerView wv=(WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView();
 				Bookmark b=new Bookmark();
 				b.setParent(Sqlite.getInstance(getContext(),BookMarks.class).getRoot().getPath());
 				b.setTitle(wv.getTitle());
@@ -145,7 +146,12 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 				EventBus.getDefault().post(HIDE);
 				break;
 			case R.id.menu_videofullscreen:
-				((WebView)ToolManager.getInstance().getContent().getCurrentView()).loadUrl("javascript:var video=document.querySelector('video');if(video)video.webkitRequestFullscreen();else{video=document.querySelector('iframe');if(video)video.webkitRequestFullscreen();};");
+				((WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView()).loadUrl("javascript:var video=document.querySelector('video');if(video)video.webkitRequestFullscreen();else{video=document.querySelector('iframe');if(video)video.webkitRequestFullscreen();};");
+				EventBus.getDefault().post(HIDE);
+				break;
+			case R.id.menu_forceScale:
+				webview.edit().putBoolean(WebSettings.Setting.FORCESCALE,!webview.getBoolean(WebSettings.Setting.FORCESCALE,false)).commit();
+				updateScale();
 				EventBus.getDefault().post(HIDE);
 				break;
 			default:
@@ -155,6 +161,15 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 		}
 		
 	}
+private void updateScale(){
+	MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(1)).getAdapter());
+	MenuItem mi=ma.get(2);
+	if(webview.getBoolean(WebSettings.Setting.FORCESCALE,false)){
+		mi.setColor(R.color.accent);
+		}else{
+		mi.setColor(R.color.textColor);
+	}ma.notifyItemChanged(2);
+}
 private void updateFull(){
 	MenuAdapter ma=((MenuAdapter)((RecyclerView)av.get(0)).getAdapter());
 	MenuItem mi=ma.get(2);

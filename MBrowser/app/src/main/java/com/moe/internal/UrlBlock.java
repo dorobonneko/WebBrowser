@@ -26,7 +26,7 @@ public boolean isExists(String url)
 	List<Pattern> ls=video.values();
 	for(int i=0;i<ls.size();i++)
 	//while(s.matcher(url).lookingAt())return true;
-	while(ls.get(i).matcher(url).find())
+	if(ls.get(i).matcher(url).find())
 		return true;
 	return false;
 }

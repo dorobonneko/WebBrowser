@@ -22,6 +22,16 @@ import com.moe.database.AdBlockDatabase;
 import java.net.MalformedURLException;
 import java.net.URL;
 import com.moe.Mbrowser.R;
+import java.util.Map;
+import java.io.ByteArrayInputStream;
+import java.net.URLConnection;
+import android.webkit.CookieManager;
+import com.moe.fragment.NetworkLogFragment;
+import com.moe.utils.MediaUtils;
+import javax.net.ssl.HttpsURLConnection;
+import java.net.HttpURLConnection;
+import com.moe.net.OkHttp;
+
 
 public class WebViewClient extends WebViewClient
 {
@@ -31,19 +41,32 @@ public class WebViewClient extends WebViewClient
 	private JavaScript javaScript;
 	private UrlBlock urlBlock;
 	private AdBlockDatabase adb;
-	public WebViewClient(final WebView wv,List<String> video,List<String> block){
-		this.wv=wv;
-		this.video=video;
-		this.block=block;
-		javaScript=Sqlite.getInstance(wv.getContext(), JavaScript.class);
-		bl=Sqlite.getInstance(wv.getContext(),BlackList.class);
-		adb=Sqlite.getInstance(wv.getContext(),AdBlockDatabase.class);
+	private WebViewManagerView wvmv;
+	public WebViewClient(final WebView wv,WebViewManagerView wvmv)
+	{
+		this.wv = wv;
+		this.wvmv=wvmv;
+		this.video = wv.getVideo();
+		this.block = wv.getBlock();
+		javaScript = Sqlite.getInstance(wv.getContext(), JavaScript.class);
+		bl = Sqlite.getInstance(wv.getContext(), BlackList.class);
+		adb = Sqlite.getInstance(wv.getContext(), AdBlockDatabase.class);
 		new Thread(){
 			public void run()
 			{
 				urlBlock = UrlBlock.getInstance(wv.getContext());
 			}
 		}.start();
+	}
+	private List<String> getType(NetworkLogFragment.Type type)
+	{
+		List<String> ls=wv.getNetworkLog().getKey(type);
+		if (ls == null)
+		{
+			ls = new ArrayList<>();
+			wv.getNetworkLog().put(type, ls);
+		}
+		return ls;
 	}
 	private void urlParse(String url)
 	{
@@ -86,15 +109,26 @@ public class WebViewClient extends WebViewClient
 	@Override
 	public boolean shouldOverrideUrlLoading(android.webkit.WebView p1, String url)
 	{
-		switch (Uri.parse(url).getScheme())
+		Uri uri=Uri.parse(url);
+		switch (uri.getScheme())
 		{
 			case "http":
 			case "https":
 			case "file":
 			case "content":
-				return super.shouldOverrideUrlLoading(p1, url);
+				try{
+				String path=uri.getPath();
+				int index=path.indexOf("?");
+				if(index!=-1)path=path.substring(0,index);
+				if(wv.getUrl().indexOf(path)==-1){
+				WebView webview=new WebView(wvmv);
+				webview.loadUrl(url);
+				wvmv.addWebView(webview);
+				return true;}
+				}catch(Exception e){}
+				return super.shouldOverrideUrlLoading(p1,url);
 			case "moe":
-				wv.getHomePageAdd().show();
+				wvmv.getHomePageAdd().show();
 				break;
 			default:
 				urlParse(url);
@@ -124,7 +158,7 @@ public class WebViewClient extends WebViewClient
 			case "content":
 				break;
 			case "moe":
-				wv.getHomePageAdd().show();
+				wvmv.getHomePageAdd().show();
 				break;
 			default:
 				urlParse(url);
@@ -151,41 +185,69 @@ public class WebViewClient extends WebViewClient
 		if (host != null)
 		{
 			javascript = javaScript.getAllScript(host);
-			wv.setTag(R.id.webview_adblock,adb.getData(host));
-			}
+			wv.setTag(R.id.webview_adblock, adb.getData(host));
+		}
 		if (wv.getListener() != null)
-			wv.getListener().onStart(p2);
+			wv.getListener().onStart(wv,p2);
+		//加载自动执行的脚本和广告拦截数据
 		video.clear();
 		block.clear();
-		//加载自动执行的脚本和广告拦截数据
+		wv.getNetworkLog().clear();
+
 	}
 
 	@Override
 	public void onPageFinished(android.webkit.WebView p1, String p2)
 	{
 		if (wv.getListener() != null)
-			wv.getListener().onEnd(p2, p1.getTitle());		
+			wv.getListener().onEnd(wv,p2, p1.getTitle());		
 		try
 		{
-			inith5Video(new URL(p2));
+			URL url=new URL(p2);
+			inith5Video(url);
 		}
 		catch (MalformedURLException e)
 		{}
 		if (javascript != null)
 			for (String js:javascript)
 				p1.loadUrl(js);
+		if (wv.getSharedPreferences().getBoolean(WebSettings.Setting.FORCESCALE, false))
+			p1.loadUrl("javascript:var meta=document.querySelector('meta[name=viewport]');if(meta)meta.setAttribute('content','width=device-width');");
+
 	}
 
 	@Override
-	public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, String url)
+	public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, final String url)
 	{
 		switch (Uri.parse(url).getScheme())
 		{
 			case "http":
 			case "https":
-				if (urlBlock==null|| !urlBlock.isExists(url))
+				if (urlBlock == null || !urlBlock.isExists(url))
+				{
+					new Thread(){
+						public void run()
+						{
+							if (MediaUtils.isFormat(url, MediaUtils.Type.AUDIO))
+								getType(NetworkLogFragment.Type.AUDIO).add(url);
+							else if (MediaUtils.isFormat(url, MediaUtils.Type.CSS))
+								getType(NetworkLogFragment.Type.CSS).add(url);
+							else if (MediaUtils.isFormat(url, MediaUtils.Type.JS))
+								getType(NetworkLogFragment.Type.JS).add(url);
+							else if (MediaUtils.isFormat(url, MediaUtils.Type.VIDEO))
+								getType(NetworkLogFragment.Type.VIDEO).add(url);
+							else if (MediaUtils.isFormat(url, MediaUtils.Type.IMAGE))
+								getType(NetworkLogFragment.Type.IMAGE).add(url);
+							else getType(NetworkLogFragment.Type.OTHER).add(url);
+
+						}
+					}.start();
 					return super.shouldInterceptRequest(view, url);
+				}
 				break;
+			case "file":
+			case "content":
+				return null;
 			default:break;
 		}
 		block.add(url);
@@ -195,47 +257,88 @@ public class WebViewClient extends WebViewClient
 
 
 	@Override
-	public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, final WebResourceRequest p2)
+	public WebResourceResponse shouldInterceptRequest(final android.webkit.WebView view, final WebResourceRequest p2)
 	{
-		if(urlBlock==null)return null;
-		final String url=p2.getUrl().toString();
-		switch (p2.getUrl().getScheme())
+		if (urlBlock == null)return null;
+		try
 		{
-			case "http":
-			case "https":
-				if (!urlBlock.isExists(url))
-				{
-					new Thread(){
-						public void run(){
-							synchronized(video){
-								String data=p2.getRequestHeaders().get("Accept");
-								if ((data != null && data.indexOf("video/") != -1) || p2.getRequestHeaders().get("Range") != null)
+			final String url=p2.getUrl().toString();
+			final String mimeType=p2.getRequestHeaders().get("Accept");
+			switch (p2.getUrl().getScheme())
+			{
+				case "http":
+				case "https":
+					if (!urlBlock.isExists(url))
+					{
+						new Thread(){
+							public void run()
+							{
+								if (mimeType == null)
+									getType(NetworkLogFragment.Type.OTHER).add(url);
+								else
 								{
-									video.add(url);
+									if (mimeType.indexOf("audio/") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.AUDIO))
+										getType(NetworkLogFragment.Type.AUDIO).add(url);
+									else if (mimeType.indexOf("text/css") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.CSS))
+										getType(NetworkLogFragment.Type.CSS).add(url);
+									else if (mimeType.indexOf("text/javascript") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.JS))
+										getType(NetworkLogFragment.Type.JS).add(url);
+									else if (mimeType.indexOf("video/") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.VIDEO))
+										getType(NetworkLogFragment.Type.VIDEO).add(url);
+									else if (mimeType.indexOf("image/") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.IMAGE))
+										getType(NetworkLogFragment.Type.IMAGE).add(url);
+									else getType(NetworkLogFragment.Type.OTHER).add(url);
+								}
+								synchronized (video)
+								{
+									if ((mimeType != null && mimeType.indexOf("video/") != -1) || p2.getRequestHeaders().get("Range") != null)
+									{
+										video.add(url);
+									}
 								}
 							}
+						}.start();
+						if (mimeType.matches(".*text/html.*")&&p2.getUrl().getHost().matches("(?i)^(?:pan|wangpan|yun).baidu.com$")){
+								HttpURLConnection huc=(HttpURLConnection)new URL(p2.getUrl().toString()).openConnection();
+							for (String key:p2.getRequestHeaders().keySet())
+									{
+										huc.addRequestProperty(key, p2.getRequestHeaders().get(key));
+									}
+									huc.addRequestProperty("Cookie", CookieManager.getInstance().getCookie(p2.getUrl().toString()));
+									huc.setRequestProperty("User-Agent","Mozilla/5.0 (NokiaN81;)");
+									if(huc instanceof HttpsURLConnection)
+										((HttpsURLConnection)huc).setSSLSocketFactory(OkHttp.getSslSocketFactory());
+									if (huc.getResponseCode()== 200)
+										return new WebResourceResponse("text/html", "utf-8", huc.getInputStream());
 						}
-					}.start();
-
-					return null;
-				}
-				break;
-			default:break;
-		}
-		wv.post(new Runnable(){
-
-				@Override
-				public void run()
-				{
-					synchronized(block){
-						urlParse(url);
-						block.add(url);
+						return null;
 					}
-				}
-			});
-		WebResourceResponse wr=new WebResourceResponse("*/*", "unicode", null);
-		wr.setStatusCodeAndReasonPhrase(403, "HTTP/1.1 403");
-		return wr;
+					break;
+				case "file":
+				case "content":
+					return null;
+				default:break;
+			}
+			wv.post(new Runnable(){
+
+					@Override
+					public void run()
+					{
+						synchronized (block)
+						{
+							urlParse(url);
+							block.add(url);
+						}
+					}
+				});
+
+			WebResourceResponse wr=new WebResourceResponse(mimeType == null ?"*/*": mimeType, "utf-8", null);
+			wr.setStatusCodeAndReasonPhrase(403, "HTTP/1.1 403");
+			return wr;
+		}
+		catch (Exception E)
+		{}
+		return null;
 	}
 	@Override
 	public void onLoadResource(final android.webkit.WebView view, final String url)
@@ -254,19 +357,19 @@ public class WebViewClient extends WebViewClient
 					{}
 				}
 			});
-		
+
 	}
 	public void inith5Video(URL url)
 	{
 		switch (url.getHost())
 		{
 			case "live.bilibili.com":
-				wv.loadUrl("javascript:var video=document.querySelector('video');if(video)video.addEventListener('canplay',function(){"+
-				"var button=document.querySelector('.playwrap').lastChild;"+
-				"button.onclick=function(){"+
-				"if(this.id=='bind'){moe.cancelFullscreen();this.id='';}else{document.querySelector('.player-wrap').webkitRequestFullscreen();this.id='bind';}"+
-				"}"+
-				"},false);");
+				wv.loadUrl("javascript:var video=document.querySelector('video');if(video)video.addEventListener('canplay',function(){" +
+						   "var button=document.querySelector('.playwrap').lastChild;" +
+						   "button.onclick=function(){" +
+						   "if(this.id=='bind'){moe.cancelFullscreen();this.id='';}else{document.querySelector('.player-wrap').webkitRequestFullscreen();this.id='bind';}" +
+						   "}" +
+						   "},false);");
 				break;
 			case "bangumi.bilibili.com":
 			case "m.bilibili.com":
@@ -287,37 +390,39 @@ public class WebViewClient extends WebViewClient
 				 break;*/
 			case "m.v.qq.com":
 				wv.loadUrl("javascript:var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind'; " +
-						"video[i].setAttribute('controls','true');" +
-						"video[i].setAttribute('playsinline','false');" +
-						"video[i].setAttribute('webkit-playsinline','false'); " +
-						"video[i].addEventListener('loadstart',function(){" +
-						//"if(this.src&&moe.isVideoBlock(this.src)){this.src='';}else{" +
-						"var parent=document.querySelector('.site_player');var ts=parent.querySelector('video');if(ts){parent.innerHTML=''; parent.appendChild(ts);}" +
-						//"}+"
-						"},false); " +
-						"};"
-						//"var mircol=document.querySelector('#2016_mini');alert(mircol);mircol.innerHTML='';"
-						);
+						   "video[i].setAttribute('controls','true');" +
+						   "video[i].setAttribute('playsinline','false');" +
+						   "video[i].setAttribute('webkit-playsinline','false'); " +
+						   "video[i].addEventListener('loadstart',function(){" +
+						   //"if(this.src&&moe.isVideoBlock(this.src)){this.src='';}else{" +
+						   "var parent=document.querySelector('.site_player');var ts=parent.querySelector('video');if(ts){parent.innerHTML=''; parent.appendChild(ts);}" +
+						   //"}+"
+						   "},false); " +
+						   "};"
+						   //"var mircol=document.querySelector('#2016_mini');alert(mircol);mircol.innerHTML='';"
+						   );
 				break;
 			default:
 				wv.loadUrl("javascript:var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){" +
-						"video[i].setAttribute('controls','true');" +
-						"video[i].setAttribute('playsinline','false');" +
-						"video[i].setAttribute('webkit-playsinline','false'); " +
-						//"video[i].addEventListener('loadstart',function(){" +
-						//"if(this.src&&moe.isVideoBlock(this.src)){this.src='';}" +
-						//"var source=document.getElementsByTagName('source');" +
-						//"if(source)for(var s=0;s<source.length;s++){" +
-						//"if(moe.isVideoBlock(source[s].src)){source[s]='';}" +
-						//"}" +
-						//"},false); " +
-						"};");
+						   "video[i].setAttribute('controls','true');" +
+						   "video[i].setAttribute('playsinline','false');" +
+						   "video[i].setAttribute('webkit-playsinline','false'); " +
+						   //"video[i].addEventListener('loadstart',function(){" +
+						   //"if(this.src&&moe.isVideoBlock(this.src)){this.src='';}" +
+						   //"var source=document.getElementsByTagName('source');" +
+						   //"if(source)for(var s=0;s<source.length;s++){" +
+						   //"if(moe.isVideoBlock(source[s].src)){source[s]='';}" +
+						   //"}" +
+						   //"},false); " +
+						   "};");
 				//loadUrl("javascript:var video=document.getElementsByTagName('source');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind';video[i].addEventListener('loadstart',function(){if(moe.isVideoBlock(this.src)){this.src='';}; },false); }");
 				wv.loadUrl("javascript:var video=document.getElementsByTagName('iframe');for(var i=0;i<video.length;i++){video[i].setAttribute('allowfullscreen','true');video[i].setAttribute('allowTransparency','true');" +
-						//"video[i].addEventListener('load',function(){if(moe.isVideoBlock(this.src)){this.src='';};"+
-						"}");
+						   //"video[i].addEventListener('load',function(){if(moe.isVideoBlock(this.src)){this.src='';};"+
+						   "}");
 				break;
 		}
 
 	}
+	
+
 }

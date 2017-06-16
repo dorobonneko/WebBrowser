@@ -57,11 +57,14 @@ import com.moe.internal.ToolManager;
 import android.os.Build;
 import android.content.ClipboardManager;
 import android.widget.Button;
+import com.moe.fragment.NetworkLogFragment;
+import com.moe.webkit.WebViewManagerView;
+import com.moe.fragment.InputFragment;
 
 public class HomeActivity extends FragmentActivity implements Download.Callback
 {
 	private SharedPreferences shared;
-	private Fragment current,main,bookmark,download,skin,bit;
+	private Fragment current,main,bookmark,download,skin,bit,network,search;
 	private SettingFragment setting;
 	private DownloadDialog dd;
 	private Message callback;
@@ -131,7 +134,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 		if (shared.getBoolean("full", false))
 		{
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			((MainFragment)main).setPadding(true);
+			//((MainFragment)main).setPadding(true);
 		}
 		if (shared.getBoolean("night", false))
 			findViewById(R.id.main3).setBackgroundColor(0x50000000);
@@ -306,35 +309,18 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 		switch (mo)
 		{
 			case HISTORY:
-				if (bookmark == null)bookmark = new BookmarksFragment();
-				if (bookmark.isAdded()){
-					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(bookmark).commit();
-					((BookmarksFragment)bookmark).setCurrent(1);
-					
-				}else{
-					Bundle b=new Bundle();
-					b.putInt("index",1);
-					bookmark.setArguments(b);
-					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, bookmark).commit();
-					}
-				current = bookmark;
+				if (bookmark == null||bookmark.isDetached())bookmark = new BookmarksFragment();
+				((BookmarksFragment)bookmark).setCurrent(1);
+				openFragment(bookmark);
 				break;
 			case BOOKMARKS:
-				if (bookmark == null)bookmark = new BookmarksFragment();
-				if (bookmark.isAdded())
-					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(bookmark).commit();
-				else
-					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, bookmark).commit();
-				current = bookmark;
+				if (bookmark == null||bookmark.isDetached())bookmark = new BookmarksFragment();
+				openFragment(bookmark);
 				break;
 			case DOWNLOAD:
 				//startService(new Intent(this,DownloadService.class));
-				if (download == null)download = new DownloadFragment();
-				if (download.isAdded())
-					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(download).commit();
-				else
-					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, download).commit();
-				current = download;
+				if (download == null||download.isDetached())download = new DownloadFragment();
+				openFragment(download);
 				break;
 			case HOME:
 				getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).commit();
@@ -345,13 +331,13 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 				{
 					getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 					shared.edit().putBoolean("full", true).commit();
-					((MainFragment)main).setPadding(true);
+					//((MainFragment)main).setPadding(true);
 				}
 				else
 				{
 					getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 					shared.edit().putBoolean("full", false).commit();
-					((MainFragment)main).setPadding(false);
+					//((MainFragment)main).setPadding(false);
 				}
 
 				break;
@@ -359,7 +345,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 				super.onBackPressed();
 				break;
 			case SETTING:
-				if(setting==null)setting=new SettingFragment();
+				if(setting==null||setting.isDetached())setting=new SettingFragment();
 				if (setting.isAdded())
 				{
 					getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).show(setting).commit();
@@ -383,20 +369,22 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 
 				break;
 			case SKIN:
-				if (skin == null)skin = new SkinFragment();
-				if (skin.isAdded())
-					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(skin).commit();
-				else
-					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, skin).commit();
-				current = skin;
+				if (skin == null||skin.isDetached())skin = new SkinFragment();
+				openFragment(skin);
 				break;
 			case BITIMAGESCANNER:
-				if (bit == null)bit = new BitImageFragment();
-				if (bit.isAdded())
-					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(bit).commit();
-				else
-					getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, bit).commit();
-				current = bit;
+				if (bit == null||bit.isDetached())bit = new BitImageFragment();
+				openFragment(bit);
+				break;
+			case NETWORKLOG:
+				if (network == null||network.isDetached())network = new NetworkLogFragment();
+				((NetworkLogFragment)network).setArguments(((WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView()).getCurrent().getNetworkLog());
+				openFragment(network);
+				break;
+			case SEARCH:
+				if (search == null||search.isDetached())search = new InputFragment();
+				((InputFragment)search).setArguments(((WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView()).getUrl());
+				openFragment(search);
 				break;
 		}
 	}
@@ -482,7 +470,7 @@ public void onEvent(Integer event){
 		{
 			if (setting.isAdded() && !setting.isHidden())
 			{
-				getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).hide(setting).commit();
+				getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).detach(setting).commit();
 				return;
 			}
 		}else return;}
@@ -490,16 +478,17 @@ public void onEvent(Integer event){
 		else
 		if (current != null && !current.isHidden())
 		{
-			if(current==bit)
-			getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).remove(current).commit();
+			if(current==search)
+			getSupportFragmentManager().beginTransaction().setCustomAnimations(0,R.anim.right_out).hide(current).commit();
 			else
-			getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).commit();
+			getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).detach(current).remove(current).commit();
 			current=null;
 			if (main == null)
 			{
 				main = new MainFragment();
 				getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
 			}
+			System.gc();
 		}
 		else if (!main.onBackPressed())
 		{
@@ -563,6 +552,15 @@ private void loadURL(Intent intent){
 				break;
 	}
 	
+	
+}
+private void openFragment(Fragment fragment){
+	current=fragment;
+	if (fragment.isAdded())
+	{
+		getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(fragment).commit();
+	}else
+		getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, fragment).commit();
 	
 }
 private void main(){

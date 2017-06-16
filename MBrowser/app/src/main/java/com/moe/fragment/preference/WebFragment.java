@@ -7,7 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.support.design.widget.TextInputLayout;
 import android.widget.EditText;
-import com.moe.webkit.WebView;
+import com.moe.webkit.WebViewManagerView;
 import com.moe.webkit.WebSettings;
 
 public class WebFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener

@@ -14,7 +14,9 @@ public class LinkedListMap<K extends Object,V extends Object>
 		key=new ArrayList<>();
 		value=new ArrayList<>();
 	}
-
+	public ArrayList<Integer> keys(){
+		return key;
+	}
 	public ArrayList<V> values()
 	{
 		return value;
@@ -77,7 +79,6 @@ public class LinkedListMap<K extends Object,V extends Object>
 		value.add(index,v);
 		return v;
 	}
-	
 	public void putAll(Map<? extends K, ? extends V> p1)
 	{
 		Iterator<K> iterator=(Iterator<K>)p1.keySet().iterator();

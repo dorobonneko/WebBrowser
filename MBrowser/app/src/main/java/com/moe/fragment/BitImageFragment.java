@@ -248,7 +248,7 @@ public class BitImageFragment extends Fragment implements SurfaceHolder.Callback
 	@Override
 	public boolean onBackPressed()
 	{
-
+		
 		return false;
 	}
 

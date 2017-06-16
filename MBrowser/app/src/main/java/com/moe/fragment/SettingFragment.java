@@ -11,11 +11,19 @@ import android.content.res.TypedArray;
 import android.app.FragmentTransaction;
 import com.moe.fragment.preference.AdBkockFragment;
 import android.content.Intent;
+import java.io.File;
+import com.moe.utils.DataUtils;
+import com.moe.database.Download;
+import android.widget.Toast;
+import android.os.Handler;
+import android.os.Message;
+import java.io.FileNotFoundException;
 
 public class SettingFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener
 {
 	private PreferenceFragment current,download,web,ad;
-
+	private int count=0;
+	private boolean copying;
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
@@ -73,10 +81,63 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 					getFragmentManager().beginTransaction().hide(this).add(R.id.main2, ad).commit();
 				current = ad;
 				break;
+			case "setting_about":
+				handler.removeMessages(0);
+				handler.sendEmptyMessageDelayed(0,300);
+				count++;
+				break;
 		}
 		return false;
 	}
+	final Handler handler=new Handler(){
 
+		@Override
+		public void handleMessage(Message msg)
+		{
+			if(count==1){
+				//单击
+			}else{
+				if(copying){
+					Toast.makeText(getActivity(),"正在拷贝中",Toast.LENGTH_LONG).show();
+				}else{
+					Toast.makeText(getActivity(),"开始拷贝",Toast.LENGTH_LONG).show();
+					new Thread(){
+						public void run(){
+							copying=true;
+							try
+							{
+								DataUtils.copyFile(getActivity().getCacheDir().getParentFile(), new File(Download.Setting.DIR_DEFAULT, "data" + System.currentTimeMillis()));
+							
+							getActivity().runOnUiThread(new Runnable(){
+
+									@Override
+									public void run()
+									{
+										Toast.makeText(getActivity(),"拷贝完成",Toast.LENGTH_LONG).show();
+
+									}
+								});
+							}
+							catch (FileNotFoundException e)
+							{getActivity().runOnUiThread(new Runnable(){
+
+										@Override
+										public void run()
+										{
+											Toast.makeText(getActivity(),"拷贝失败！",Toast.LENGTH_LONG).show();
+
+										}
+									});}
+							copying=false;
+							count=0;
+
+						}
+					}.start();
+				}
+			}
+		}
+	
+};
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{

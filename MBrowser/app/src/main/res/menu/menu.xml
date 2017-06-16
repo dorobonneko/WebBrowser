@@ -55,5 +55,9 @@
 			android:icon="@drawable/menu_fullscreen"
 			android:id="@+id/menu_videofullscreen"
 			android:title="视频全屏"/>
+		<item
+			android:icon="@drawable/menu_scale"
+			android:id="@+id/menu_forceScale"
+			android:title="强制缩放"/>
 	</group>
 </menu>

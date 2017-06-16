@@ -15,12 +15,13 @@ private String userAgent;
 private WebView wv;
 	public WebSettings(WebView wv){
 		this.wv=wv;
-		//webSetting.setOffscreenPreRaster(false);
-        //切回前台不重写绘制
+		//切回前台不重写绘制
         //webSetting.setDefaultTextEncodingName("utf-8");
         //默认编码
 		wv.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 		setting=wv.getSettings();
+		setting.setOffscreenPreRaster(false);
+        
 		userAgent=setting.getUserAgentString();
         setting.setAppCachePath(wv.getContext().getExternalCacheDir().getAbsolutePath());
         //设置缓存路径
@@ -33,7 +34,7 @@ private WebView wv;
         //允许js打开新窗口
         setting.setAllowFileAccess(true);
         //允许访问文件
-        setting.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+        setting.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
         //自动调整布局
         setting.setSupportZoom(true);
         //是否允许缩放
@@ -67,7 +68,7 @@ private WebView wv;
         setting.setCacheMode(WebSettings.LOAD_DEFAULT);
         setting.setSaveFormData(true);
         //保存表单
-        setting.setSavePassword(true);
+        //setting.setSavePassword(true);
         // this.getSettingsExtension().setPageCacheCapacity(IX5WebSettings.DEFAULT_CACHE_CAPACITY);//extension
         // settings 的设计
 		setting.setUserAgentString(wv.getSharedPreferences().getBoolean(Setting.DESKTOP, false) == true ?wv.getResources().getTextArray(R.array.uavalue)[1].toString(): wv.getSharedPreferences().getString(Setting.USERAGENT, userAgent));
@@ -124,5 +125,7 @@ private WebView wv;
 		public final static String GPS="gps";
 		//无痕浏览
 		public final static String PRIVATE="private";
+		//强制缩放
+		public final static String FORCESCALE="forceScale";
 	}
 }

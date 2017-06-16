@@ -81,7 +81,7 @@
 					android:background="?attr/selectableItemBackgroundBorderless"
 					android:layout_height="wrap_content"
 					android:layout_width="wrap_content"
-					android:src="@drawable/ic_crop_free"
+					android:src="@drawable/ic_qrcode"
 					android:scaleType="centerInside"
 					android:id="@+id/mainview_bitImageScanner"/>
 				
@@ -144,6 +144,9 @@
 		android:id="@+id/main_content"
 		android:paddingBottom="?attr/actionBarSize"
 		android:paddingTop="?attr/actionBarSize"/>
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
 	<LinearLayout
 		android:orientation="vertical"
 		android:layout_height="match_parent"
@@ -153,6 +156,7 @@
 		android:visibility="invisible"
 		android:gravity="bottom|center"
 		/>
+	</FrameLayout>
 	<LinearLayout
 		android:layout_height="?attr/actionBarSize"
 		android:layout_width="match_parent"

@@ -13,7 +13,7 @@ import com.moe.database.JavaScript;
 import com.moe.database.Sqlite;
 import android.widget.Toast;
 import com.moe.internal.ToolManager;
-import com.moe.webkit.WebView;
+import com.moe.webkit.WebViewManagerView;
 
 public class JavaScriptDialog implements JavaScriptAdapter.OnClickListener
 {
@@ -62,7 +62,7 @@ public class JavaScriptDialog implements JavaScriptAdapter.OnClickListener
 				jsad.show(list.get(position));
 				break;
 			case 1:
-				((WebView)ToolManager.getInstance().getContent().getCurrentView()).loadUrl(list.get(position)[2].toString());
+				((WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView()).loadUrl(list.get(position)[2].toString());
 				Toast.makeText(ad.getContext(),list.get(position)[1].toString(),Toast.LENGTH_SHORT).show();
 				break;
 		}

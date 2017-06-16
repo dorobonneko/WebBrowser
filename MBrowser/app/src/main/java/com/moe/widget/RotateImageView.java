@@ -20,11 +20,12 @@ public class RotateImageView extends ImageView implements Runnable
 	}
 	public void setState(boolean state)
 	{
-		
 		if(thread==null)thread=new Thread(this);
 		if(state==true&&isRotating==false){
 			isRotating=true;
+			try{
 			thread.start();
+			}catch(Exception e){}
 		}else{
 			isRotating=false;
 			degrees=0;
