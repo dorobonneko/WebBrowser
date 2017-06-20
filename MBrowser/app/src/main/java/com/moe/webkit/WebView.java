@@ -8,16 +8,20 @@ import java.util.List;
 import android.content.SharedPreferences;
 import com.moe.utils.LinkedListMap;
 import com.moe.fragment.NetworkLogFragment;
+import android.view.MotionEvent;
+import java.lang.reflect.Field;
 public class WebView extends WebView
 {
+	private OnTouchListener otl;
 	private OnStateListener osl;
 	private SharedPreferences shared;
 	private LinkedListMap<NetworkLogFragment.Type, List<String>> llm=new LinkedListMap<>();
 	private ArrayList<String> video=new ArrayList<>(),block=new ArrayList<>();;
-	public WebView(WebViewManagerView context){
+	public WebView(WebViewManagerView context)
+	{
 		super(context.getContext());
-		shared=context.getContext().getSharedPreferences("webview",0);
-		setWebViewClient(new WebViewClient(this,context));
+		shared = context.getContext().getSharedPreferences("webview", 0);
+		setWebViewClient(new WebViewClient(this, context));
         setWebChromeClient(new WebChromeClient(this));
 		WebSettings ws= new WebSettings(this);
 		setTag(ws);
@@ -25,24 +29,80 @@ public class WebView extends WebView
 		setScrollbarFadingEnabled(true);
 		setScrollBarFadeDuration(100);
 		setOverScrollMode(View.OVER_SCROLL_ALWAYS);
-		addJavascriptInterface(new JavascriptInterface(this),"moe");
+		addJavascriptInterface(new JavascriptInterface(this), "moe");
 		setDownloadListener(context);
 	}
-	public List<String> getVideo(){
+	public List<String> getVideo()
+	{
 		return video;
 	}
-	public List<String> getBlock(){
+	public List<String> getBlock()
+	{
 		return block;
 	}
-	public SharedPreferences getSharedPreferences(){
+	public SharedPreferences getSharedPreferences()
+	{
 		return shared;
 	}
 
 	@Override
 	public void destroy()
 	{
+		//releaseAllWebViewCallback();
 		shared.unregisterOnSharedPreferenceChangeListener((SharedPreferences.OnSharedPreferenceChangeListener)getTag());
 		super.destroy();
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event)
+	{
+		return otl == null ?super.onTouchEvent(event): otl.onTouch(this, event) == true ?true: super.onTouchEvent(event);
+	}
+	public void releaseAllWebViewCallback()
+	{
+		if (android.os.Build.VERSION.SDK_INT < 16)
+		{
+			try
+			{
+				Field field = WebView.class.getDeclaredField("mWebViewCore");
+				field = field.getType().getDeclaredField("mBrowserFrame");
+				field = field.getType().getDeclaredField("sConfigCallback");
+				field.setAccessible(true);
+				field.set(null, null);
+			}
+			catch (NoSuchFieldException e)
+			{
+
+			}
+			catch (IllegalAccessException e)
+			{
+
+			}
+		}
+		else
+		{
+			try
+			{
+				Field sConfigCallback = Class.forName("android.webkit.BrowserFrame").getDeclaredField("sConfigCallback");
+				if (sConfigCallback != null)
+				{
+					sConfigCallback.setAccessible(true);
+					sConfigCallback.set(null, null);
+				}
+			}
+			catch (NoSuchFieldException e)
+			{
+
+			}
+			catch (ClassNotFoundException e)
+			{
+
+			}
+			catch (IllegalAccessException e)
+			{
+
+			}
+		}
 	}
 	public LinkedListMap<NetworkLogFragment.Type, List<String>> getNetworkLog()
 	{
@@ -52,15 +112,20 @@ public class WebView extends WebView
 	{
         this.osl = osl;
     }
-	public OnStateListener getListener(){
+	public OnStateListener getListener()
+	{
 		return osl;
+	}
+	public void setOnTouchListener(OnTouchListener o)
+	{
+		otl = o;
 	}
 	public abstract interface OnStateListener
     {
 
-        void onProgress(WebView wv,int p2);
-        void onStart(WebView wv,String url);
-        void onEnd(WebView wv,String url, String title);
-        void onReceiverTitle(WebView wv,String title);
+        void onProgress(WebView wv, int p2);
+        void onStart(WebView wv, String url);
+        void onEnd(WebView wv, String url, String title);
+        void onReceiverTitle(WebView wv, String title);
     }
 }

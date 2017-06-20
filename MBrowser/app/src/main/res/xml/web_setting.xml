@@ -13,7 +13,11 @@
 			android:title="搜索引擎"
 			android:entries="@array/search"
 			android:value="@array/search_value"/>
-		
+		<com.moe.preference.DropDownPreference
+			android:key="multiView"
+			android:title="webview呈现模式"
+			android:entries="@array/view"
+			android:value="@array/view_value"/>
 		<SwitchPreference
 			android:key="multiWindows"
 			android:title="多窗口模式"

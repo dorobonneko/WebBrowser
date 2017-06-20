@@ -124,6 +124,8 @@ public class WebChromeClient extends WebChromeClient
 				}
 			}.start();
 		}
+		p1.onResume();
+		p1.pauseTimers();
 	}
 
 	@Override

@@ -48,7 +48,7 @@ public class AdBkockFragment extends PreferenceFragment implements View.OnClickL
 	{
 		switch(p1.getId()){
 			case R.id.adblock_view_tag:
-				if(tag==null)tag=new TagBlockFragment();
+				if(tag==null||tag.isDetached())tag=new TagBlockFragment();
 				if(tag.isAdded())
 					getFragmentManager().beginTransaction().show(tag).commit();
 					else
@@ -56,7 +56,7 @@ public class AdBkockFragment extends PreferenceFragment implements View.OnClickL
 				current=tag;
 				break;
 			case R.id.adblock_view_url:
-				if(url==null)url=new UrlBlockFragment();
+				if(url==null||url.isDetached())url=new UrlBlockFragment();
 				if(url.isAdded())
 					getFragmentManager().beginTransaction().show(url).commit();
 				else

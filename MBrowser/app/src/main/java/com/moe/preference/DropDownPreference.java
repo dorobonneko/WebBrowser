@@ -63,6 +63,7 @@ public class DropDownPreference extends Preference implements Spinner.OnItemSele
 		((ViewGroup)v.getChildAt(2)).addView(spinner);
 		//v.getChildAt(2).setBackgroundColor(0xff000000);
 		v.getChildAt(2).setVisibility(View.VISIBLE);
+		//spinner.setClickable(false);
 		return v;
 	}
 

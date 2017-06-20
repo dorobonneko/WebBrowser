@@ -102,7 +102,7 @@ public class TagBlockFragment extends PreferenceFragment implements View.OnClick
 	@Override
 	public boolean onBackPressed()
 	{
-		if (!isHidden())
+		if (getFragmentManager()!=null&&!isHidden())
 		{
 			if (aba.getType() == TagBlockAdapter.Type.SELECTOR)
 			{
@@ -111,7 +111,7 @@ public class TagBlockFragment extends PreferenceFragment implements View.OnClick
 			}
 			else
 			{
-				getFragmentManager().beginTransaction().hide(this).commit();
+				getFragmentManager().beginTransaction().hide(this).detach(this).remove(this).commit();
 			}
 			return true;
 		}

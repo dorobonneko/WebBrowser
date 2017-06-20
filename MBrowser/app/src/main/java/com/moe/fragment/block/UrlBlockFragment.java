@@ -370,14 +370,14 @@ private void show(String data){
 	@Override
 	public boolean onBackPressed()
 	{
-		if(!isHidden()){
+		if(getFragmentManager()!=null&&!isHidden()){
 			if(toolbar.getDisplayedChild()==1){
 				toolbar.setDisplayedChild(0);
 				if(index.size()>0)
 					uba.notifyItemChanged(index.get(currentIndex)+2);
 				
 				}else
-			getFragmentManager().beginTransaction().hide(this).commit();
+			getFragmentManager().beginTransaction().hide(this).detach(this).remove(this).commit();
 			return true;
 			}
 		return false;

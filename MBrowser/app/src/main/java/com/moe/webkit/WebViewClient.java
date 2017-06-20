@@ -116,6 +116,7 @@ public class WebViewClient extends WebViewClient
 			case "https":
 			case "file":
 			case "content":
+				if(wv.getSharedPreferences().getInt(WebSettings.Setting.MULTIVIEW,0)==1){
 				try{
 				String path=uri.getPath();
 				int index=path.indexOf("?");
@@ -126,7 +127,10 @@ public class WebViewClient extends WebViewClient
 				wvmv.addWebView(webview);
 				return true;}
 				}catch(Exception e){}
-				return super.shouldOverrideUrlLoading(p1,url);
+				}
+				p1.pauseTimers();
+				p1.loadUrl(url);
+				return true;
 			case "moe":
 				wvmv.getHomePageAdd().show();
 				break;
@@ -193,7 +197,7 @@ public class WebViewClient extends WebViewClient
 		video.clear();
 		block.clear();
 		wv.getNetworkLog().clear();
-
+		p1.onPause();
 	}
 
 	@Override
@@ -213,7 +217,10 @@ public class WebViewClient extends WebViewClient
 				p1.loadUrl(js);
 		if (wv.getSharedPreferences().getBoolean(WebSettings.Setting.FORCESCALE, false))
 			p1.loadUrl("javascript:var meta=document.querySelector('meta[name=viewport]');if(meta)meta.setAttribute('content','width=device-width');");
-
+			p1.onResume();
+			p1.resumeTimers();
+		//p1.getSettings().setBlockNetworkImage(false);
+		
 	}
 
 	@Override
@@ -298,8 +305,10 @@ public class WebViewClient extends WebViewClient
 								}
 							}
 						}.start();
-						if (mimeType.matches(".*text/html.*")&&p2.getUrl().getHost().matches("(?i)^(?:pan|wangpan|yun).baidu.com$")){
+						if (mimeType.matches(".*text/html.*")&&p2.getMethod().equalsIgnoreCase("get")&&p2.getUrl().getHost().matches("(?i)^(?:pan|wangpan|yun).baidu.com$")){
 								HttpURLConnection huc=(HttpURLConnection)new URL(p2.getUrl().toString()).openConnection();
+								huc.setRequestMethod(p2.getMethod());
+								huc.setConnectTimeout(5000);
 							for (String key:p2.getRequestHeaders().keySet())
 									{
 										huc.addRequestProperty(key, p2.getRequestHeaders().get(key));
@@ -311,7 +320,7 @@ public class WebViewClient extends WebViewClient
 									if (huc.getResponseCode()== 200)
 										return new WebResourceResponse("text/html", "utf-8", huc.getInputStream());
 						}
-						return null;
+						return CacheManager.getInstance(wv.getContext()).shouldInterceptRequest(view,p2);
 					}
 					break;
 				case "file":

@@ -28,6 +28,7 @@ public class WebFragment extends PreferenceFragment implements Preference.OnPref
 			else
 			findPreference("customUa").setEnabled(false);
 		findPreference("search").setOnPreferenceChangeListener(this);
+		findPreference(WebSettings.Setting.MULTIVIEW).setOnPreferenceChangeListener(this);
 	}
 
 	@Override
@@ -85,6 +86,12 @@ public class WebFragment extends PreferenceFragment implements Preference.OnPref
 							getPreferenceManager().getSharedPreferences().edit().putString("searchValue",getResources().getTextArray(R.array.search_value)[(Integer)p2].toString()).commit();
 							break;
 					}
+					break;
+				case WebSettings.Setting.MULTIVIEW:
+					if((Integer)p2==0)
+						p1.setSummary(null);
+						else
+						p1.setSummary(getResources().getTextArray(R.array.view_value)[1]);
 					break;
 		}
 		return true;

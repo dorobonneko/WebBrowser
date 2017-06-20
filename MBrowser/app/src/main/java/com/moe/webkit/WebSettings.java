@@ -25,8 +25,7 @@ private WebView wv;
 		userAgent=setting.getUserAgentString();
         setting.setAppCachePath(wv.getContext().getExternalCacheDir().getAbsolutePath());
         //设置缓存路径
-        setting.setLoadsImagesAutomatically(true);
-        setting.setBlockNetworkImage(wv.getSharedPreferences().getBoolean(Setting.BLOCKIMAGES, false));
+        setting.setLoadsImagesAutomatically(!wv.getSharedPreferences().getBoolean(Setting.BLOCKIMAGES, false));
         //禁止加载图片
         setting.setJavaScriptEnabled(wv.getSharedPreferences().getBoolean(Setting.JAVASCRIPT, true));
         //启用js
@@ -92,7 +91,7 @@ private WebView wv;
 		else if (key.equals(Setting.WIDEVIEW))
 			setting.setUseWideViewPort(p1.getBoolean(Setting.WIDEVIEW, true));
 		else if (key.equals(Setting.BLOCKIMAGES))
-			setting.setBlockNetworkImage(p1.getBoolean(Setting.BLOCKIMAGES, false));
+			setting.setLoadsImagesAutomatically(!p1.getBoolean(Setting.BLOCKIMAGES, false));
 		else if (key.equals(Setting.USERAGENT) || key.equals(Setting.DESKTOP))
 			setting.setUserAgentString(p1.getBoolean(Setting.DESKTOP, false) == true ?wv.getResources().getTextArray(R.array.uavalue)[1].toString(): p1.getString(Setting.USERAGENT, userAgent));
 
@@ -127,5 +126,7 @@ private WebView wv;
 		public final static String PRIVATE="private";
 		//强制缩放
 		public final static String FORCESCALE="forceScale";
+		//多webview
+		public final static String MULTIVIEW="multiView";
 	}
 }

@@ -23,7 +23,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.text.TextUtils;
 import android.webkit.WebView;
 
-public class WebViewManagerView extends FrameLayout implements GestureDetector.OnGestureListener,DownloadListener,com.moe.webkit.WebView.OnStateListener
+public class WebViewManagerView extends FrameLayout implements GestureDetector.OnGestureListener,DownloadListener,com.moe.webkit.WebView.OnStateListener,View.OnTouchListener
 {
 	  private OnStateListener osl;
     private PopupWindow pop;
@@ -126,19 +126,18 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 
 	public void loadUrl(String url)
 	{
-		if(url.startsWith("javascript:"))
-		current.loadUrl(url);
-		else{
+		stopLoading();
+		if(shared.getInt(WebSettings.Setting.MULTIVIEW,0)==1&&!url.startsWith("javascript:"))
+		{
 			WebView webview=new com.moe.webkit.WebView(this);
 			webview.loadUrl(url);
 			addWebView(webview);
-		}
+		}else
+		current.loadUrl(url);
 	}
 
 	
-	public SharedPreferences getSharedPreferences(){
-		return shared;
-	}
+	
 	public void watchSource()
 	{
 		current.loadUrl("javascript:moe.source('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>')");
@@ -233,14 +232,20 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 	 "loopChild(document.body);");
 
 	 }*/
-    
-
-
+/*
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
         return gd.onTouchEvent(event) == true ?true: super.onTouchEvent(event);
     }
+*/
+	@Override
+	public boolean onTouch(View p1, MotionEvent p2)
+	{
+		return gd.onTouchEvent(p2);
+	}
+
+	
 	@Override
 	public boolean onDown(MotionEvent p1)
 	{
@@ -305,6 +310,7 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 
 	public void goBack()
 	{
+		stopLoading();
 		if(canGoBack()){
 			removeAllViews();
 		addView(history.back());
@@ -314,6 +320,7 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 
 	public void goForward()
 	{
+		stopLoading();
 	if(canGoForward()){
 		removeAllViews();
 		addView(history.next());
@@ -324,8 +331,11 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 	@Override
 	public void addView(View child)
 	{
+		current.onPause();
 		((com.moe.webkit.WebView)child).setOnStateListener(this);
 		current=(com.moe.webkit.WebView)child;
+		current.onResume();
+		child.setOnTouchListener(this);
 		super.addView(child);
 	}
 

@@ -481,7 +481,7 @@ public void onEvent(Integer event){
 			if(current==search)
 			getSupportFragmentManager().beginTransaction().setCustomAnimations(0,R.anim.right_out).hide(current).commit();
 			else
-			getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).detach(current).remove(current).commit();
+			getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).detach(current).remove(current).commit();
 			current=null;
 			if (main == null)
 			{

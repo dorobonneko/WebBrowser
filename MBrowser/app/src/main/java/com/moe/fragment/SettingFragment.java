@@ -58,7 +58,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 		switch (p1.getKey())
 		{
 			case "setting_download":
-				if (download == null)download = new DownloadFragment();
+				if (download == null||download.isDetached())download = new DownloadFragment();
 				if (download.isAdded())
 					getFragmentManager().beginTransaction().hide(this).show(download).commit();
 				else
@@ -66,7 +66,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 				current = download;
 				break;
 			case "setting_web":
-				if (web == null)web = new WebFragment();
+				if (web == null||web.isDetached())web = new WebFragment();
 				if (web.isAdded())
 					getFragmentManager().beginTransaction().hide(this).show(web).commit();
 				else
@@ -74,7 +74,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 				current = web;
 				break;
 			case "setting_ad":
-				if (ad == null)ad = new AdBkockFragment();
+				if (ad == null||ad.isDetached())ad = new AdBkockFragment();
 				if (ad.isAdded())
 					getFragmentManager().beginTransaction().hide(this).show(ad).commit();
 				else
@@ -151,7 +151,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 			if (current.onBackPressed())return true;
 			else
 			{
-				getFragmentManager().beginTransaction().hide(current).show(this).commit();
+				getFragmentManager().beginTransaction().hide(current).detach(current).remove(current).show(this).commit();
 				current = null;
 				return true;
 			}
