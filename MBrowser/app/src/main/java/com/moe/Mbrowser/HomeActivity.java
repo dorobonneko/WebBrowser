@@ -60,6 +60,7 @@ import android.widget.Button;
 import com.moe.fragment.NetworkLogFragment;
 import com.moe.webkit.WebViewManagerView;
 import com.moe.fragment.InputFragment;
+import java.util.*;
 
 public class HomeActivity extends FragmentActivity implements Download.Callback
 {
@@ -323,8 +324,9 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 				openFragment(download);
 				break;
 			case HOME:
-				getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).commit();
-				//current = main;
+				getSupportFragmentManager().popBackStack();
+				getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).detach(current).remove(current).commit();
+				current = null;
 				break;
 			case FULLSCREEN:
 				if (!shared.getBoolean("full", false))
@@ -470,27 +472,35 @@ public void onEvent(Integer event){
 		{
 			if (setting.isAdded() && !setting.isHidden())
 			{
-				getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).detach(setting).commit();
+				getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).hide(setting).detach(setting).remove(setting).commit();
 				return;
 			}
-		}else return;}
-		if (current != null && current.onBackPressed())return;
-		else
-		if (current != null && !current.isHidden())
+		}else return;
+		}
+		if (current != null && current.onBackPressed())
+			return;
+			List<Fragment> lf=(List<Fragment>)getSupportFragmentManager().getFragments();
+		if (lf.size()>0)
 		{
+			current=lf.get(lf.size()-1);
+			if(lf.size()>2&&current instanceof MainFragment){
+				getSupportFragmentManager().popBackStack();
+				current=lf.get(lf.size()-2);
+			}
+			if(current==null||current==main){current=null;}
+			else{
+			getSupportFragmentManager().popBackStack();
 			if(current==search)
 			getSupportFragmentManager().beginTransaction().setCustomAnimations(0,R.anim.right_out).hide(current).commit();
 			else
 			getSupportFragmentManager().beginTransaction().setCustomAnimations(0, R.anim.right_out).hide(current).detach(current).remove(current).commit();
 			current=null;
-			if (main == null)
-			{
-				main = new MainFragment();
-				getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
-			}
+			main();
 			System.gc();
+			return;
+			}
 		}
-		else if (!main.onBackPressed())
+		if (!main.onBackPressed())
 		{
 			if (exit)
 				super.onBackPressed();
@@ -516,32 +526,17 @@ public void onEvent(Integer event){
 private void loadURL(Intent intent){
 	switch(intent.getAction()){
 		case Intent.ACTION_VIEW:
-			if(main==null){
-				main = new MainFragment();
-				Bundle b=new Bundle();
-				b.putString("url",intent.getDataString());
-				main.setArguments(b);
-			}else{
-				((MainFragment)main).openNewWindow(intent.getDataString());
-			}
-			if(main.isAdded())
-				getSupportFragmentManager().beginTransaction().show(main).commit();
-			else
-				getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
+			main();
+			final Bundle b=new Bundle();
+			b.putString("url",intent.getDataString());
+			main.setArguments(b);
 			break;
 			case Intent.ACTION_WEB_SEARCH:
 			case Intent.ACTION_SEARCH:
-			if(main==null){
-				main = new MainFragment();
-				Bundle b=new Bundle();
-				b.putString(SearchManager.QUERY,intent.getStringExtra(SearchManager.QUERY));
-				main.setArguments(b);
-			}else
-			LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY,intent.getStringExtra(SearchManager.QUERY)));
-			if(main.isAdded())
-				getSupportFragmentManager().beginTransaction().show(main).commit();
-			else
-				getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
+				main();
+				final Bundle bundle=new Bundle();
+				bundle.putString(SearchManager.QUERY,intent.getStringExtra(SearchManager.QUERY));
+				main.setArguments(bundle);
 			break;
 			case Intent.ACTION_MAIN:
 				main();

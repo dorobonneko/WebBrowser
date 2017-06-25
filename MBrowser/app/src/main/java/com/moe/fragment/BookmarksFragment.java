@@ -100,10 +100,9 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 
 	public void setCurrent(int p0)
 	{
+		viewPagerIndex=p0;
 		if(vp!=null)
 		vp.setCurrentItem(p0);
-		else
-		viewPagerIndex=p0;
 	}
 	public void sendToHomepage(boolean isBookmark, int index)
 	{
@@ -452,7 +451,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 				selected.clear();
 				bookmark.notifyDataSetChanged();
 			}
-			vp.setCurrentItem(0);
+			//vp.setCurrentItem(0);
 		}
 		else
 		{

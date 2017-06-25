@@ -100,10 +100,7 @@ public class InputFragment extends Fragment implements ToolEditText.OnTextChange
 	@Override
 	public void onHiddenChanged(boolean hidden)
 	{
-		if(hidden){
-			getView().requestFocus();
-			imm.toggleSoftInput(0,0);
-		}else{
+		if(!hidden){
 			handler.postDelayed(new Runnable(){
 
 					@Override

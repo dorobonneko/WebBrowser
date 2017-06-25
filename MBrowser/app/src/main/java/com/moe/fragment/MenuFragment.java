@@ -40,14 +40,13 @@ public final static int SHOW=0XFF0002;
 public final static int HIDE=0XFF0003;
 public final static int SHUTDOWN=0xff005;
 private ViewPagerAdapter vpa;
-private ArrayList<View> av=new ArrayList<>();
-private int groupSize=0;//计算几组
+private ArrayList<View> av=null;
 private SharedPreferences webview,moe;
 private final static String xmlns="http://schemas.android.com/apk/res/android";
 @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-		ViewPager vp=new MenuViewPager(getActivity().getApplicationContext(),av);
+	ViewPager vp=new MenuViewPager(getActivity().getApplicationContext(),av=new ArrayList<>());
         LinearLayout.LayoutParams ll=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
         //ll.setMargins(5,5,5,5);
         vp.setLayoutParams(ll);
@@ -249,6 +248,7 @@ private void updateNightMode(){
 		RecyclerView rv=null;
 		ArrayList<MenuItem> ami = null;
 		MenuAdapter ma = null;
+		int groupSize=0;
 		while((type=xml.next())!=xml.END_DOCUMENT){
 			switch(type){
 				case xml.START_TAG:

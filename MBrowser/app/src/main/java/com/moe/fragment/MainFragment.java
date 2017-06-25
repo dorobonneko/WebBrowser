@@ -37,18 +37,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     private ViewFlipper content;
 	private android.widget.ViewFlipper menutool;
 	private FragmentPop current,menu=new MenuFragment(),window=new WindowFragment();
-	private boolean isfull=false;
-	public void setPadding(boolean p0)
-	{
-		isfull = p0;
-		if (pop != null)
-		{
-			if (p0)
-				pop.setPadding(0, 0, 0, (int)getResources().getDimension(R.dimen.actionBarSize));
-			else
-				pop.setPadding(0, 0, 0, getResources().getDimensionPixelSize(getResources().getIdentifier("status_bar_height", "dimen", "android")) + (int)getResources().getDimension(R.dimen.actionBarSize));
-		}
-	}
+	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -100,6 +89,17 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 			String url=getArguments().getString("url");
 			if (url == null)url = getArguments().getString(SearchManager.QUERY);
 			LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY, url));
+		}
+	}
+
+	@Override
+	public void setArguments(Bundle args)
+	{
+		try{super.setArguments(args);
+		}catch(Exception e){
+			String url=args.getString("url");
+			if (url == null)url = args.getString(SearchManager.QUERY);
+		LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY, url));
 		}
 	}
 
@@ -180,8 +180,8 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 							if (menu.isAdded())
 								getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).show(menu).commit();
 							else
-							{
-								getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).add(R.id.mainview_popwin, menu).show(menu).commit();}
+								getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).add(R.id.mainview_popwin, menu).show(menu).commit();
+							
 							menutool.setDisplayedChild(1);
 
 						}
@@ -192,7 +192,7 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 				hidePop();
 				break;
 			case MenuFragment.SHUTDOWN:
-				getFragmentManager().beginTransaction().hide(menu).commit();
+				getChildFragmentManager().beginTransaction().hide(menu).commit();
 				menutool.setDisplayedChild(0);
 				break;
 			case ToolManager.HOME:
@@ -205,7 +205,8 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     {
         if (current != null && !current.isHidden())
         {
-            getFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).hide(current).commit();
+            getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).hide(current).commit();
+			getChildFragmentManager().popBackStack();
             if (current == menu)
 				menutool.setDisplayedChild(0);
 			return true;

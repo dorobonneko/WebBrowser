@@ -47,9 +47,12 @@ public class LinkedListMap<K extends Object,V extends Object>
 	
 	public V getKey(K p1)
 	{
-		int index=indexKey(p1);
+		try{int index=indexKey(p1);
 		if(index==-1)return null;
-		return value.get(index);
+		return value.get(index);}
+		catch(IndexOutOfBoundsException e){
+			throw new IndexOutOfBoundsException(key.toString()+"\n"+value.toString());
+		}
 	}
 	public V getIndex(int index){
 		return value.get(index);
@@ -62,7 +65,8 @@ public class LinkedListMap<K extends Object,V extends Object>
 	
 	public V put(K p1, V p2)
 	{
-		int index=indexKey(p1);
+		if(p2==null)return null;
+			int index=indexKey(p1);
 		if(index!=-1){
 			key.remove(index);
 			value.remove(index);
@@ -75,6 +79,7 @@ public class LinkedListMap<K extends Object,V extends Object>
 		return p2;
 	}
 	public V put(int index,K k,V v){
+		if(v==null)return null;
 		key.add(index,k.hashCode());
 		value.add(index,v);
 		return v;

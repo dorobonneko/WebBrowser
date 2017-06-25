@@ -96,6 +96,7 @@ private ClipboardManager cm;
 	
 	public void setArguments(LinkedListMap<Type,List<String>> args)
 	{
+		llm.clear();
 		llm.put(Type.AUDIO,args.getKey(Type.AUDIO));
 		llm.put(Type.VIDEO,args.getKey(Type.VIDEO));
 		llm.put(Type.CSS,args.getKey(Type.CSS));

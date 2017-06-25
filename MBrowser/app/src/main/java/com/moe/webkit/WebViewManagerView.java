@@ -25,28 +25,27 @@ import android.webkit.WebView;
 
 public class WebViewManagerView extends FrameLayout implements GestureDetector.OnGestureListener,DownloadListener,com.moe.webkit.WebView.OnStateListener,View.OnTouchListener
 {
-	  private OnStateListener osl;
+	private OnStateListener osl;
     private PopupWindow pop;
 	//private boolean state=false;
 	private final String homepage="file:///android_asset/homepage.html";
 //	private final String ajaxhook="file:///android_asset/ajaxhook.js";
 	private GestureDetector gd=new GestureDetector(this);
 	private SharedPreferences shared;
-	private WebSettings ws;
 	private AddDialog homePageAdd;
 	private com.moe.webkit.WebView current;
-   private History history;
+	private History history;
 	public WebViewManagerView(final Context context, AddDialog ad)
 	{
 		super(context);
-		history=new History();
+		history = new History();
 		shared = context.getSharedPreferences("webview", 0);
 		homePageAdd = ad;
 		pop = PopupWindow.getInstance(context);
-		current=new com.moe.webkit.WebView(this);
-		current.loadUrl(homepage);
-		addWebView(current);
-		
+		com.moe.webkit.WebView main=new com.moe.webkit.WebView(this);
+		main.loadUrl(homepage);
+		addWebView(main);
+
 	}
 
 	public com.moe.webkit.WebView getCurrent()
@@ -56,7 +55,7 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 
 	public void loadDataWithBaseURL(String url, String toString, String p2, String p3, String p4)
 	{
-		current.loadDataWithBaseURL(url,toString,p2,p3,p4);
+		current.loadDataWithBaseURL(url, toString, p2, p3, p4);
 	}
 
 	public void findAllAsync(String toString)
@@ -118,34 +117,36 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 	{
 		return current.getTitle();
 	}
-	public void addWebView(WebView wv){
+	public void addWebView(WebView wv)
+	{
 		history.add(wv);
 		addView(wv);
 	}
-	
+
 
 	public void loadUrl(String url)
 	{
-		stopLoading();
-		if(shared.getInt(WebSettings.Setting.MULTIVIEW,0)==1&&!url.startsWith("javascript:"))
+		if (shared.getInt(WebSettings.Setting.MULTIVIEW, 0) == 1 && !url.matches("^javascript:.*?"))
 		{
 			WebView webview=new com.moe.webkit.WebView(this);
 			webview.loadUrl(url);
 			addWebView(webview);
-		}else
-		current.loadUrl(url);
+		}
+		else
+			current.loadUrl(url);
 	}
 
-	
-	
+
+
 	public void watchSource()
 	{
 		current.loadUrl("javascript:moe.source('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>')");
 	}
-	public AddDialog getHomePageAdd(){
+	public AddDialog getHomePageAdd()
+	{
 		return homePageAdd;
 	}
-	
+
 	public void videoFind()
 	{
 		//视频嗅探
@@ -159,16 +160,16 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 		EventBus.getDefault().post(new com.moe.bean.Message(6, current.getBlock()));
 
 	}
-	
+
 	/**视频嗅探原规则，已抛弃
 	 @JavascriptInterface
 	 public void result(String data){
 	 EventBus.getDefault().post(new com.moe.bean.Message(6,data));
 	 }*/
 
-	
 
-	
+
+
 	@Override
 	public void onDownloadStart(String url, String useragent, String name, String type, long length)
 	{
@@ -193,7 +194,7 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 		current.saveWebArchive(Download.Setting.DIR_DEFAULT + "/" + getTitle() + ".mht");
 	}
 
-	
+
 
 	public void goHome()
 	{
@@ -201,7 +202,7 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 			loadUrl(homepage);
 	}
 
-	
+
 	public String getUrl()
 	{
 		if (current.getUrl() != null && current.getUrl().equals(homepage))
@@ -218,7 +219,7 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 	{
         this.osl = osl;
     }
-  
+
 	/**private void transParent()
 	 {
 	 loadUrl("javascript:" +
@@ -232,20 +233,61 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 	 "loopChild(document.body);");
 
 	 }*/
-/*
-    @Override
-    public boolean onTouchEvent(MotionEvent event)
-    {
-        return gd.onTouchEvent(event) == true ?true: super.onTouchEvent(event);
-    }
-*/
+	/*
+	 @Override
+	 public boolean onTouchEvent(MotionEvent event)
+	 {
+	 return gd.onTouchEvent(event) == true ?true: super.onTouchEvent(event);
+	 }
+	 */
+	private float oldx,oldy,rawy;
+	private boolean isLong=false;
 	@Override
-	public boolean onTouch(View p1, MotionEvent p2)
+	public boolean onTouch(View p1, final MotionEvent p2)
 	{
-		return gd.onTouchEvent(p2);
+		switch (p2.getAction())
+		{
+			case p2.ACTION_DOWN:
+				oldx = p2.getX();
+				oldy = p2.getY();
+				rawy = p2.getRawY();
+				postDelayed(new Runnable(){
+
+						@Override
+						public void run()
+						{
+							//if(me!=null&&Math.abs(oldx-me.getX())<10&&Math.abs(oldy-p2.getY())<10){
+							if ((p2.getAction() == p2.ACTION_DOWN || p2.getAction() == p2.ACTION_MOVE && (Math.abs(oldx - p2.getX()) < 15 && Math.abs(rawy - p2.getY()) < 15)) && !TextUtils.isEmpty(getUrl()))
+							{
+								switch (current.getHitTestResult().getType())
+								{
+
+									case WebView.HitTestResult.EDIT_TEXT_TYPE:
+										return;
+									case WebView.HitTestResult.UNKNOWN_TYPE:
+									//case WebView.HitTestResult.ANCHOR_TYPE:
+										break;
+									default:
+										pop.showAtLocation(WebViewManagerView.this, Gravity.TOP | Gravity.LEFT, MotionEvent.obtain(0l, 0l, 0, oldx, oldy, 0f, 0f, 0, 0f, 0f, 0, 0));
+										break;
+								}
+								//}
+								isLong = true;
+							}
+
+						}
+					}, 300);
+				break;
+			case p2.ACTION_CANCEL:
+			case p2.ACTION_UP:
+				isLong = false;
+				//me=null;
+				break;
+		}
+		return isLong;
 	}
 
-	
+
 	@Override
 	public boolean onDown(MotionEvent p1)
 	{
@@ -300,75 +342,78 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 	{
 		return false;
 	}
-	@Override
-	protected void onDetachedFromWindow()
-	{
-		shared.unregisterOnSharedPreferenceChangeListener(ws);
-		
-		super.onDetachedFromWindow();
-	}
 
 	public void goBack()
 	{
 		stopLoading();
-		if(canGoBack()){
-			removeAllViews();
-		addView(history.back());
-		osl.onLoad(this);
+		if (canGoBack())
+		{
+			addView(history.back());
+			osl.onLoad(this);
 		}
 	}
 
 	public void goForward()
 	{
 		stopLoading();
-	if(canGoForward()){
-		removeAllViews();
-		addView(history.next());
-		osl.onLoad(this);
+		if (canGoForward())
+		{
+			addView(history.next());
+			osl.onLoad(this);
 		}
 	}
 
 	@Override
 	public void addView(View child)
 	{
-		current.onPause();
-		((com.moe.webkit.WebView)child).setOnStateListener(this);
-		current=(com.moe.webkit.WebView)child;
-		current.onResume();
-		child.setOnTouchListener(this);
-		super.addView(child);
+		if (current != child)
+		{
+			if (current != null)
+			{
+				current.onPause();
+				current.setVisibility(View.INVISIBLE);
+				current.pauseTimers();}
+			current = (com.moe.webkit.WebView)child;
+			current.setOnStateListener(this);
+			current.onResume();
+			current.setVisibility(View.VISIBLE);
+			child.setOnTouchListener(this);
+			child.setOnLongClickListener(null);
+			removeAllViews();
+			super.addView(child);
+		}
 	}
 
 	@Override
 	public void onProgress(WebView wv, int p2)
 	{
-		if(osl!=null&&current==wv)osl.onProgress(p2);
+		if (osl != null && current == wv)osl.onProgress(p2);
 	}
 
 	@Override
 	public void onReceiverTitle(WebView wv, String title)
 	{
-		if(osl!=null&&current==wv)osl.onReceiverTitle(title);
+		if (osl != null && current == wv)osl.onReceiverTitle(title);
 	}
 
 	@Override
 	public void onStart(WebView wv, String url)
 	{
-		if(osl!=null&&current==wv)osl.onStart(url);
+		if (osl != null && current == wv)osl.onStart(url);
 	}
 
 	@Override
 	public void onEnd(WebView wv, String url, String title)
 	{
-		if(osl!=null&&current==wv)osl.onEnd(url,title);
+		if (osl != null && current == wv)osl.onEnd(url, title);
 	}
 
 
 
-	
 
-	
-	
+
+
+
     public abstract interface OnStateListener
     {
 
@@ -378,5 +423,5 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
         void onReceiverTitle(String title);
 		void onLoad(WebViewManagerView wvmv);
     }
-	
+
 }

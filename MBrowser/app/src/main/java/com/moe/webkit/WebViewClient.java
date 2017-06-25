@@ -31,7 +31,14 @@ import com.moe.utils.MediaUtils;
 import javax.net.ssl.HttpsURLConnection;
 import java.net.HttpURLConnection;
 import com.moe.net.OkHttp;
-
+import java.util.HashMap;
+import java.util.zip.GZIPInputStream;
+import java.util.LinkedHashMap;
+import android.text.TextUtils;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ExecutionException;
 
 public class WebViewClient extends WebViewClient
 {
@@ -42,10 +49,10 @@ public class WebViewClient extends WebViewClient
 	private UrlBlock urlBlock;
 	private AdBlockDatabase adb;
 	private WebViewManagerView wvmv;
-	public WebViewClient(final WebView wv,WebViewManagerView wvmv)
+	public WebViewClient(final WebView wv, WebViewManagerView wvmv)
 	{
 		this.wv = wv;
-		this.wvmv=wvmv;
+		this.wvmv = wvmv;
 		this.video = wv.getVideo();
 		this.block = wv.getBlock();
 		javaScript = Sqlite.getInstance(wv.getContext(), JavaScript.class);
@@ -116,21 +123,29 @@ public class WebViewClient extends WebViewClient
 			case "https":
 			case "file":
 			case "content":
-				if(wv.getSharedPreferences().getInt(WebSettings.Setting.MULTIVIEW,0)==1){
-				try{
-				String path=uri.getPath();
-				int index=path.indexOf("?");
-				if(index!=-1)path=path.substring(0,index);
-				if(wv.getUrl().indexOf(path)==-1){
-				WebView webview=new WebView(wvmv);
-				webview.loadUrl(url);
-				wvmv.addWebView(webview);
-				return true;}
-				}catch(Exception e){}
+				if (wv.getSharedPreferences().getInt(WebSettings.Setting.MULTIVIEW, 0) == 1)
+				{
+					if(p1.getHitTestResult().getType()==0)return false;
+					try
+					{
+						/*String path=uri.getPath();
+						int index=path.indexOf("?");
+						if (index != -1)path = path.substring(0, index);
+						if (wv.getUrl().indexOf(path) == -1)
+						{*/
+							WebView webview=new WebView(wvmv);
+							webview.loadUrl(url);
+							p1.stopLoading();
+							wvmv.addWebView(webview);
+							return true;
+						//}
+					}
+					catch (Exception e)
+					{}
 				}
 				p1.pauseTimers();
-				p1.loadUrl(url);
-				return true;
+				//p1.loadUrl(url);
+				return false;
 			case "moe":
 				wvmv.getHomePageAdd().show();
 				break;
@@ -192,19 +207,21 @@ public class WebViewClient extends WebViewClient
 			wv.setTag(R.id.webview_adblock, adb.getData(host));
 		}
 		if (wv.getListener() != null)
-			wv.getListener().onStart(wv,p2);
+			wv.getListener().onStart(wv, p2);
 		//加载自动执行的脚本和广告拦截数据
 		video.clear();
 		block.clear();
 		wv.getNetworkLog().clear();
-		p1.onPause();
+		//p1.pauseTimers();
+		super.onPageStarted(p1,p2,p3);
 	}
 
 	@Override
 	public void onPageFinished(android.webkit.WebView p1, String p2)
 	{
+		p1.resumeTimers();
 		if (wv.getListener() != null)
-			wv.getListener().onEnd(wv,p2, p1.getTitle());		
+			wv.getListener().onEnd(wv, p2, p1.getTitle());		
 		try
 		{
 			URL url=new URL(p2);
@@ -217,20 +234,21 @@ public class WebViewClient extends WebViewClient
 				p1.loadUrl(js);
 		if (wv.getSharedPreferences().getBoolean(WebSettings.Setting.FORCESCALE, false))
 			p1.loadUrl("javascript:var meta=document.querySelector('meta[name=viewport]');if(meta)meta.setAttribute('content','width=device-width');");
-			p1.onResume();
-			p1.resumeTimers();
+
 		//p1.getSettings().setBlockNetworkImage(false);
-		
+
 	}
 
 	@Override
 	public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, final String url)
 	{
-		switch (Uri.parse(url).getScheme())
+		
+		Uri uri=Uri.parse(url);
+		switch (uri.getScheme())
 		{
 			case "http":
 			case "https":
-				if (urlBlock == null || !urlBlock.isExists(url))
+				if (urlBlock == null || !urlBlock.matches(uri.getHost(), uri.getPath(), url))
 				{
 					new Thread(){
 						public void run()
@@ -275,7 +293,7 @@ public class WebViewClient extends WebViewClient
 			{
 				case "http":
 				case "https":
-					if (!urlBlock.isExists(url))
+					if (url.matches("^http?://.*?http.*?") || !urlBlock.matches(p2.getUrl().getHost(), p2.getUrl().getPath(), url))
 					{
 						new Thread(){
 							public void run()
@@ -305,22 +323,38 @@ public class WebViewClient extends WebViewClient
 								}
 							}
 						}.start();
-						if (mimeType.matches(".*text/html.*")&&p2.getMethod().equalsIgnoreCase("get")&&p2.getUrl().getHost().matches("(?i)^(?:pan|wangpan|yun).baidu.com$")){
-								HttpURLConnection huc=(HttpURLConnection)new URL(p2.getUrl().toString()).openConnection();
-								huc.setRequestMethod(p2.getMethod());
-								huc.setConnectTimeout(5000);
+						if (p2.getUrl().getHost().matches("(?i)^(?:pan|wangpan|yun).baidu.com$")&& p2.getMethod().equalsIgnoreCase("get"))
+						{
+							HttpURLConnection huc=(HttpURLConnection)new URL(p2.getUrl().toString()).openConnection();
+							//huc.setRequestMethod(p2.getMethod());
+							huc.setConnectTimeout(1000);
+							huc.addRequestProperty("Cookie", CookieManager.getInstance().getCookie(p2.getUrl().toString()));
+							huc.addRequestProperty("Accept-Encoding", "gzip");
+							huc.addRequestProperty("Connection", "Keep-Alive");
+							huc.addRequestProperty("X-Requested-With", view.getContext().getPackageName());
+							huc.addRequestProperty("Accept-Language", "zh-CN,en_US");
+							
 							for (String key:p2.getRequestHeaders().keySet())
-									{
-										huc.addRequestProperty(key, p2.getRequestHeaders().get(key));
-									}
-									huc.addRequestProperty("Cookie", CookieManager.getInstance().getCookie(p2.getUrl().toString()));
-									huc.setRequestProperty("User-Agent","Mozilla/5.0 (NokiaN81;)");
-									if(huc instanceof HttpsURLConnection)
-										((HttpsURLConnection)huc).setSSLSocketFactory(OkHttp.getSslSocketFactory());
-									if (huc.getResponseCode()== 200)
-										return new WebResourceResponse("text/html", "utf-8", huc.getInputStream());
+							{
+								huc.setRequestProperty(key, p2.getRequestHeaders().get(key));
+							}
+							huc.setRequestProperty("User-Agent", "Mozilla/5.0 (SymbianOS/9.4; Series60/5.0 NokiaN97-1/20.0.019; Profile/MIDP-2.1 Configuration/CLDC-1.1) AppleWebKit/525 (KHTML, like Gecko) BrowserNG/7.1.18124");
+							if (huc instanceof HttpsURLConnection)
+								((HttpsURLConnection)huc).setSSLSocketFactory(OkHttp.getSslSocketFactory());
+							if (huc.getResponseCode() == 200)
+							{
+								Map<String,List<String>> map=huc.getHeaderFields();
+								Map<String,String> header=new LinkedHashMap<>();
+								for (String key:map.keySet())
+									header.put(key, map.get(key).get(0));
+								WebResourceResponse wrr=new WebResourceResponse(header.get("Content-Type"), huc.getContentEncoding(), new GZIPInputStream(huc.getInputStream()));
+								wrr.setResponseHeaders(header);
+								wrr.setStatusCodeAndReasonPhrase(huc.getResponseCode(),header.get(null));
+								return wrr;
+							}
+							else return null;
 						}
-						return CacheManager.getInstance(wv.getContext()).shouldInterceptRequest(view,p2);
+						return CacheManager.getInstance(wv.getContext()).shouldInterceptRequest(view, p2);
 					}
 					break;
 				case "file":
@@ -432,6 +466,7 @@ public class WebViewClient extends WebViewClient
 		}
 
 	}
-	
+
+
 
 }

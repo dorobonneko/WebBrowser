@@ -10,13 +10,14 @@ import com.moe.utils.LinkedListMap;
 import com.moe.fragment.NetworkLogFragment;
 import android.view.MotionEvent;
 import java.lang.reflect.Field;
+import android.os.Build;
 public class WebView extends WebView
 {
 	private OnTouchListener otl;
 	private OnStateListener osl;
 	private SharedPreferences shared;
 	private LinkedListMap<NetworkLogFragment.Type, List<String>> llm=new LinkedListMap<>();
-	private ArrayList<String> video=new ArrayList<>(),block=new ArrayList<>();;
+	private ArrayList<String> video=new ArrayList<>(),block=new ArrayList<>();
 	public WebView(WebViewManagerView context)
 	{
 		super(context.getContext());
@@ -32,6 +33,8 @@ public class WebView extends WebView
 		addJavascriptInterface(new JavascriptInterface(this), "moe");
 		setDownloadListener(context);
 	}
+
+	
 	public List<String> getVideo()
 	{
 		return video;
@@ -45,12 +48,25 @@ public class WebView extends WebView
 		return shared;
 	}
 
+	
+	
 	@Override
 	public void destroy()
 	{
-		//releaseAllWebViewCallback();
+		otl=null;
+		osl=null;
+		video.clear();
+		video=null;
+		block.clear();
+		block=null;
+		llm.clear();
+		llm=null;
+		setVisibility(View.GONE);
+		stopLoading();
+		releaseAllWebViewCallback();
 		shared.unregisterOnSharedPreferenceChangeListener((SharedPreferences.OnSharedPreferenceChangeListener)getTag());
 		super.destroy();
+		System.gc();
 	}
 
 	@Override

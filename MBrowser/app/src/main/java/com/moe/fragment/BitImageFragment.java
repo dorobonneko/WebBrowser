@@ -173,6 +173,7 @@ public class BitImageFragment extends Fragment implements SurfaceHolder.Callback
 		{
 			flash.setImageResource(R.drawable.ic_flash_off);
 			getView().setKeepScreenOn(false);
+			if(camera==null)return;
 			camera.setPreviewCallback(null);
 			camera.stopPreview();
 			camera.release();}

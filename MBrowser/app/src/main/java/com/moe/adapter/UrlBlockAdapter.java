@@ -51,7 +51,7 @@ public class UrlBlockAdapter extends RecyclerView.Adapter<UrlBlockAdapter.ViewHo
 		public ViewHolder(TextView v){
 			super(v);
 			title=v;
-			TypedArray ta=v.getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.listPreferredItemHeightSmall,android.support.v7.appcompat.R.attr.selectableItemBackground,android.R.attr.textColorSecondary});
+			TypedArray ta=v.getContext().obtainStyledAttributes(new int[]{android.support.v7.appcompat.R.attr.listPreferredItemHeight,android.support.v7.appcompat.R.attr.selectableItemBackground,android.R.attr.textColorSecondary});
 			v.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,(int)ta.getDimension(0,0)));
 			v.setForeground(ta.getDrawable(1));
 			v.setClickable(true);

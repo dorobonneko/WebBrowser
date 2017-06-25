@@ -31,6 +31,7 @@ import android.os.Environment;
 import android.content.ContentValues;
 import com.moe.webkit.WebViewManagerView;
 import android.webkit.WebView;
+import com.moe.webkit.WebSettings;
 public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 {
 	private WebView.HitTestResult wh;
@@ -143,17 +144,24 @@ public class PopupWindow implements View.OnClickListener,BitImageParser.Callback
 				EventBus.getDefault().post(di);
 				break;
 			case R.id.popupmenu_copy:
-				//wv.loadUrl("javascript:android.selection.longTouch();");
-				KeyEvent shiftPressEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_SHIFT_LEFT);  
-				shiftPressEvent.dispatch(wv);  
+				if(wv.getCurrent().getSharedPreferences().getBoolean(WebSettings.Setting.FORCESCALE,false))
+					Toast.makeText(context,"请关闭强制缩放后刷新网页重试",Toast.LENGTH_SHORT).show();
+				else
+					wv.loadUrl("javascript:try{"+
+				"var text=document.caretRangeFromPoint("+event.getX()/wv.getCurrent().getScale()+","+event.getY()/wv.getCurrent().getScale()+");"+
+				"var range = document.createRange();"+
+				"range.setStart(text.startContainer,text.startOffset);"+
+				"range.setEnd(text.endContainer,text.endOffset);"+
+				"range.expand(\"word\");"+
+				"window.getSelection().removeAllRanges();"+
+				"window.getSelection().addRange(range);"+
+				"}catch(err){alert(err);}");
 				break;
 			case R.id.popupmenu_adblock:
-				float x;
-				float y;
-				
-					x=event.getX()/wv.getCurrent().getScale();
-					y=event.getY()/wv.getCurrent().getScale();
-					wv.loadUrl("javascript:function get(dom){if(dom.getAttribute('id')==''||dom.getAttribute('id')==undefined){if(dom.getAttribute('class')==''||dom.getAttribute('class')==undefined){get(dom.parentNode);}else{moe.getElement(dom.tagName,dom.getAttribute('id'),dom.getAttribute('class'));}}else{ moe.getElement(dom.tagName,dom.getAttribute('id'),dom.getAttribute('class'));}}get(document.elementFromPoint("+x+","+y+"));");
+				if(wv.getCurrent().getSharedPreferences().getBoolean(WebSettings.Setting.FORCESCALE,false))
+					Toast.makeText(context,"请关闭强制缩放后刷新网页重试",Toast.LENGTH_SHORT).show();
+				else
+					wv.loadUrl("javascript:function get(dom){if(dom.getAttribute('id')==''||dom.getAttribute('id')==undefined){if(dom.getAttribute('class')==''||dom.getAttribute('class')==undefined){get(dom.parentNode);}else{moe.getElement(dom.tagName,dom.getAttribute('id'),dom.getAttribute('class'));}}else{ moe.getElement(dom.tagName,dom.getAttribute('id'),dom.getAttribute('class'));}}get(document.elementFromPoint("+event.getX()/wv.getCurrent().getScale()+","+event.getY()/wv.getCurrent().getScale()+"));");
 				break;
 			case R.id.popupmenu_bitImage://二维码识别
 				BitImageParser.decodeImageUrl(wh.getExtra(),this);

@@ -4,8 +4,6 @@ import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import android.text.TextUtils;
 import java.io.IOException;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import android.content.Context;
 import java.util.List;
 import com.moe.database.Sqlite;
@@ -13,21 +11,36 @@ import com.moe.database.UrlBlockDatabase;
 import java.util.regex.PatternSyntaxException;
 import java.util.Collection;
 import com.moe.utils.LinkedListMap;
+import com.moe.regex.Matcher;
 
 public class UrlBlock
 {
 	private static UrlBlock vb;
-	private LinkedListMap<String,Pattern> video=new LinkedListMap<>(); 
+	private LinkedListMap<String,Matcher> video=new LinkedListMap<>(); 
 	private UrlBlock(Context context){
 		reload(Sqlite.getInstance(context,UrlBlockDatabase.class).query());
 	}
-public boolean isExists(String url)
+public boolean matches(String host,String path,String url)
 {
-	List<Pattern> ls=video.values();
-	for(int i=0;i<ls.size();i++)
-	//while(s.matcher(url).lookingAt())return true;
-	if(ls.get(i).matcher(url).find())
-		return true;
+	List<Matcher> ls=video.values();
+	Matcher matcher=null;
+	for(int i=0;i<ls.size();i++){
+		matcher=ls.get(i);
+	switch(matcher.getMode()){
+		case HOST:
+			if(matcher.matches(host))
+				return true;
+				else break;
+		case PATH:
+			if(matcher.matches(path))
+				return true;
+			else break;
+		default:
+			if(matcher.matches(url))
+				return true;
+			else break;
+	}
+		}
 	return false;
 }
 	
@@ -49,7 +62,7 @@ public boolean isExists(String url)
 		insert(s);
 	}
 	public void insert(String s){
-		try{video.put(s,Pattern.compile(s));}catch(PatternSyntaxException e){}
+		try{video.put(s,Matcher.compile(s));}catch(PatternSyntaxException e){}
 	}
 	public void delete(String s){
 		video.removeKey(s);

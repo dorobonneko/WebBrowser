@@ -37,11 +37,12 @@ import com.moe.internal.UrlBlock;
 import android.widget.ViewFlipper;
 import com.moe.utils.ListIndex;
 import android.widget.ImageView;
+import com.moe.regex.Matcher;
 
 public class UrlBlockFragment extends PreferenceFragment implements View.OnClickListener,DialogInterface.OnClickListener,UrlBlockAdapter.OnItemClickListener,ListIndex.Callback
 {
-private UrlBlockAdapter uba;
-private List<String> list;
+	private UrlBlockAdapter uba;
+	private List<String> list;
 	private AlertDialog add;
 	private TextInputLayout til;
 	private EditText msg;
@@ -56,29 +57,29 @@ private List<String> list;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		return inflater.inflate(R.layout.urlblock_view,container,false);
+		return inflater.inflate(R.layout.urlblock_view, container, false);
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
-		rv=(RecyclerView)view.findViewById(R.id.urlblock_view_list);
+		rv = (RecyclerView)view.findViewById(R.id.urlblock_view_list);
 		view.findViewById(R.id.urlblock_view_add).setOnClickListener(this);
 		view.findViewById(R.id.urlblock_view_recycler).setOnClickListener(this);
-		up=(ImageView)view.findViewById(R.id.urlblock_view_up);
+		up = (ImageView)view.findViewById(R.id.urlblock_view_up);
 		up.setOnClickListener(this);
-		down=(ImageView)view.findViewById(R.id.urlblock_view_down);
+		down = (ImageView)view.findViewById(R.id.urlblock_view_down);
 		down.setOnClickListener(this);
 		view.findViewById(R.id.urlblock_view_search).setOnClickListener(this);
 		view.findViewById(R.id.urlblock_view_close).setOnClickListener(this);
 		view.findViewById(R.id.urlblock_view_search_next).setOnClickListener(this);
 		view.findViewById(R.id.urlblock_view_finddown).setOnClickListener(this);
 		view.findViewById(R.id.urlblock_view_findup).setOnClickListener(this);
-		toolbar=(ViewFlipper)view.findViewById(R.id.urlblock_view_toolbar);
-		count=(TextView)view.findViewById(R.id.urlblock_view_count);
-		key=(TextView)view.findViewById(R.id.urlblock_viewkey);
+		toolbar = (ViewFlipper)view.findViewById(R.id.urlblock_view_toolbar);
+		count = (TextView)view.findViewById(R.id.urlblock_view_count);
+		key = (TextView)view.findViewById(R.id.urlblock_viewkey);
 		rv.setLayoutManager(new LinearLayoutManager(getActivity()));
-		rv.setAdapter(uba=new UrlBlockAdapter(list=new ArrayList<>(),toolbar));
+		rv.setAdapter(uba = new UrlBlockAdapter(list = new ArrayList<>(), toolbar));
 		uba.setOnItemClickListener(this);
 		super.onViewCreated(view, savedInstanceState);
 	}
@@ -86,13 +87,13 @@ private List<String> list;
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
-		ubd=Sqlite.getInstance(getActivity(),UrlBlockDatabase.class);
+		ubd = Sqlite.getInstance(getActivity(), UrlBlockDatabase.class);
 		super.onActivityCreated(savedInstanceState);
 		list.addAll(ubd.query());
 		uba.notifyDataSetChanged();
 		ListIndex.getInstance().setCallback(this);
 	}
-	
+
 	private void createAdd()
 	{
 		til = new TextInputLayout(getActivity());
@@ -110,22 +111,25 @@ private List<String> list;
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, final Intent data)
 	{
-		if(requestCode==666){
-			if(resultCode==Activity.RESULT_OK){
+		if (requestCode == 666)
+		{
+			if (resultCode == Activity.RESULT_OK)
+			{
 				new Thread(){
-					public void run(){
+					public void run()
+					{
 						BufferedReader br = null;
-						error=0;
+						error = 0;
 						try
 						{
 							br = new BufferedReader(new InputStreamReader(getActivity().getContentResolver().openInputStream(data.getData())));
 							String line=null;
 							while ((line = br.readLine()) != null)
 							{
-								if (TextUtils.isEmpty(line))continue;
+								if (TextUtils.isEmpty(line) || line.startsWith("#"))continue;
 								try
 								{
-									Pattern.compile(line);
+									Matcher.compile(line);
 									ubd.insert(line);
 								}
 								catch (PatternSyntaxException e)
@@ -134,7 +138,8 @@ private List<String> list;
 						}
 						catch (IOException e)
 						{}
-						finally{
+						finally
+						{
 							try
 							{
 								if (br != null)br.close();
@@ -150,31 +155,33 @@ private List<String> list;
 									list.clear();
 									list.addAll(ubd.query());
 									uba.notifyDataSetChanged();
-									UrlBlock.getInstance(getActivity(),list);
-									if(error>0)
-										Toast.makeText(getActivity(),"已忽略"+error+"条错误规则",Toast.LENGTH_SHORT).show();
-										else
-										Toast.makeText(getActivity(),"导入成功，无错误",Toast.LENGTH_SHORT).show();
-									
+									UrlBlock.getInstance(getActivity(), list);
+									if (error > 0)
+										Toast.makeText(getActivity(), "已忽略" + error + "条错误规则", Toast.LENGTH_SHORT).show();
+									else
+										Toast.makeText(getActivity(), "导入成功，无错误", Toast.LENGTH_SHORT).show();
+
 								}
 							});
 					}
 				}.start();
-				
+
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
-	
+
 	@Override
 	public void onClick(View p1)
 	{
-		switch(p1.getId()){
+		switch (p1.getId())
+		{
 			case R.id.urlblock_view_add:
 				show(null);
 				break;
 			case R.id.urlblock_view_recycler:
-				if(list.size()>0){
+				if (list.size() > 0)
+				{
 					new AlertDialog.Builder(getActivity()).setMessage("确认清空数据？")
 						.setNegativeButton("确定", new DialogInterface.OnClickListener(){
 
@@ -187,11 +194,11 @@ private List<String> list;
 								UrlBlock.getInstance(getActivity()).clear();
 							}
 						})
-					.setPositiveButton("取消",null).show();
+						.setPositiveButton("取消", null).show();
 				}
 				break;
 			case R.id.urlblock_view_down:
-				rv.scrollToPosition(list.size()+1);
+				rv.scrollToPosition(list.size() + 1);
 				break;
 			case R.id.urlblock_view_up:
 				rv.scrollToPosition(0);
@@ -202,34 +209,36 @@ private List<String> list;
 				break;
 			case R.id.urlblock_view_close:
 				toolbar.setDisplayedChild(0);
-				if(index.size()>0)
-					uba.notifyItemChanged(index.get(currentIndex)+2);
+				if (index.size() > 0)
+					uba.notifyItemChanged(index.get(currentIndex) + 2);
 				break;
 			case R.id.urlblock_view_search_next:
-				if(!TextUtils.isEmpty(key.getText()))
-				ListIndex.getInstance().query(list,key.getText().toString());
+				if (!TextUtils.isEmpty(key.getText()))
+					ListIndex.getInstance().query(list, key.getText().toString());
 				break;
 			case R.id.urlblock_view_finddown:
-				if(currentIndex<index.size()-1){
-					int pre=index.get(currentIndex)+2;
-					int pos=index.get(++currentIndex)+2;
+				if (currentIndex < index.size() - 1)
+				{
+					int pre=index.get(currentIndex) + 2;
+					int pos=index.get(++currentIndex) + 2;
 					rv.scrollToPosition(pos);
 					toolbar.setTag(pos);
 					uba.notifyItemChanged(pre);
 					uba.notifyItemChanged(pos);
-					count.setText((currentIndex+1)+"/"+index.size());
-					}
+					count.setText((currentIndex + 1) + "/" + index.size());
+				}
 				break;
 			case R.id.urlblock_view_findup:
-				if(currentIndex>0){
-					int pre=index.get(currentIndex)+2;
-					int pos=index.get(--currentIndex)+2;
+				if (currentIndex > 0)
+				{
+					int pre=index.get(currentIndex) + 2;
+					int pos=index.get(--currentIndex) + 2;
 					rv.scrollToPosition(pos);
 					toolbar.setTag(pos);
 					uba.notifyItemChanged(pre);
 					uba.notifyItemChanged(pos);
-					count.setText((currentIndex+1)+"/"+index.size());
-					}
+					count.setText((currentIndex + 1) + "/" + index.size());
+				}
 				break;
 		}
 	}
@@ -237,32 +246,34 @@ private List<String> list;
 	@Override
 	public void finded(List<Integer> li)
 	{
-		index=li;
-		if(li.size()>0){
-			count.setText("1/"+li.size());
-			int pos=li.get(0)+2;
+		index = li;
+		if (li.size() > 0)
+		{
+			count.setText("1/" + li.size());
+			int pos=li.get(0) + 2;
 			rv.scrollToPosition(pos);
-			currentIndex=0;
+			currentIndex = 0;
 			uba.notifyItemChanged(pos);
 			toolbar.setTag(pos);
-			}
-			else
+		}
+		else
 			count.setText("0/0");
-		
+
 	}
 
-	
+
 	@Override
 	public void onClick(DialogInterface p1, int p2)
 	{
 		switch (p2)
 		{
 			case AlertDialog.BUTTON_NEUTRAL:
-				if(data!=null){
+				if (data != null)
+				{
 					int index=list.indexOf(data);
 					ubd.delete(list.remove(index));
-					uba.notifyItemRemoved(index+2);
-					DialogUtils.changeState(add,true);
+					uba.notifyItemRemoved(index + 2);
+					DialogUtils.changeState(add, true);
 					UrlBlock.getInstance(getActivity()).delete(data);
 				}
 				break;
@@ -271,40 +282,60 @@ private List<String> list;
 				String dd=msg.getText().toString().trim();
 				if (TextUtils.isEmpty(dd))
 				{
-					flag=false;
+					flag = false;
 					til.setError("内容不能为空");
 				}
-				try{
-					Pattern.compile(dd);
-				}catch(PatternSyntaxException e){
-					til.setError("语法不符合规范：第"+e.getIndex()+"位错误");
-					flag=false;
+				try
+				{
+					Matcher.compile(dd);
 				}
-				if(flag){
-					if(data==null){
-						if(ubd.insert(dd)){
+				catch (PatternSyntaxException e)
+				{
+					til.setError("语法不符合规范：第" + e.getIndex() + "位错误");
+					flag = false;
+				}
+				if (flag)
+				{
+					if (data == null)
+					{
+						if (ubd.insert(dd))
+						{
 							list.add(dd);
-							uba.notifyItemInserted(list.size()+1);
+							uba.notifyItemInserted(list.size() + 1);
 							UrlBlock.getInstance(getActivity()).insert(dd);
-						}else{
-							Toast.makeText(getActivity(),"存在相同规则",Toast.LENGTH_SHORT).show();
 						}
-						
-					}else{
-						ubd.update(data,dd);
-						int index=list.indexOf(data);
-						list.remove(index);
-						list.add(index,dd);
-						uba.notifyItemChanged(index+2);
-						UrlBlock.getInstance(getActivity()).delete(data);
-						UrlBlock.getInstance(getActivity()).insert(dd);
+						else
+						{
+							flag=false;
+						}
+
 					}
-					DialogUtils.changeState(add,true);
+					else
+					{
+						if (ubd.update(data, dd))
+						{
+							int index=list.indexOf(data);
+							list.remove(index);
+							list.add(index, dd);
+							uba.notifyItemChanged(index + 2);
+							UrlBlock.getInstance(getActivity()).delete(data);
+							UrlBlock.getInstance(getActivity()).insert(dd);
+						}
+						else
+						{
+							
+							flag=false;
+						}
 					}
-					
+					if(flag)
+					DialogUtils.changeState(add, true);
+					else
+					til.setError("已存在相同规则");
+				}
+
 				break;
 			case AlertDialog.BUTTON_POSITIVE:
-				DialogUtils.changeState(add,true);
+				DialogUtils.changeState(add, true);
 				break;
 		}
 	}
@@ -312,75 +343,90 @@ private List<String> list;
 	@Override
 	public void onItemClick(int pos)
 	{
-		if(pos<2){
-			if(pos==1){
+		if (pos < 2)
+		{
+			if (pos == 1)
+			{
 				Calendar c=Calendar.getInstance();
-				File dir=new File(Download.Setting.DIR_DEFAULT+"/adblock");
-				if(dir.isFile())
+				File dir=new File(Download.Setting.DIR_DEFAULT + "/adblock");
+				if (dir.isFile())
 					dir.delete();
-				if(!dir.exists())
+				if (!dir.exists())
 					dir.mkdirs();
-				File file=new File(dir,"广告拦截规则"+(c.get(c.MONTH)+1)+"."+c.get(c.DAY_OF_MONTH)+"-"+c.get(c.HOUR_OF_DAY)+":"+c.get(c.MINUTE)+".ini");
+				File file=new File(dir, "广告拦截规则" + (c.get(c.MONTH) + 1) + "." + c.get(c.DAY_OF_MONTH) + "-" + c.get(c.HOUR_OF_DAY) + ":" + c.get(c.MINUTE) + ".ini");
 				try
 				{
 					FileOutputStream fos=new FileOutputStream(file);
-					for(String s:list){
+					for (String s:list)
+					{
 						fos.write(s.getBytes());
 						fos.write("\r\n".getBytes());
 					}
 					fos.flush();
 					fos.close();
-					Toast.makeText(getActivity(),file.getAbsolutePath(),Toast.LENGTH_LONG).show();
-					
+					Toast.makeText(getActivity(), file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+
 				}
 				catch (IOException e)
 				{
-					Toast.makeText(getActivity(),"导出失败",Toast.LENGTH_SHORT).show();
+					Toast.makeText(getActivity(), "导出失败", Toast.LENGTH_SHORT).show();
 				}
 			}
-			else{
+			else
+			{
 				Intent intent=new Intent(Intent.ACTION_GET_CONTENT);
 				intent.setType("text/*");
-				try{getActivity().startActivityForResult(intent,666);}catch(Exception e){
-					Toast.makeText(getActivity(),"无可用程序",Toast.LENGTH_SHORT).show();
+				try
+				{getActivity().startActivityForResult(intent, 666);}
+				catch (Exception e)
+				{
+					Toast.makeText(getActivity(), "无可用程序", Toast.LENGTH_SHORT).show();
 				}
 			}
-		}else{
-			show(list.get(pos-2));
+		}
+		else
+		{
+			show(list.get(pos - 2));
 		}
 	}
 
-	
-private void show(String data){
-	this.data=data;
-	if(add==null)createAdd();
-	if(data==null){
-		add.setTitle("新增规则");
-		msg.setText(null);
+
+	private void show(String data)
+	{
+		this.data = data;
+		if (add == null)createAdd();
+		if (data == null)
+		{
+			add.setTitle("新增规则");
+			msg.setText(null);
 		}
-		else{
-		add.setTitle("编辑条目");
-		msg.setText(data);
+		else
+		{
+			add.setTitle("编辑条目");
+			msg.setText(data);
 		}
-	add.show();
-	til.setError(null);
-	DialogUtils.changeState(add,false);
-	
-}
+		add.show();
+		til.setError(null);
+		DialogUtils.changeState(add, false);
+
+	}
 	@Override
 	public boolean onBackPressed()
 	{
-		if(getFragmentManager()!=null&&!isHidden()){
-			if(toolbar.getDisplayedChild()==1){
+		if (getFragmentManager() != null && !isHidden())
+		{
+			if (toolbar.getDisplayedChild() == 1)
+			{
 				toolbar.setDisplayedChild(0);
-				if(index.size()>0)
-					uba.notifyItemChanged(index.get(currentIndex)+2);
-				
-				}else
-			getFragmentManager().beginTransaction().hide(this).detach(this).remove(this).commit();
-			return true;
+				if (index.size() > 0)
+					uba.notifyItemChanged(index.get(currentIndex) + 2);
+
 			}
+			else
+				getFragmentManager().beginTransaction().hide(this).detach(this).remove(this).commit();
+			return true;
+		}
 		return false;
 	}
-	
+
 }

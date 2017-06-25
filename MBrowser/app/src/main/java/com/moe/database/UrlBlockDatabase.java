@@ -59,14 +59,16 @@ public class UrlBlockDatabase extends SQLiteOpenHelper
 		state.releaseReference();
 		return flag;
 	}
-	public void update(String old,String new_){
+	public boolean update(String old,String new_){
+		boolean flag=true;
 		SQLiteStatement state=sql.compileStatement("update urlblock set url=? where url=?");
 		state.acquireReference();
 		state.bindString(1,new_);
 		state.bindString(2,old);
-		state.executeUpdateDelete();
+		try{state.executeUpdateDelete();}catch(Exception e){flag=false;}
 		state.close();
 		state.releaseReference();
+		return flag;
 	}
 	public void delete(String url){
 		SQLiteStatement state=sql.compileStatement("delete from urlblock where url=?");

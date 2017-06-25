@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.util.zip.GZIPOutputStream;
+import com.moe.utils.StringUtils;
 
 public class CacheManager
 {
@@ -33,9 +34,9 @@ public class CacheManager
 	{
 		String url=p2.getUrl().toString();
 		Type type;
-		if ( MediaUtils.isFormat(url, MediaUtils.Type.CSS))
-			type=Type.CSS;
-		else
+		//if ( MediaUtils.isFormat(url, MediaUtils.Type.CSS))
+		//	type=Type.CSS;
+		//else
 			if (MediaUtils.isFormat(url, MediaUtils.Type.JS))
 			type=Type.JS;
 		else 
@@ -45,7 +46,9 @@ public class CacheManager
 			type=Type.OTHER;
 		if(type!=Type.OTHER){
 			File file=new File(cache,p2.getUrl().toString().hashCode()+"");
+			File contenttype=new File(cache,p2.getUrl().toString().hashCode()+".type");
 			InputStream is=null;
+			try{
 			if(file.exists()){
 				is=new GZIPInputStream(new FileInputStream(file));
 			}else{
@@ -56,6 +59,8 @@ public class CacheManager
 					os=new FileOutputStream(file);
 					if(!"gzip".equalsIgnoreCase(huc.getContentEncoding()))
 						os=new GZIPOutputStream(os);
+				}else{
+				return new WebResourceResponse("*/*","utf-8",null);
 				}
 				byte[] b=new byte[20480];
 				int len=0;
@@ -65,18 +70,37 @@ public class CacheManager
 				os.flush();
 				os.close();
 				is.close();
+				os=new FileOutputStream(contenttype);
+				//os.write(p2.getRequestHeaders().get("Accept").getBytes());
+				os.write(huc.getContentType().getBytes());
+				os.flush();
+				os.close();
 				huc.disconnect();
 				is=new GZIPInputStream(new FileInputStream(file));
 			}
-			if(is!=null)
-				return new WebResourceResponse(type==Type.IMAGE?p2.getRequestHeaders().get("Accept"):type==Type.CSS?"text/css":"text/javascript", "utf-8", is);
+			}catch(Exception e){
+				try{if(is!=null)is.close();}catch(IOException e1){}
+				is=null;
+				file.delete();
+			}
+			if(is!=null){
+				String contentType=null;
+				try
+				{
+					contentType=StringUtils.newString(new FileInputStream(contenttype));
+				}
+				catch (IOException e)
+				{contentType="*/*";}
+				return new WebResourceResponse(contentType, null, is);
+				}
 		}
 		return null;
 		}
 	private HttpURLConnection get(WebResourceRequest wrr) throws IOException{
 		HttpURLConnection huc=(HttpURLConnection)new URL(wrr.getUrl().toString()).openConnection();
 		huc.setRequestMethod(wrr.getMethod());
-		huc.setConnectTimeout(5000);
+		huc.setConnectTimeout(500);
+		huc.setReadTimeout(500);
 		for (String key:wrr.getRequestHeaders().keySet())
 		{
 			huc.addRequestProperty(key, wrr.getRequestHeaders().get(key));

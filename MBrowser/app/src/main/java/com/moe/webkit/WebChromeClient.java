@@ -22,6 +22,7 @@ import android.app.Activity;
 import com.moe.database.WebHistory;
 import com.moe.database.Sqlite;
 import android.os.Build;
+import android.text.TextUtils;
 
 public class WebChromeClient extends WebChromeClient
 {
@@ -114,6 +115,7 @@ public class WebChromeClient extends WebChromeClient
 	public void onReceivedTitle(final android.webkit.WebView p1, final String p2)
 	{
 		if (wv.getListener() != null)wv.getListener().onReceiverTitle(wv,p2);
+		p1.pauseTimers();
 		if (!wv.getSharedPreferences().getBoolean(WebSettings.Setting.PRIVATE, false))
 		{
 			final String url=p1.getUrl();
@@ -124,8 +126,6 @@ public class WebChromeClient extends WebChromeClient
 				}
 			}.start();
 		}
-		p1.onResume();
-		p1.pauseTimers();
 	}
 
 	@Override
@@ -181,6 +181,7 @@ public class WebChromeClient extends WebChromeClient
 		if (wv.getTag(R.id.webview_adblock)!= null)
 			for (String js:wv.getTag(R.id.webview_adblock).toString().split(","))
 			{
+				if(!TextUtils.isEmpty(js))
 				p1.loadUrl("javascript:var item=document.querySelector('" + js + "');item.parentNode.removeChild(item);");
 			}
 	}
