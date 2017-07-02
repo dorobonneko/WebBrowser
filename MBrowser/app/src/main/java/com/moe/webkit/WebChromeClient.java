@@ -53,14 +53,16 @@ public class WebChromeClient extends WebChromeClient
 		{
 			p1.setBackgroundColor(0xff000000);
 		}
-		p1.setTag(p2);
-		EventBus.getDefault().post(p1);
+		//p1.setTag(p2);
+		EventBus.getDefault().post(new com.moe.bean.Message(372,p1));
 	}
 
 	@Override
 	public void onHideCustomView()
 	{
-		EventBus.getDefault().post("hide");
+		wv.setTag(R.id.webview_callback,null);
+		EventBus.getDefault().post(com.moe.bean.Message.obitMessage(372));
+		
 	}
 
 
@@ -70,7 +72,7 @@ public class WebChromeClient extends WebChromeClient
 	{
 		return new ProgressBar(wv.getContext());
 	}
-
+	
 	@Override
 	public boolean onShowFileChooser(android.webkit.WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams)
 	{
@@ -126,6 +128,7 @@ public class WebChromeClient extends WebChromeClient
 				}
 			}.start();
 		}
+		EventBus.getDefault().post(new com.moe.bean.Message(773,wv.getManager()));
 	}
 
 	@Override

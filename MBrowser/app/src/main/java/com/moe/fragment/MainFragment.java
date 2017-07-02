@@ -28,6 +28,7 @@ import android.content.SharedPreferences;
 import com.moe.webkit.WebViewManagerView;
 import com.moe.webkit.WebSettings;
 import android.webkit.WebView;
+import java.util.*;
 
 public class MainFragment extends Fragment implements FragmentPop.OnHideListener,AddDialog.OnAddListener
 {
@@ -36,8 +37,8 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     private ViewGroup pop;
     private ViewFlipper content;
 	private android.widget.ViewFlipper menutool;
-	private FragmentPop current,menu=new MenuFragment(),window=new WindowFragment();
-	
+	private FragmentPop current,menu,window;
+	private TextQuery textQuert;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -66,13 +67,23 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 		ad = new AddDialog(getActivity());
         EventBus.getDefault().register(this);
         //注册fragment隐藏监听
-        menu.setOnHideListener(this);
-        window.setOnHideListener(this);
-		LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(new TextQuery(), new IntentFilter("com.moe.search"));
-		ad.setOnAddLostener(this);
-
+		
+		LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(textQuert=new TextQuery(), new IntentFilter("com.moe.search"));
+		ad.setOnAddListener(this);
+		
 	}
+	
 
+	@Override
+	public void onStart()
+	{
+		if(current==null){
+			current=(FragmentPop)getChildFragmentManager().findFragmentByTag("window");
+			if(current==null)current=(FragmentPop)getChildFragmentManager().findFragmentByTag("menu");
+		}
+		super.onStart();
+	}
+	
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {
@@ -91,7 +102,6 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 			LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent("com.moe.search").putExtra(SearchManager.QUERY, url));
 		}
 	}
-
 	@Override
 	public void setArguments(Bundle args)
 	{
@@ -159,14 +169,21 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 				if (!hidePop())
 				{
 					pop.setVisibility(pop.VISIBLE);
+					if(window==null){
+						window=(WindowFragment)getChildFragmentManager().findFragmentByTag("window");
+						if(window==null)window=new WindowFragment();
+						window.setOnHideListener(this);
+					}
 					if (window.isAdded())
 						getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).show(window).commit();
 					else
-						getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).add(R.id.mainview_popwin, window).show(window).commit();
+						getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).add(R.id.mainview_popwin, window,"window").show(window).commit();
+						current=window;
 				}
 				break;
 			case MenuFragment.SHOW:
 				//打开菜单
+				if(menu!=null&&!menu.isHidden()){hidePop();return;}
 				int time=0;
 				if (current != null && !current.isHidden())
 					time = 150;
@@ -177,11 +194,17 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 						public void run()
 						{
 							pop.setVisibility(pop.VISIBLE);
+							if(menu==null){
+								menu=(MenuFragment)getChildFragmentManager().findFragmentByTag("menu");
+								if(menu==null)menu=new MenuFragment();
+								menu.setOnHideListener(MainFragment.this);
+								
+							}
 							if (menu.isAdded())
 								getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).show(menu).commit();
 							else
-								getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).add(R.id.mainview_popwin, menu).show(menu).commit();
-							
+								getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.popin, R.anim.popout).add(R.id.mainview_popwin, menu,"menu").show(menu).commit();
+							current=menu;
 							menutool.setDisplayedChild(1);
 
 						}

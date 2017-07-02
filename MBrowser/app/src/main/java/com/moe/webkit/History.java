@@ -13,6 +13,7 @@ public class History
 			next.pop().destroy();
 		while(!history.isEmpty())
 			history.pop().destroy();
+		if(current!=null)current.destroy();
 	}
 	public void add(WebView add){
 		while(!next.isEmpty())

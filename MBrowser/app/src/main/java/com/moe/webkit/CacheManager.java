@@ -41,17 +41,35 @@ public class CacheManager
 			type=Type.JS;
 		else 
 			if (MediaUtils.isFormat(url, MediaUtils.Type.IMAGE))
-		type=Type.IMAGE;
+				type=Type.IMAGE;
+		else
+			if(MediaUtils.isFormat(url,MediaUtils.Type.CSS))	
+		type=Type.CSS;
 		else
 			type=Type.OTHER;
 		if(type!=Type.OTHER){
 			File file=new File(cache,p2.getUrl().toString().hashCode()+"");
-			File contenttype=new File(cache,p2.getUrl().toString().hashCode()+".type");
+			File contenttype=new File(cache,p2.getUrl().toString().hashCode()+(type==Type.IMAGE?".img":type==Type.JS?".js":".css"));
 			InputStream is=null;
+			String contentType="*/*";
 			try{
 			if(file.exists()){
-				is=new GZIPInputStream(new FileInputStream(file));
-			}else{
+				try
+				{
+					contentType=StringUtils.newString(new FileInputStream(contenttype));
+				}
+				catch (IOException e)
+				{}
+				String[] time=null;
+				if((time=contentType.split("#")).length==2){
+					if(type==Type.JS&&System.currentTimeMillis()>Long.parseLong(time[1].trim())+file.lastModified())
+						file.delete();
+						else
+					is=new GZIPInputStream(new FileInputStream(file));
+				}
+				
+			}
+			if(is==null){
 				HttpURLConnection huc=get(p2);
 				OutputStream os=null;
 				if (huc.getResponseCode()== 200){
@@ -62,6 +80,9 @@ public class CacheManager
 				}else{
 				return new WebResourceResponse("*/*","utf-8",null);
 				}
+				if(huc.getContentType().indexOf("text/htm")!=-1)
+					throw new IllegalAccessException();
+				contentType=huc.getContentType();
 				byte[] b=new byte[20480];
 				int len=0;
 				while((len=is.read(b))!=-1){
@@ -72,7 +93,10 @@ public class CacheManager
 				is.close();
 				os=new FileOutputStream(contenttype);
 				//os.write(p2.getRequestHeaders().get("Accept").getBytes());
-				os.write(huc.getContentType().getBytes());
+				os.write(contentType.getBytes());
+				os.write('#');
+				String cache=huc.getHeaderField("Cache-Control");
+				os.write((cache==null?"0":cache.startsWith("max-age")?cache.split("=")[1].trim()+"000":"0").getBytes());
 				os.flush();
 				os.close();
 				huc.disconnect();
@@ -83,16 +107,8 @@ public class CacheManager
 				is=null;
 				file.delete();
 			}
-			if(is!=null){
-				String contentType=null;
-				try
-				{
-					contentType=StringUtils.newString(new FileInputStream(contenttype));
-				}
-				catch (IOException e)
-				{contentType="*/*";}
-				return new WebResourceResponse(contentType, null, is);
-				}
+			if(is!=null)
+				return new WebResourceResponse(contentType.split("#")[0], "utf-8", is);
 		}
 		return null;
 		}

@@ -25,6 +25,7 @@
 		android:icon="@drawable/ic_block_helper"
 		android:title="已屏蔽链接"/>
 	<item
+		android:icon="@drawable/ic_link"
 		android:id="@+id/toolbox_network_log"
 		android:title="网络日志"/>
 </menu>

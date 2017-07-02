@@ -12,6 +12,11 @@ public class ViewPagerAdapter extends PagerAdapter
 public ViewPagerAdapter(List list){
 	this.lv=list;
 }
+
+public View get(int i)
+{
+	return lv.get(i);
+}
 	@Override
 	public int getCount()
 	{

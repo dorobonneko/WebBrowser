@@ -60,7 +60,14 @@ import android.widget.Button;
 import com.moe.fragment.NetworkLogFragment;
 import com.moe.webkit.WebViewManagerView;
 import com.moe.fragment.InputFragment;
-import java.util.*;
+import android.graphics.PixelFormat;
+import android.view.KeyEvent;
+import com.moe.fragment.MenuFragment;
+import android.database.Cursor;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import android.support.v4.content.FileProvider;
+
 
 public class HomeActivity extends FragmentActivity implements Download.Callback
 {
@@ -74,6 +81,69 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 	private android.support.v7.app.AlertDialog ad;
 	private JavaScriptDialog jsd;
 	private ClipboardManager cm;
+	private ViewGroup fullscreen=null;
+	
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+		getWindow().setFormat(PixelFormat.TRANSLUCENT);
+		requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+		cm=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+		shared = getSharedPreferences("moe", 0);
+		setContentView(R.layout.main);
+		Theme.registerBackground(findViewById(R.id.main));
+		dd = new DownloadDialog(this);
+		if (shared.getBoolean("full", false))
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		if (shared.getBoolean("night", false))
+		findViewById(R.id.main3).setBackgroundColor(0x50000000);
+		fullscreen=(ViewGroup)findViewById(R.id.main3);
+		startService(new Intent(this, ResourceService.class));
+		EventBus.getDefault().register(this);
+		if(Build.VERSION.SDK_INT>19)
+		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+		{
+			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 55);
+		}
+		loadURL(getIntent());
+	}
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+	{
+		switch (requestCode)
+		{
+			case 49:
+				if (callback != null)
+				{
+					for (int i:grantResults)
+					{
+						if (i != PackageManager.PERMISSION_GRANTED)
+						{
+							((GeolocationPermissions.Callback)((Object[])callback.obj)[1]).invoke(((Object[])callback.obj)[0].toString(), false, false);
+							callback = null;
+							return;}
+					}
+					((GeolocationPermissions.Callback)((Object[])callback.obj)[1]).invoke(((Object[])callback.obj)[0].toString(), true, false);
+					callback = null;
+				}
+				break;
+			case 55:
+				for (int i:grantResults)
+				{
+					if (i != PackageManager.PERMISSION_GRANTED)
+					{
+						Toast.makeText(this, "无存储器读写权限，软件部分功能将无法使用", Toast.LENGTH_LONG).show();
+						return;
+					}
+				}
+				break;
+
+		}
+		if(current!=null)current.onRequestPermissionsResult(requestCode,permissions,grantResults);
+		super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+	}
 	@Override
 	public void callback(final TaskInfo ti, Download.State state)
 	{
@@ -122,92 +192,10 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 		}
 	}
 	
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-		cm=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-		shared = getSharedPreferences("moe", 0);
-		setContentView(R.layout.main);
-		Theme.registerBackground(findViewById(R.id.main));
-		dd = new DownloadDialog(this);
-		if (shared.getBoolean("full", false))
-		{
-			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			//((MainFragment)main).setPadding(true);
-		}
-		if (shared.getBoolean("night", false))
-			findViewById(R.id.main3).setBackgroundColor(0x50000000);
-		startService(new Intent(this, ResourceService.class));
-		EventBus.getDefault().register(this);
-		if(Build.VERSION.SDK_INT>19)
-		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-		{
-			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 55);
-		}
-		loadURL(getIntent());
-	}
-	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
-	{
-		switch (requestCode)
-		{
-			case 49:
-				if (callback != null)
-				{
-					for (int i:grantResults)
-					{
-						if (i != PackageManager.PERMISSION_GRANTED)
-						{
-							((GeolocationPermissions.Callback)((Object[])callback.obj)[1]).invoke(((Object[])callback.obj)[0].toString(), false, false);
-							callback = null;
-							return;}
-					}
-					((GeolocationPermissions.Callback)((Object[])callback.obj)[1]).invoke(((Object[])callback.obj)[0].toString(), true, false);
-					callback = null;
-				}
-				break;
-			case 55:
-				for (int i:grantResults)
-				{
-					if (i != PackageManager.PERMISSION_GRANTED)
-					{
-						Toast.makeText(this, "无存储器读写权限，软件部分功能将无法使用", Toast.LENGTH_LONG).show();
-						return;
-					}
-				}
-				break;
-
-		}
-		if(current!=null)current.onRequestPermissionsResult(requestCode,permissions,grantResults);
-		super.onRequestPermissionsResult(requestCode,permissions,grantResults);
-	}
-
+	
 	
 	@Subscribe
-	public void onFullScreen(View v){
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		((ViewGroup)findViewById(R.id.main3)).addView(v);
-	}
-	@Subscribe
-	public void onHide(String str){
-		if(str.equals("hide")){
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-			if (shared.getBoolean("full", false))
-			{
-				getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			}
-			else
-			{
-				getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			}
-			((ViewGroup)findViewById(R.id.main3)).removeAllViews();
-		}
-	}
-	@Subscribe
-	public void permission(Message callback)
+	public void message(Message callback)
 	{
 		switch (callback.what)
 		{
@@ -297,6 +285,28 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 							}
 						}).show();
 					break;
+				case 372:
+					if(callback.obj!=null){
+						fullscreen.setKeepScreenOn(true);
+						getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+						fullscreen.addView((View)callback.obj);
+						fullscreen.invalidate();
+						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+						
+					}else{
+						fullscreen.setKeepScreenOn(false);
+						setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+						if (shared.getBoolean("full", false))
+						{
+							getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+						}
+						else
+						{
+							getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+						}
+						fullscreen.removeAllViews();
+					}
+					break;
 		}
 	}
 	@Subscribe
@@ -304,6 +314,21 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 	{
 		dd.show(di);
 	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event)
+	{
+		switch(keyCode){
+			case event.KEYCODE_MENU:
+			EventBus.getDefault().post(MenuFragment.SHOW);
+			return true;
+			case event.KEYCODE_BACK:
+				onBackPressed();
+				return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+	
 	@Subscribe
 	public void onEvent(MenuOptions mo)
 	{
@@ -354,7 +379,7 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 				}
 				else
 				{
-					getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).add(R.id.main2, setting).commit();
+					getFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).add(R.id.main2, setting,"setting").commit();
 				}
 				break;
 			case NIGHTMODE:
@@ -415,8 +440,43 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 				{
 					ValueCallback<Uri[]> vu=(ValueCallback<Uri[]>)((Object[])callback.obj)[0];
 					if (resultCode == RESULT_OK)
-						vu.onReceiveValue(new Uri[]{data.getData()});
-					else
+						/*switch(data.getData().getScheme()){
+						case "file":
+								vu.onReceiveValue(new Uri[]{data.getData()});
+							break;
+						case "content":
+								String path=Uri.decode(data.getDataString());
+								if(path.matches("content://.*?//.*?")){
+									//应用级
+									int index=path.lastIndexOf("//");
+									vu.onReceiveValue(new Uri[]{Uri.parse(new File(path.substring(index+1)).toURI().toString())});
+								}else{
+									//系统级
+									Cursor c=getContentResolver().query(data.getData(),new String[]{MediaStore.Files.FileColumns.DATA},null,null,null);
+									if(c.moveToFirst()){
+										vu.onReceiveValue(new Uri[]{Uri.parse(new File(c.getString(0)).toURI().toString())});
+									}else{
+										vu.onReceiveValue(null);
+									}
+									c.close();
+								}
+							break;
+							}*/
+						{
+							switch(data.getData().getScheme()){
+								case "file":
+									vu.onReceiveValue(new Uri[]{data.getData()});
+									break;
+								case "content":
+									try{
+										vu.onReceiveValue(new Uri[]{getContentResolver().uncanonicalize(data.getData())});
+									}catch(SecurityException se){
+										vu.onReceiveValue(null);
+										}
+									break;
+							}
+							
+						}else
 						vu.onReceiveValue(null);
 					callback = null;
 				}
@@ -460,6 +520,22 @@ public void onEvent(Integer event){
 		super.onDestroy();
 	}
 
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		setting=(SettingFragment)getFragmentManager().findFragmentByTag("setting");
+		main=(MainFragment)getSupportFragmentManager().findFragmentByTag("main");
+		current=(Fragment)getSupportFragmentManager().findFragmentByTag("current");
+		super.onRestoreInstanceState(savedInstanceState);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		if(search!=null)getSupportFragmentManager().beginTransaction().detach(search).commitAllowingStateLoss();
+		super.onSaveInstanceState(outState);
+	}
+	
     @Override
     public void onBackPressed()
     {
@@ -479,16 +555,10 @@ public void onEvent(Integer event){
 		}
 		if (current != null && current.onBackPressed())
 			return;
-			List<Fragment> lf=(List<Fragment>)getSupportFragmentManager().getFragments();
-		if (lf.size()>0)
+			//List<Fragment> lf=(List<Fragment>)getSupportFragmentManager().getFragments();
+		if (current!=null&&!current.isHidden())
 		{
-			current=lf.get(lf.size()-1);
-			if(lf.size()>2&&current instanceof MainFragment){
-				getSupportFragmentManager().popBackStack();
-				current=lf.get(lf.size()-2);
-			}
-			if(current==null||current==main){current=null;}
-			else{
+			
 			getSupportFragmentManager().popBackStack();
 			if(current==search)
 			getSupportFragmentManager().beginTransaction().setCustomAnimations(0,R.anim.right_out).hide(current).commit();
@@ -498,7 +568,7 @@ public void onEvent(Integer event){
 			main();
 			System.gc();
 			return;
-			}
+			
 		}
 		if (!main.onBackPressed())
 		{
@@ -555,16 +625,19 @@ private void openFragment(Fragment fragment){
 	{
 		getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(fragment).commit();
 	}else
-		getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, fragment).commit();
+		getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.main2, fragment,"current").commit();
 	
 }
 private void main(){
-	if(main==null)
+	if(main==null){
+		main=(MainFragment)getSupportFragmentManager().findFragmentByTag("main");
+		if(main==null)
 		main = new MainFragment();
+		}
 	if(main.isAdded())
 		getSupportFragmentManager().beginTransaction().show(main).commit();
 	else
-		getSupportFragmentManager().beginTransaction().add(R.id.main1, main).commit();
+		getSupportFragmentManager().beginTransaction().add(R.id.main1, main,"main").commit();
 }
 	@Override
 	protected void onNewIntent(Intent intent)

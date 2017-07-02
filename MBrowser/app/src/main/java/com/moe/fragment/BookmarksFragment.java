@@ -56,9 +56,9 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	private ViewPager vp;
 	private ViewPagerAdapter vpa;
 	//数据
-	private ArrayList<View> av=new ArrayList<>();
-	private ArrayList history_data=new ArrayList();
-	private ArrayList<Bookmark> bookmark_data=new ArrayList<>();
+	private ArrayList<View> av=null;
+	private ArrayList history_data=null;
+	private ArrayList<Bookmark> bookmark_data=null;
 	private ArrayList<Integer> selected=new ArrayList<>();
 	//适配器
 	private BookmarksAdapter bookmark,history;
@@ -142,7 +142,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	{
 		TabLayout tl=(TabLayout)view.findViewById(R.id.bookmarks_tablayout);
 		vp = (ViewPager)view.findViewById(R.id.bookmarks_viewpager);
-		vp.setAdapter(vpa = new ViewPagerAdapter(av));
+		vp.setAdapter(vpa = new ViewPagerAdapter(av=new ArrayList<>()));
 		av.clear();
 		av.add(LayoutInflater.from(getContext()).inflate(R.layout.bookmark_view, vp, false));
 		av.add(LayoutInflater.from(getContext()).inflate(R.layout.history_view, vp, false));
@@ -153,7 +153,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		tl.setupWithViewPager(vp);
 		View view1=av.get(0);
 		RecyclerView rv1=(RecyclerView)view1.findViewById(R.id.bookmark_view_recyclerview);
-		rv1.setAdapter(bookmark = new BookmarksAdapter(getActivity(), bookmark_data, BookmarksAdapter.Type.BOOKMARK, selected));
+		rv1.setAdapter(bookmark = new BookmarksAdapter(getActivity(), bookmark_data=new ArrayList<>(), BookmarksAdapter.Type.BOOKMARK, selected));
 		rv1.setLayoutManager(new LinearLayoutManager(getActivity()));
 		rv1.addItemDecoration(new CustomDecoration(2));
 		//av.get(1).addItemDecoration(new CustomDecoration(5, 0x00000000));
@@ -172,7 +172,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		view1.findViewById(R.id.bookmarks_view_export).setOnClickListener(this);
 		View view2=av.get(1);
 		RecyclerView rv2=(RecyclerView)view2.findViewById(R.id.history_view_recyclerview);
-		rv2.setAdapter(history = new BookmarksAdapter(getActivity(), history_data, BookmarksAdapter.Type.HISTORY, null));
+		rv2.setAdapter(history = new BookmarksAdapter(getActivity(), history_data=new ArrayList<>(), BookmarksAdapter.Type.HISTORY, null));
 		rv2.setLayoutManager(new LinearLayoutManager(getActivity()));
 		view2.findViewById(R.id.history_view_clear).setOnClickListener(this);
 		super.onViewCreated(view, savedInstanceState);
@@ -200,6 +200,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		pbm = new PopupBookmarkMenu(this);
 		sthd = new SendToHomepageDialog(this);
 		vp.setCurrentItem(viewPagerIndex);
+		bef=(BookmarkEditFragment)getChildFragmentManager().findFragmentByTag("edit");
 	}
 
 	@Override
@@ -435,7 +436,7 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 	private void showEdit()
 	{
 		if (!bef.isAdded())
-			getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.bookmarks_view_float, bef).commit();
+			getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).add(R.id.bookmarks_view_float, bef,"edit").commit();
 		else
 			getChildFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_in, 0).show(bef).commit();
 
@@ -472,6 +473,17 @@ public class BookmarksFragment extends Fragment implements View.OnClickListener,
 		loadBookmarksSon(folder);
 	}
 
+	
+
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+	{
+		if(bef!=null)getChildFragmentManager().beginTransaction().detach(bef).remove(bef).commitAllowingStateLoss();
+		
+		super.onSaveInstanceState(outState);
+	}
+
+	
 	@Override
 	public boolean onBackPressed()
 	{

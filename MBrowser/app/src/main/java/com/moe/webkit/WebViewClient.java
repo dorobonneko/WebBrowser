@@ -39,6 +39,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.ExecutionException;
+import com.moe.bean.Message;
 
 public class WebViewClient extends WebViewClient
 {
@@ -48,11 +49,10 @@ public class WebViewClient extends WebViewClient
 	private JavaScript javaScript;
 	private UrlBlock urlBlock;
 	private AdBlockDatabase adb;
-	private WebViewManagerView wvmv;
-	public WebViewClient(final WebView wv, WebViewManagerView wvmv)
+	private Object obj=new Object();
+	public WebViewClient(final WebView wv)
 	{
 		this.wv = wv;
-		this.wvmv = wvmv;
 		this.video = wv.getVideo();
 		this.block = wv.getBlock();
 		javaScript = Sqlite.getInstance(wv.getContext(), JavaScript.class);
@@ -65,7 +65,7 @@ public class WebViewClient extends WebViewClient
 			}
 		}.start();
 	}
-	private List<String> getType(NetworkLogFragment.Type type)
+	private synchronized List<String> getType(NetworkLogFragment.Type type)
 	{
 		List<String> ls=wv.getNetworkLog().getKey(type);
 		if (ls == null)
@@ -125,19 +125,19 @@ public class WebViewClient extends WebViewClient
 			case "content":
 				if (wv.getSharedPreferences().getInt(WebSettings.Setting.MULTIVIEW, 0) == 1)
 				{
-					if(p1.getHitTestResult().getType()==0)return false;
+					if (p1.getHitTestResult().getType() == 0)return false;
 					try
 					{
 						/*String path=uri.getPath();
-						int index=path.indexOf("?");
-						if (index != -1)path = path.substring(0, index);
-						if (wv.getUrl().indexOf(path) == -1)
-						{*/
-							WebView webview=new WebView(wvmv);
-							webview.loadUrl(url);
-							p1.stopLoading();
-							wvmv.addWebView(webview);
-							return true;
+						 int index=path.indexOf("?");
+						 if (index != -1)path = path.substring(0, index);
+						 if (wv.getUrl().indexOf(path) == -1)
+						 {*/
+						WebView webview=new WebView(wv.getManager());
+						webview.loadUrl(url);
+						p1.stopLoading();
+						wv.getManager().addWebView(webview);
+						return true;
 						//}
 					}
 					catch (Exception e)
@@ -147,7 +147,7 @@ public class WebViewClient extends WebViewClient
 				//p1.loadUrl(url);
 				return false;
 			case "moe":
-				wvmv.getHomePageAdd().show();
+				wv.getManager().getHomePageAdd().show();
 				break;
 			default:
 				urlParse(url);
@@ -177,7 +177,7 @@ public class WebViewClient extends WebViewClient
 			case "content":
 				break;
 			case "moe":
-				wvmv.getHomePageAdd().show();
+				wv.getManager().getHomePageAdd().show();
 				break;
 			default:
 				urlParse(url);
@@ -213,7 +213,8 @@ public class WebViewClient extends WebViewClient
 		block.clear();
 		wv.getNetworkLog().clear();
 		//p1.pauseTimers();
-		super.onPageStarted(p1,p2,p3);
+		super.onPageStarted(p1, p2, p3);
+		EventBus.getDefault().post(new Message(773,wv.getManager()));
 	}
 
 	@Override
@@ -236,13 +237,13 @@ public class WebViewClient extends WebViewClient
 			p1.loadUrl("javascript:var meta=document.querySelector('meta[name=viewport]');if(meta)meta.setAttribute('content','width=device-width');");
 
 		//p1.getSettings().setBlockNetworkImage(false);
-
+		EventBus.getDefault().post(new Message(773,wv.getManager()));
 	}
 
 	@Override
-	public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, final String url)
+	public synchronized WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, final String url)
 	{
-		
+
 		Uri uri=Uri.parse(url);
 		switch (uri.getScheme())
 		{
@@ -272,7 +273,7 @@ public class WebViewClient extends WebViewClient
 				break;
 			case "file":
 			case "content":
-				return null;
+				return super.shouldInterceptRequest(view,url);
 			default:break;
 		}
 		block.add(url);
@@ -282,99 +283,107 @@ public class WebViewClient extends WebViewClient
 
 
 	@Override
-	public WebResourceResponse shouldInterceptRequest(final android.webkit.WebView view, final WebResourceRequest p2)
+	public synchronized WebResourceResponse shouldInterceptRequest(final android.webkit.WebView view, final WebResourceRequest p2)
 	{
-		if (urlBlock == null)return null;
+
 		try
 		{
 			final String url=p2.getUrl().toString();
 			final String mimeType=p2.getRequestHeaders().get("Accept");
-			switch (p2.getUrl().getScheme())
+			if (view.isEnabled())
 			{
-				case "http":
-				case "https":
-					if (url.matches("^http?://.*?http.*?") || !urlBlock.matches(p2.getUrl().getHost(), p2.getUrl().getPath(), url))
-					{
-						new Thread(){
-							public void run()
-							{
-								if (mimeType == null)
-									getType(NetworkLogFragment.Type.OTHER).add(url);
-								else
+				if (urlBlock == null)return null;
+
+				switch (p2.getUrl().getScheme())
+				{
+					case "http":
+					case "https":
+					case "blob":
+						if (url.matches("^http?://.*?http.*?") || !urlBlock.matches(p2.getUrl().getHost(), p2.getUrl().getPath(), url))
+						{
+							new Thread(){
+								public void run()
 								{
-									if (mimeType.indexOf("audio/") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.AUDIO))
-										getType(NetworkLogFragment.Type.AUDIO).add(url);
-									else if (mimeType.indexOf("text/css") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.CSS))
-										getType(NetworkLogFragment.Type.CSS).add(url);
-									else if (mimeType.indexOf("text/javascript") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.JS))
-										getType(NetworkLogFragment.Type.JS).add(url);
-									else if (mimeType.indexOf("video/") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.VIDEO))
-										getType(NetworkLogFragment.Type.VIDEO).add(url);
-									else if (mimeType.indexOf("image/") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.IMAGE))
-										getType(NetworkLogFragment.Type.IMAGE).add(url);
-									else getType(NetworkLogFragment.Type.OTHER).add(url);
-								}
-								synchronized (video)
-								{
-									if ((mimeType != null && mimeType.indexOf("video/") != -1) || p2.getRequestHeaders().get("Range") != null)
+									synchronized (obj)
 									{
-										video.add(url);
+										if (mimeType == null)
+											getType(NetworkLogFragment.Type.OTHER).add(url);
+										else
+										{
+											if (mimeType.indexOf("audio/") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.AUDIO))
+												getType(NetworkLogFragment.Type.AUDIO).add(url);
+											else if (mimeType.indexOf("text/css") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.CSS))
+												getType(NetworkLogFragment.Type.CSS).add(url);
+											else if (mimeType.indexOf("text/javascript") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.JS))
+												getType(NetworkLogFragment.Type.JS).add(url);
+											else if (mimeType.indexOf("video/") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.VIDEO))
+												getType(NetworkLogFragment.Type.VIDEO).add(url);
+											else if (mimeType.indexOf("image/") != -1 || MediaUtils.isFormat(url, MediaUtils.Type.IMAGE))
+												getType(NetworkLogFragment.Type.IMAGE).add(url);
+											else getType(NetworkLogFragment.Type.OTHER).add(url);
+										}
+									}
+									synchronized (video)
+									{
+										if ((mimeType != null && mimeType.indexOf("video/") != -1) || p2.getRequestHeaders().get("Range") != null)
+										{
+											video.add(url);
+										}
 									}
 								}
-							}
-						}.start();
-						if (p2.getUrl().getHost().matches("(?i)^(?:pan|wangpan|yun).baidu.com$")&& p2.getMethod().equalsIgnoreCase("get"))
-						{
-							HttpURLConnection huc=(HttpURLConnection)new URL(p2.getUrl().toString()).openConnection();
-							//huc.setRequestMethod(p2.getMethod());
-							huc.setConnectTimeout(1000);
-							huc.addRequestProperty("Cookie", CookieManager.getInstance().getCookie(p2.getUrl().toString()));
-							huc.addRequestProperty("Accept-Encoding", "gzip");
-							huc.addRequestProperty("Connection", "Keep-Alive");
-							huc.addRequestProperty("X-Requested-With", view.getContext().getPackageName());
-							huc.addRequestProperty("Accept-Language", "zh-CN,en_US");
-							
-							for (String key:p2.getRequestHeaders().keySet())
+							}.start();
+							if (p2.getUrl().getHost().matches("(?i)^(?:pan|wangpan|yun).baidu.com$") && p2.getMethod().equalsIgnoreCase("get"))
 							{
-								huc.setRequestProperty(key, p2.getRequestHeaders().get(key));
+								HttpURLConnection huc=(HttpURLConnection)new URL(p2.getUrl().toString()).openConnection();
+								//huc.setRequestMethod(p2.getMethod());
+								huc.setConnectTimeout(1000);
+								huc.addRequestProperty("Cookie", CookieManager.getInstance().getCookie(p2.getUrl().toString()));
+								huc.addRequestProperty("Accept-Encoding", "gzip");
+								huc.addRequestProperty("Connection", "Keep-Alive");
+								huc.addRequestProperty("X-Requested-With", view.getContext().getPackageName());
+								huc.addRequestProperty("Accept-Language", "zh-CN,en_US");
+
+								for (String key:p2.getRequestHeaders().keySet())
+								{
+									huc.setRequestProperty(key, p2.getRequestHeaders().get(key));
+								}
+								huc.setRequestProperty("User-Agent", "Mozilla/5.0 (SymbianOS/9.4; Series60/5.0 NokiaN97-1/20.0.019; Profile/MIDP-2.1 Configuration/CLDC-1.1) AppleWebKit/525 (KHTML, like Gecko) BrowserNG/7.1.18124");
+								if (huc instanceof HttpsURLConnection)
+									((HttpsURLConnection)huc).setSSLSocketFactory(OkHttp.getSslSocketFactory());
+								if (huc.getResponseCode() == 200)
+								{
+									Map<String,List<String>> map=huc.getHeaderFields();
+									Map<String,String> header=new LinkedHashMap<>();
+									for (String key:map.keySet())
+										header.put(key, map.get(key).get(0));
+									WebResourceResponse wrr=new WebResourceResponse(header.get("Content-Type"), huc.getContentEncoding(), new GZIPInputStream(huc.getInputStream()));
+									wrr.setResponseHeaders(header);
+									wrr.setStatusCodeAndReasonPhrase(huc.getResponseCode(), header.get(null));
+									return wrr;
+								}
+								else return null;
 							}
-							huc.setRequestProperty("User-Agent", "Mozilla/5.0 (SymbianOS/9.4; Series60/5.0 NokiaN97-1/20.0.019; Profile/MIDP-2.1 Configuration/CLDC-1.1) AppleWebKit/525 (KHTML, like Gecko) BrowserNG/7.1.18124");
-							if (huc instanceof HttpsURLConnection)
-								((HttpsURLConnection)huc).setSSLSocketFactory(OkHttp.getSslSocketFactory());
-							if (huc.getResponseCode() == 200)
-							{
-								Map<String,List<String>> map=huc.getHeaderFields();
-								Map<String,String> header=new LinkedHashMap<>();
-								for (String key:map.keySet())
-									header.put(key, map.get(key).get(0));
-								WebResourceResponse wrr=new WebResourceResponse(header.get("Content-Type"), huc.getContentEncoding(), new GZIPInputStream(huc.getInputStream()));
-								wrr.setResponseHeaders(header);
-								wrr.setStatusCodeAndReasonPhrase(huc.getResponseCode(),header.get(null));
-								return wrr;
-							}
-							else return null;
+							return CacheManager.getInstance(wv.getContext()).shouldInterceptRequest(view, p2);
 						}
-						return CacheManager.getInstance(wv.getContext()).shouldInterceptRequest(view, p2);
-					}
-					break;
-				case "file":
-				case "content":
-					return null;
-				default:break;
+						break;
+					case "file":
+					case "content":
+						return super.shouldInterceptRequest(view,p2);
+					default:break;
+				}
+				wv.post(new Runnable(){
+
+						@Override
+						public void run()
+						{
+							synchronized (block)
+							{
+								urlParse(url);
+								block.add(url);
+							}
+						}
+					});
 			}
-			wv.post(new Runnable(){
-
-					@Override
-					public void run()
-					{
-						synchronized (block)
-						{
-							urlParse(url);
-							block.add(url);
-						}
-					}
-				});
-
 			WebResourceResponse wr=new WebResourceResponse(mimeType == null ?"*/*": mimeType, "utf-8", null);
 			wr.setStatusCodeAndReasonPhrase(403, "HTTP/1.1 403");
 			return wr;
@@ -393,8 +402,7 @@ public class WebViewClient extends WebViewClient
 				{
 					try
 					{
-						if (video.contains(url))
-							inith5Video(new URL(view.getUrl()));
+						inith5Video(new URL(view.getUrl()));
 					}
 					catch (MalformedURLException e)
 					{}
@@ -446,23 +454,24 @@ public class WebViewClient extends WebViewClient
 						   );
 				break;
 			default:
-				wv.loadUrl("javascript:var video=document.getElementsByTagName('video');for(var i=0;i<video.length;i++){" +
-						   "video[i].setAttribute('controls','true');" +
-						   "video[i].setAttribute('playsinline','false');" +
-						   "video[i].setAttribute('webkit-playsinline','false'); " +
-						   //"video[i].addEventListener('loadstart',function(){" +
-						   //"if(this.src&&moe.isVideoBlock(this.src)){this.src='';}" +
-						   //"var source=document.getElementsByTagName('source');" +
-						   //"if(source)for(var s=0;s<source.length;s++){" +
-						   //"if(moe.isVideoBlock(source[s].src)){source[s]='';}" +
-						   //"}" +
-						   //"},false); " +
-						   "};");
-				//loadUrl("javascript:var video=document.getElementsByTagName('source');for(var i=0;i<video.length;i++){if(video[i].value=='bind')continue;video[i].value='bind';video[i].addEventListener('loadstart',function(){if(moe.isVideoBlock(this.src)){this.src='';}; },false); }");
-				wv.loadUrl("javascript:var video=document.getElementsByTagName('iframe');for(var i=0;i<video.length;i++){video[i].setAttribute('allowfullscreen','true');video[i].setAttribute('allowTransparency','true');" +
-						   //"video[i].addEventListener('load',function(){if(moe.isVideoBlock(this.src)){this.src='';};"+
-						   "}");
-				break;
+							wv.loadUrl("javascript:function parser(doc){" +
+									   "if(!doc)return doc;" +
+									   "if(doc.readyState!='complete'){doc.addEventListener('readystatechange',function(){if(this.readyState=='complete')parser(this);},false);return doc;};"+
+									   "var video=doc.getElementsByTagName('video');" +
+									   "for(var i=0;i<video.length;i++){" +
+									   "video[i].setAttribute('controls','true');" +
+									   "video[i].setAttribute('playsinline','false');" +
+									   "video[i].setAttribute('webkit-playsinline','false');" +
+									   "};" +
+									   "video=doc.getElementsByTagName('iframe');" +
+									   "for(var i=0;i<video.length;i++){" +
+									   "video[i].setAttribute('allowfullscreen','true');" +
+									   "video[i].setAttribute('allowTransparency','true');" +
+									   "try{parser(video[i].contentWindow.document);}catch(e){}"+
+									   "};" +
+									   "}" +
+									  "parser(document);");
+									  break;
 		}
 
 	}

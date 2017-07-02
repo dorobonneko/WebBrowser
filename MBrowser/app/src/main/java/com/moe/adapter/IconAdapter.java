@@ -60,7 +60,7 @@ public class IconAdapter extends RecyclerView.Adapter implements View.OnClickLis
         p1.itemView.setTag(p2);
         p1.itemView.setOnClickListener(this);
         ((ViewHolder)p1).tv.setText(ls.get(p2).getName());
-        int id=ls.get(p2).getUrl().equals("add")?R.drawable.icon_add:R.drawable.ic_launcher;
+        int id=ls.get(p2).getUrl().equals("add")?R.drawable.icon_add:R.drawable.ic_weather_cloudy;
         ((ViewHolder)p1).iv.setImageResource(id);
     }
 

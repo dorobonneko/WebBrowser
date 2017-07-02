@@ -95,6 +95,7 @@ public class BitImageFragment extends Fragment implements SurfaceHolder.Callback
 			{
 				sh = sv.getHolder();
 				sh.addCallback(this);
+				open();
 			}
 			else
 			{

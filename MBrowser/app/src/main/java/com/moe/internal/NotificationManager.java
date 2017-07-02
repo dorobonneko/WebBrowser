@@ -55,7 +55,7 @@ public class NotificationManager
 			intent.setClassName(context.getPackageName(), context.getPackageName() + ".HomeActivity");
 			PendingIntent pi=PendingIntent.getActivity(context, 233, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 			ni.setBuilder(new Notification.Builder(context)
-				.setSmallIcon(R.drawable.ic_launcher)
+				.setSmallIcon(R.drawable.ic_weather_cloudy)
 				.setContent(ni.getRemoteViews())
 				.setTicker("下载")
 				.setContentIntent(pi));
@@ -113,11 +113,11 @@ public class NotificationManager
 				intent.setDataAndType(Uri.fromFile(new File(ti.getDir(), ti.getTaskname())), MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(intent.getDataString())));
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			}
-
 			PendingIntent pi=PendingIntent.getActivity(context, 233, intent, PendingIntent.FLAG_ONE_SHOT);
 			nb.setContentIntent(pi);
 		nm.notify(ti.getId(),Build.VERSION.SDK_INT >15?nb.build():nb.getNotification());
-		
+		if(ti.getTaskname().matches(".*?.apk"))
+			context.startActivity(intent);
 	}
 	public void destory(){
 		nm.cancelAll();

@@ -367,7 +367,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		title.setText(url);
 		//if(bm.isBookmark(url))bookmark.setImageResource(R.drawable.ic_star);
 		//else bookmark.setImageResource(R.drawable.ic_star_outline);
-		EventBus.getDefault().post(Message.obitMessage(0,index));
+		//EventBus.getDefault().post(Message.obitMessage(0,index));
 	}
 
 	@Override
@@ -377,7 +377,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 		this.title.setText(title);
 		pb.setVisibility(pb.GONE);
 		checkButtonState((WebViewManagerView)content.getCurrentView());
-		EventBus.getDefault().post(Message.obitMessage(0,index));
+		//EventBus.getDefault().post(Message.obitMessage(0,index));
 		
 	}
 
@@ -385,7 +385,7 @@ public class ToolManager implements View.OnClickListener,ViewFlipper.OnChangeLis
 	public void onReceiverTitle(String title)
 	{
 		this.title.setText(title);
-		EventBus.getDefault().post(Message.obitMessage(0,index));
+		//EventBus.getDefault().post(Message.obitMessage(0,index));
 		checkButtonState((WebViewManagerView)content.getCurrentView());
 	}
 

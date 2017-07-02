@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ImageView;
 import android.view.ViewTreeObserver;
+import android.util.*;
 
 public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder>
 {
@@ -54,7 +55,9 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder>
 		TextView summary;
 		public ViewHolder(View v){
 			super(v);
-			v.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,RecyclerView.LayoutParams.WRAP_CONTENT));
+			RecyclerView.LayoutParams rl=new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,RecyclerView.LayoutParams.WRAP_CONTENT);
+			rl.setMargins((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,5,v.getResources().getDisplayMetrics()),(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,5,v.getResources().getDisplayMetrics()),(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,5,v.getResources().getDisplayMetrics()),0);
+			v.setLayoutParams(rl);
 			icon=(ImageView)v.findViewById(R.id.menuitem_icon);
 			summary=(TextView)v.findViewById(R.id.menuitem_summary);
 			v.setOnClickListener(this);

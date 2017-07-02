@@ -33,6 +33,8 @@ import com.moe.database.Sqlite;
 import com.moe.internal.ToolManager;
 import com.moe.webkit.WebViewManagerView;
 import com.moe.webkit.WebSettings;
+import com.moe.internal.*;
+import com.moe.widget.TabCursor;
 
 public class MenuFragment extends FragmentPop implements MenuAdapter.OnItemClickListener
 {
@@ -46,23 +48,29 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-	ViewPager vp=new MenuViewPager(getActivity().getApplicationContext(),av=new ArrayList<>());
-        LinearLayout.LayoutParams ll=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-        //ll.setMargins(5,5,5,5);
-        vp.setLayoutParams(ll);
-        //Theme.registerTheme(vp);
-		vp.setAdapter(vpa=new ViewPagerAdapter(av));
-		try
-		{
-			parser(R.menu.menu);
-		}
-		catch (XmlPullParserException e)
-		{}
-		catch (IOException e)
-		{}
-		//vp.setBackgroundResource(R.color.window_background);
-        return vp;
-    }
+		return inflater.inflate(R.layout.menu_view,container,false);
+		
+}
+
+@Override
+public void onViewCreated(View view, Bundle savedInstanceState)
+{
+	ViewPager vp=(ViewPager)view.findViewById(R.id.menu_view_viewPager);
+	vp.setAdapter(vpa=new ViewPagerAdapter(av=new ArrayList<>()));
+	try
+	{
+		parser(R.menu.menu);
+	}
+	catch (XmlPullParserException e)
+	{}
+	catch (IOException e)
+	{}
+	TabCursor tc=(TabCursor)view.findViewById(R.id.menu_view_tabCursor);
+	tc.setUpViewPager(vp);
+	super.onViewCreated(view, savedInstanceState);
+	Theme.unRegisterBackground(view);
+	Theme.registerForeGround(view);
+}
 
 	
     @Override
@@ -145,7 +153,13 @@ private final static String xmlns="http://schemas.android.com/apk/res/android";
 				EventBus.getDefault().post(HIDE);
 				break;
 			case R.id.menu_videofullscreen:
-				((WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView()).loadUrl("javascript:var video=document.querySelector('video');if(video)video.webkitRequestFullscreen();else{video=document.querySelector('iframe');if(video)video.webkitRequestFullscreen();};");
+				((WebViewManagerView)ToolManager.getInstance().getContent().getCurrentView()).loadUrl("javascript:"+
+				"function full(doc){var video=doc.querySelector('video');"+
+				"if(video)video.webkitRequestFullscreen();"+
+				"else{"+
+				"video=doc.querySelector('iframe');"+
+				"if(video)try{full(video.contentWindow.document);}catch(e){video.webkitRequestFullscreen();}"+
+				"};}full(document);");
 				EventBus.getDefault().post(HIDE);
 				break;
 			case R.id.menu_forceScale:

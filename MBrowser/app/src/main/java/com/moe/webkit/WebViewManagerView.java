@@ -30,7 +30,7 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 	//private boolean state=false;
 	private final String homepage="file:///android_asset/homepage.html";
 //	private final String ajaxhook="file:///android_asset/ajaxhook.js";
-	private GestureDetector gd=new GestureDetector(this);
+	//private GestureDetector gd=new GestureDetector(this);
 	private SharedPreferences shared;
 	private AddDialog homePageAdd;
 	private com.moe.webkit.WebView current;
@@ -241,13 +241,14 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 	 }
 	 */
 	private float oldx,oldy,rawy;
-	private boolean isLong=false;
+	private boolean isLong=false,_switch=true;
 	@Override
 	public boolean onTouch(View p1, final MotionEvent p2)
 	{
 		switch (p2.getAction())
 		{
 			case p2.ACTION_DOWN:
+				isLong=false;
 				oldx = p2.getX();
 				oldy = p2.getY();
 				rawy = p2.getRawY();
@@ -263,28 +264,21 @@ public class WebViewManagerView extends FrameLayout implements GestureDetector.O
 								{
 
 									case WebView.HitTestResult.EDIT_TEXT_TYPE:
-										return;
 									case WebView.HitTestResult.UNKNOWN_TYPE:
-									//case WebView.HitTestResult.ANCHOR_TYPE:
+										_switch=false;
 										break;
 									default:
+										_switch=true;
 										pop.showAtLocation(WebViewManagerView.this, Gravity.TOP | Gravity.LEFT, MotionEvent.obtain(0l, 0l, 0, oldx, oldy, 0f, 0f, 0, 0f, 0f, 0, 0));
+										isLong = true;
 										break;
 								}
-								//}
-								isLong = true;
 							}
-
 						}
 					}, 300);
-				break;
-			case p2.ACTION_CANCEL:
-			case p2.ACTION_UP:
-				isLong = false;
-				//me=null;
-				break;
-		}
-		return isLong;
+					break;
+				}
+		return isLong&&_switch;
 	}
 
 

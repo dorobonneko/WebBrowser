@@ -48,6 +48,7 @@ public class ViewFlipper extends ViewFlipper
     {
 		((WebViewManagerView)getChildAt(index)).destroy();
 		super.removeViewAt(index);
+		System.gc();
 		Iterator<OnChangeListener> i=ocl.iterator();
 		while(i.hasNext())
             i.next().onRemove(index);

@@ -47,11 +47,12 @@ public class LinkedListMap<K extends Object,V extends Object>
 	
 	public V getKey(K p1)
 	{
-		try{int index=indexKey(p1);
+		int index=indexKey(p1);
 		if(index==-1)return null;
+		try{
 		return value.get(index);}
 		catch(IndexOutOfBoundsException e){
-			throw new IndexOutOfBoundsException(key.toString()+"\n"+value.toString());
+			throw new IndexOutOfBoundsException(key.toString()+"\n"+value.toString()+p1.toString()+"\n"+index+"\n");
 		}
 	}
 	public V getIndex(int index){

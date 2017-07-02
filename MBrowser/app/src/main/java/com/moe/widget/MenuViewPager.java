@@ -3,14 +3,17 @@ import android.support.v4.view.ViewPager;
 import android.content.Context;
 import android.view.View;
 import java.util.List;
+import android.widget.Adapter;
+import android.support.v4.view.PagerAdapter;
+import android.util.AttributeSet;
+import com.moe.adapter.MenuAdapter;
+import com.moe.adapter.ViewPagerAdapter;
 
 public class MenuViewPager extends ViewPager
 {
-	private List<View> lv;
-	public MenuViewPager(Context context,List<View> lv)
+	public MenuViewPager(Context context,AttributeSet attrs)
 	{
-		super(context);
-		this.lv=lv;
+		super(context,attrs);
 	}
 
 	@Override
@@ -19,11 +22,12 @@ public class MenuViewPager extends ViewPager
 		int height=0;
 
 // 下面遍历所有child的高度
-
-		for (int i=0;i < lv.size(); i++)
+		ViewPagerAdapter adapter=(ViewPagerAdapter)getAdapter();
+		if(adapter!=null)
+		for (int i=0;i < adapter.getCount(); i++)
 		{
 
-			View child=lv.get(i);
+			View child=adapter.get(i);
 
 			child.measure(widthMeasureSpec,
 

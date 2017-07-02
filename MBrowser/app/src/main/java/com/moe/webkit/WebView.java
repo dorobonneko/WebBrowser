@@ -11,18 +11,21 @@ import com.moe.fragment.NetworkLogFragment;
 import android.view.MotionEvent;
 import java.lang.reflect.Field;
 import android.os.Build;
+import com.moe.Mbrowser.*;
 public class WebView extends WebView
 {
 	private OnTouchListener otl;
 	private OnStateListener osl;
 	private SharedPreferences shared;
-	private LinkedListMap<NetworkLogFragment.Type, List<String>> llm=new LinkedListMap<>();
-	private ArrayList<String> video=new ArrayList<>(),block=new ArrayList<>();
+	private LinkedListMap<NetworkLogFragment.Type, List<String>> llm=null;
+	private ArrayList<String> video=null,block=null;
+	private WebViewManagerView wvmv;
 	public WebView(WebViewManagerView context)
 	{
 		super(context.getContext());
+		this.wvmv=context;
 		shared = context.getContext().getSharedPreferences("webview", 0);
-		setWebViewClient(new WebViewClient(this, context));
+		setWebViewClient(new WebViewClient(this));
         setWebChromeClient(new WebChromeClient(this));
 		WebSettings ws= new WebSettings(this);
 		setTag(ws);
@@ -33,14 +36,18 @@ public class WebView extends WebView
 		addJavascriptInterface(new JavascriptInterface(this), "moe");
 		setDownloadListener(context);
 	}
-
+	public WebViewManagerView getManager(){
+		return wvmv;
+	}
 	
 	public List<String> getVideo()
 	{
+		if(video==null)video=new ArrayList<>();
 		return video;
 	}
 	public List<String> getBlock()
 	{
+		if(block==null)block=new ArrayList<>();
 		return block;
 	}
 	public SharedPreferences getSharedPreferences()
@@ -48,11 +55,31 @@ public class WebView extends WebView
 		return shared;
 	}
 
+	@Override
+	public void goBack()
+	{
+		if(getTag(R.id.webview_callback)!=null){
+			((WebChromeClient.CustomViewCallback)getTag(R.id.webview_callback)).onCustomViewHidden();
+		}else
+		super.goBack();
+	}
+
+	@Override
+	public boolean canGoBack()
+	{
+		return getTag(R.id.webview_callback)!=null||super.canGoBack();
+	}
+
 	
 	
 	@Override
 	public void destroy()
 	{
+		setEnabled(false);
+		onPause();
+		loadData(null,null,null);
+		clearCache(false);
+		clearHistory();
 		otl=null;
 		osl=null;
 		video.clear();
@@ -122,6 +149,7 @@ public class WebView extends WebView
 	}
 	public LinkedListMap<NetworkLogFragment.Type, List<String>> getNetworkLog()
 	{
+		if(llm==null)llm=new LinkedListMap<>();
 		return llm;
 	}
 	public void setOnStateListener(OnStateListener osl)

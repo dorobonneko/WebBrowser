@@ -106,7 +106,7 @@ public void show(String dir)
 		name.requestFocus();
 }
 
-public void setOnAddLostener(OnAddListener o){
+public void setOnAddListener(OnAddListener o){
 	oal=o;
 }
 private OnAddListener oal;

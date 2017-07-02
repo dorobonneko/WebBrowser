@@ -20,7 +20,6 @@ import android.content.Context;
 import java.util.Iterator;
 import java.text.DecimalFormat;
 import android.app.NotificationManager;
-import de.greenrobot.event.Subscribe;
 import android.content.Intent;
 import android.app.PendingIntent;
 import android.support.v4.content.FileProvider;

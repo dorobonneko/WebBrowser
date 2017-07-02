@@ -16,7 +16,6 @@ import android.widget.TextView;
 import com.moe.bean.WindowEvent;
 import de.greenrobot.event.EventBus;
 import com.moe.bean.Message;
-import de.greenrobot.event.Subscribe;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.TypedValue;
@@ -27,6 +26,9 @@ import com.moe.internal.ToolManager;
 import android.widget.ImageView;
 import com.moe.webkit.WebViewManagerView;
 import com.moe.webkit.WebSettings;
+import de.greenrobot.event.Subscribe;
+import com.moe.webkit.WebView;
+import de.greenrobot.event.ThreadMode;
 
 public class WindowFragment extends FragmentPop implements WinListAdapter.OnItemClickListener,
 ViewFlipper.OnChangeListener
@@ -94,8 +96,8 @@ ViewFlipper.OnChangeListener
 		security.setOnClickListener(this);
 		super.onViewCreated(v, savedInstanceState);
 		Theme.unRegisterBackground(v);
-		Theme.registerBackground(rv);
-		Theme.registerBackground(((ViewGroup)v).getChildAt(1));
+		Theme.registerForeGround(rv);
+		Theme.registerForeGround(((ViewGroup)v).getChildAt(1));
 	}
 
     @Override
@@ -131,14 +133,8 @@ ViewFlipper.OnChangeListener
 	public void onDestroy()
 	{
 		ToolManager.getInstance().getContent().unRegisterOnChangeListener(this);
-		super.onDestroy();
-	}
-
-	@Override
-	public void onDetach()
-	{
 		EventBus.getDefault().unregister(this);
-		super.onDetach();
+		super.onDestroy();
 	}
 
 
@@ -155,12 +151,19 @@ ViewFlipper.OnChangeListener
         // TODO: Implement this method
         return false;
     }
-	@Subscribe
+	@Subscribe(threadMode=ThreadMode.MainThread)
     public void refresh(Message msg)
 	{
-		if (msg.what == 0)
-			wla.notifyItemChanged(msg.data);
+		if (!isHidden()&&msg.what==773)
+			wla.notifyItemChanged(ToolManager.getInstance().getContent().indexOfChild((View)msg.obj));
 	}
+	@Override
+	public void onHiddenChanged(boolean hidden)
+	{
+		if(!hidden)wla.notifyDataSetChanged();
+		super.onHiddenChanged(hidden);
+	}
+	
 	private void updateSecurity()
 	{
 		if(webview.getBoolean(WebSettings.Setting.PRIVATE,false))

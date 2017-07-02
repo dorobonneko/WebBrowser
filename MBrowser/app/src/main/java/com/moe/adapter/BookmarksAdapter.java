@@ -9,7 +9,6 @@ import com.moe.Mbrowser.R;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.graphics.BitmapFactory;
-import android.support.v4.util.LruCache;
 import android.graphics.Bitmap;
 import com.moe.utils.ImageDraw;
 import android.content.res.TypedArray;
@@ -22,24 +21,7 @@ public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.View
 	private List list;
 	private Type type;
 	private List<Integer> selected;
-	private LruCache<Character,Bitmap> lc=new LruCache<Character,Bitmap>((int)Runtime.getRuntime().totalMemory() / 8){
-
-		@Override
-		protected int sizeOf(Character key, Bitmap value)
-		{
-		
-			return value.getByteCount();
-		}
-
-		@Override
-		protected void entryRemoved(boolean evicted, Character key, Bitmap oldValue, Bitmap newValue)
-		{
-			super.entryRemoved(evicted, key, oldValue, newValue);
-			oldValue.recycle();
-		}
-
-		
-	};
+	
 	public BookmarksAdapter(Context context,List list,Type type,List<Integer> sel){
 		this.selected=sel;
 		this.context=context;
@@ -70,14 +52,8 @@ public class BookmarksAdapter extends RecyclerView.Adapter<BookmarksAdapter.View
 						vh.url.setVisibility(View.VISIBLE);
 						vh.more.setVisibility(View.GONE);
 						char c=bookmark.getTitle().charAt(0);
-						Bitmap b=lc.get(c);
-						if(b!=null)
-							vh.icon.setImageBitmap(b);
-						else{
-							b=ImageDraw.TextImage(c,false);
-							lc.put(c,b);
-							vh.icon.setImageBitmap(b);
-						}
+						Bitmap b=ImageDraw.TextImage(c,false);
+						vh.icon.setImageBitmap(b);
 						break;
 				}
 				if(selected.indexOf(p2)!=-1)

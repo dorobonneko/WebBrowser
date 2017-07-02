@@ -96,7 +96,6 @@ public class JavascriptInterface implements DialogInterface.OnClickListener
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();
 		Bitmap b=ImageDraw.TextImage(str.charAt(0), true);
 		b.compress(Bitmap.CompressFormat.PNG, 100, baos);
-		b.recycle();b = null;
 		String data=new String(Base64.encode(baos.toByteArray(), Base64.DEFAULT));
 		try
 		{
