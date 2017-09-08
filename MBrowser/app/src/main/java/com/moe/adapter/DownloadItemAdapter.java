@@ -117,9 +117,9 @@ public TaskInfo getItem(int position){
 					case TEMPFILE:
 						vh.statemsg.setText("创建临时文件");
 						break;
-						/*；case SUCCESS:
-						 vh.statemsg.setText("成功");
-						 break;*/
+					case NETERROR:
+						 vh.statemsg.setText("网络错误");
+						 break;
 					case NOPERMISSION:
 						vh.statemsg.setText("无读写权限");
 						break;

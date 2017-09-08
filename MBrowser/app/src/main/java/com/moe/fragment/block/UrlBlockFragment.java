@@ -81,6 +81,7 @@ public class UrlBlockFragment extends PreferenceFragment implements View.OnClick
 		rv.setLayoutManager(new LinearLayoutManager(getActivity()));
 		rv.setAdapter(uba = new UrlBlockAdapter(list = new ArrayList<>(), toolbar));
 		uba.setOnItemClickListener(this);
+		toolbar.setTag(-1);
 		super.onViewCreated(view, savedInstanceState);
 	}
 

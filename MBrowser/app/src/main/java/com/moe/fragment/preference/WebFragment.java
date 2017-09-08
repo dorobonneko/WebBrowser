@@ -20,7 +20,7 @@ public class WebFragment extends PreferenceFragment implements Preference.OnPref
 		addPreferencesFromResource(R.xml.web_setting);
 		SeekBarPreference sb=(SeekBarPreference)findPreference("textSize");
 		sb.setMax(150);
-		sb.setDefaultValue(50);
+		sb.setDefaultValue(30);
 		sb.add(50);
 		findPreference("ua").setOnPreferenceChangeListener(this);
 		if(getPreferenceManager().getSharedPreferences().getInt("ua",0)==3)

@@ -6,13 +6,7 @@ public class NetworkState
 	private boolean connected;
 	private boolean canUse;
 
-	public NetworkState(boolean wifi, boolean connected, boolean canUse)
-	{
-		this.wifi = wifi;
-		this.connected = connected;
-		this.canUse = canUse;
-	}
-
+	
 
 	public void setWifi(boolean wifi)
 	{

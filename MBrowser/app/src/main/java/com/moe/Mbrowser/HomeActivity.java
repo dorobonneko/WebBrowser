@@ -100,7 +100,6 @@ public class HomeActivity extends FragmentActivity implements Download.Callback
 		if (shared.getBoolean("night", false))
 		findViewById(R.id.main3).setBackgroundColor(0x50000000);
 		fullscreen=(ViewGroup)findViewById(R.id.main3);
-		startService(new Intent(this, ResourceService.class));
 		EventBus.getDefault().register(this);
 		if(Build.VERSION.SDK_INT>19)
 		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
@@ -516,7 +515,7 @@ public void onEvent(Integer event){
 	{
 
 		EventBus.getDefault().unregister(this);
-		stopService(new Intent(this, ResourceService.class));
+		ResourceService.stop(this);
 		super.onDestroy();
 	}
 

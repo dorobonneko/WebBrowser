@@ -88,13 +88,10 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     public void onActivityCreated(Bundle savedInstanceState)
     {
 		super.onActivityCreated(savedInstanceState);
-		//setPadding(isfull);
-		pop.setPadding(0, 0, 0, (int)getResources().getDimension(R.dimen.actionBarSize));
-        //pop.setLayoutParams(new CoordinatorLayout.LayoutParams(getActivity().getWindowManager().getDefaultDisplay().getWidth(), getActivity().getWindowManager().getDefaultDisplay().getHeight()));
 		menutool.setInAnimation(getActivity(), R.anim.bottom_up);
 		menutool.setOutAnimation(getActivity(), R.anim.up_up);
 		Theme.updateTheme(Color.parseColor(getResources().getTextArray(R.array.skin_color)[getContext().getSharedPreferences("moe", 0).getInt("color", 0)].toString()));
-		openNewWindow();
+		openNewWindow(true);
 		if (getArguments() != null)
 		{
 			String url=getArguments().getString("url");
@@ -127,16 +124,16 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
 		switch (event.what)
 		{
 			case event.WHAT_NEW_WINDOW:
-				openNewWindow();
+				openNewWindow(true);
 				break;
 			case event.WHAT_URL_NEW_WINDOW_BACKGROUND:
-				openNewWindowInBackground(event.obj.toString());
+				openNewWindow(false).loadUrl(event.obj.toString());
 				break;
 			case event.WHAT_URL_NEW_WINDOW:
-				openNewWindow(event.obj.toString());
+				openNewWindow(true).loadUrl(event.obj.toString());
 				break;
 			case event.WHAT_JS_NEW_WINDOW:
-				((WebView.WebViewTransport)((Message)event.obj).obj).setWebView(openNewWindow().getCurrent());
+				((WebView.WebViewTransport)((Message)event.obj).obj).setWebView(openNewWindow(true).getCurrent());
 				((Message)event.obj).sendToTarget();
 				break;
 			case event.WHAT_TOGGLE_WINDOW:
@@ -256,32 +253,15 @@ public class MainFragment extends Fragment implements FragmentPop.OnHideListener
     {
 		((WebViewManagerView)content.getCurrentView()).loadUrl(url.trim());
     }
-    //后台打开一个网页窗口
-    public void openNewWindowInBackground(String url)
-    {
-        WebViewManagerView wv=new WebViewManagerView(getActivity(), ad);
-		int index=content.getChildCount();
-        content.addView(wv, index);
-		wv.stopLoading();
-		wv.loadUrl(url);
-    }
-//打开一个网页窗口并跳转过去
-    public WebViewManagerView openNewWindow(String url)
-    {
-        WebViewManagerView wv=new WebViewManagerView(getActivity(), ad);
-		int index=content.getChildCount();
-        content.addView(wv, index);
-		content.setDisplayedChild(index);
-		wv.stopLoading();
-		wv.loadUrl(url);
-		return wv;
-    }
 //打开一个空白窗口并跳转过去
-    public WebViewManagerView openNewWindow()
+    public WebViewManagerView openNewWindow(boolean open)
     {
-        WebViewManagerView wv=new WebViewManagerView(getActivity(), ad);
-		int index=content.getChildCount();
-        content.addView(wv, index);
+		WebViewManagerView wv=new WebViewManagerView(getActivity(), ad);
+		int index=0;
+		if(content.getChildCount()>0)
+			index=content.getDisplayedChild()+1;
+		content.addView(wv,index);
+		if(open)
 		content.setDisplayedChild(index);
 		return wv;
 	}

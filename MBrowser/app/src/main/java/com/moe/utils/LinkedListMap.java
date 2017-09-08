@@ -8,13 +8,13 @@ import java.security.Key;
 
 public class LinkedListMap<K extends Object,V extends Object>
 {
-	private ArrayList<Integer> key;
+	private ArrayList<K> key;
 	private ArrayList<V> value;
 	public LinkedListMap(){
 		key=new ArrayList<>();
 		value=new ArrayList<>();
 	}
-	public ArrayList<Integer> keys(){
+	public ArrayList<K> keys(){
 		return key;
 	}
 	public ArrayList<V> values()
@@ -22,7 +22,7 @@ public class LinkedListMap<K extends Object,V extends Object>
 		return value;
 	}
 	public int indexKey(K k){
-		return key.indexOf(k.hashCode());
+		return key.indexOf(k);
 	}
 	public int indexValue(V v){
 		return value.indexOf(v);
@@ -71,19 +71,26 @@ public class LinkedListMap<K extends Object,V extends Object>
 		if(index!=-1){
 			key.remove(index);
 			value.remove(index);
-			key.add(index,p1.hashCode());
+			key.add(index,p1);
 			value.add(index,p2);
 		}else{
-		key.add(p1.hashCode());
+		key.add(p1);
 		value.add(p2);
 		}
 		return p2;
 	}
 	public V put(int index,K k,V v){
 		if(v==null)return null;
-		key.add(index,k.hashCode());
+		key.add(index,k);
 		value.add(index,v);
 		return v;
+	}
+	public void putAll(LinkedListMap<K, V> p1){
+		Iterator<K> iterator=p1.keys().iterator();
+		while(iterator.hasNext()){
+			K k=iterator.next();
+			put(k,p1.getKey(k));
+		}
 	}
 	public void putAll(Map<? extends K, ? extends V> p1)
 	{

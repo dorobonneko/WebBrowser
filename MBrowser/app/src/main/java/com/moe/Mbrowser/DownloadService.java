@@ -56,9 +56,9 @@ import com.moe.net.OkHttp;
 public class DownloadService extends Service
 {
 	//下载队列
-	public static LinkedHashMap<Integer,TaskInfo> downloadlist=new LinkedHashMap<>();
+	public static LinkedListMap<Integer,TaskInfo> downloadlist=new LinkedListMap<>();
 	//正在下载队列
-	private LinkedHashMap<Integer,DownloadTask> downloadinglist=new LinkedHashMap<>();
+	private LinkedListMap<Integer,DownloadTask> downloadinglist=new LinkedListMap<>();
 	private SharedPreferences shared;
 	private NetworkState network;
 	private OkHttpClient okhttp;
@@ -76,31 +76,33 @@ public class DownloadService extends Service
 	{
 		super.onCreate();
 		timer=new LinkedListMap<>();
-		nm=new NotificationManager(this);
+		nm=NotificationManager.getInstance(this);
 		shared=getSharedPreferences("download",0);
 		EventBus.getDefault().register(this);
 		okhttp=OkHttp.getOkHttp();
 		startForeground(0, new Notification());
-		EventBus.getDefault().post(this);
 		registerReceiver(new stateChange(),new IntentFilter("com.moe.notification.state"));
+		EventBus.getDefault().post(this);
 	}
 	private void checkSize(){
+		if(downloadlist.size()==0)stopSelf();
+		else
 		for(int i=downloadinglist.size();i<Integer.parseInt(getResources().getTextArray(R.array.size)[shared.getInt(Download.Setting.SIZE,Download.Setting.SIZE_DEFAULT)].toString());i++){
-			for(final Integer key:downloadlist.keySet()){
+			for(final Integer key:downloadlist.keys()){
 				if(!downloadinglist.containsKey(key)){
-					downloadinglist.put(key,new DownloadTask(this,downloadlist.get(key),okhttp));
+					downloadinglist.put(key,new DownloadTask(this,downloadlist.getKey(key),okhttp));
 					Timer t=new Timer();
 					TimerTask tt=new TimerTask(){
 
 						@Override
 						public void run()
 						{
-							try{EventBus.getDefault().post(downloadlist.get(key));}catch(Exception e){this.cancel();}
+							try{EventBus.getDefault().post(downloadlist.getKey(key));}catch(Exception e){this.cancel();}
 						}
 					};
 					timer.put(key,t);
 					t.schedule(tt,0,1000);
-					new Thread(downloadinglist.get(key)).start();
+					new Thread(downloadinglist.getKey(key)).start();
 					break;
 			}
 			}
@@ -185,7 +187,11 @@ public class DownloadService extends Service
 	public void onDestroy()
 	{
 		stopForeground(true);
-		nm.destory();
+		downloadlist.clear();
+		for(DownloadTask dt:downloadinglist.values())
+		dt.pause();
+		downloadinglist.clear();
+		//nm.destory();
 		EventBus.getDefault().unregister(this);
 		super.onDestroy();
 	}
@@ -199,7 +205,7 @@ public class DownloadService extends Service
 		{
 			int id=p2.getIntExtra("id",-1);
 			if(id!=-1){
-				TaskInfo ti= downloadlist.get(id);
+				TaskInfo ti= downloadlist.getKey(id);
 				if(ti!=null)
 					EventBus.getDefault().post(new TaskBean(ti,TaskBean.State.PAUSE));
 				else

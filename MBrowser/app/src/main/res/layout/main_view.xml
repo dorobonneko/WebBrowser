@@ -145,6 +145,8 @@
 		android:paddingBottom="?attr/actionBarSize"
 		android:paddingTop="?attr/actionBarSize"/>
 	<FrameLayout
+		android:paddingTop="?attr/actionBarSize"
+		android:paddingBottom="?attr/actionBarSize"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 	<LinearLayout

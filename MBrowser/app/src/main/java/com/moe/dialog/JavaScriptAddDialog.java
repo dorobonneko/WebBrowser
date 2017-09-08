@@ -33,6 +33,7 @@ public class JavaScriptAddDialog implements AlertDialog.OnDismissListener,Dialog
 		name=(EditText)v.findViewById(R.id.javascript_add_view_name);
 		content=(EditText)v.findViewById(R.id.javascript_add_view_content);
 		name_l.setErrorEnabled(true);
+		name_l.setHint("all表示对所有网站启用");
 	}
 	public void show(){
 		show(null);

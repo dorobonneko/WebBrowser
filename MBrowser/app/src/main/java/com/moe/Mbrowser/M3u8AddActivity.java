@@ -68,9 +68,9 @@ public class M3u8AddActivity extends Activity implements View.OnClickListener,Do
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		ResourceService.start(this);
 		super.onCreate(savedInstanceState);
 		setContentView(LayoutInflater.from(this).inflate(R.layout.m3u8add_view, null), new ViewGroup.LayoutParams(getWindowManager().getDefaultDisplay().getWidth(), ViewGroup.LayoutParams.MATCH_PARENT));
-		startService(new Intent(this,ResourceService.class));
 		int color=Color.parseColor(getResources().getTextArray(R.array.skin_color)[getSharedPreferences("moe", 0).getInt("color", 0)].toString());
 		int red=Color.red(color);
 		int green=Color.green(color);

@@ -52,7 +52,7 @@ private WebView wv;
 		if (Build.VERSION.SDK_INT > 16)
 			setting.setMediaPlaybackRequiresUserGesture(true);
         //媒体手动播放
-        setting.setTextZoom(wv.getSharedPreferences().getInt(Setting.TEXTSIZE, 50) + 50);
+        setting.setTextZoom(wv.getSharedPreferences().getInt(Setting.TEXTSIZE, 30) + 50);
         //设置文字缩放
 		setting.setPluginState(WebSettings.PluginState.ON);
         //启用flash插件
@@ -79,7 +79,7 @@ private WebView wv;
 	public void onSharedPreferenceChanged(SharedPreferences p1, String key)
 	{
 		if (key.equals(Setting.TEXTSIZE))
-			setting.setTextZoom(p1.getInt(Setting.TEXTSIZE, 50) + 50);
+			setting.setTextZoom(p1.getInt(Setting.TEXTSIZE, 30) + 50);
 		else if (key.equals(Setting.JAVASCRIPT))
 			setting.setJavaScriptEnabled(p1.getBoolean(Setting.JAVASCRIPT, true));
 		else if (key.equals(Setting.MULTIWINDOWS))

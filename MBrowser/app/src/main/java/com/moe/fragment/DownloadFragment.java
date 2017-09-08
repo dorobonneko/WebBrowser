@@ -34,7 +34,6 @@ import android.webkit.MimeTypeMap;
 import android.content.DialogInterface;
 import android.widget.Toast;
 import java.util.Map;
-import com.moe.Mbrowser.ResourceService;
 import com.moe.Mbrowser.DownloadService;
 import de.greenrobot.event.ThreadMode;
 import com.moe.internal.CustomDecoration;
@@ -467,7 +466,8 @@ public class DownloadFragment extends Fragment implements DownloadItemAdapter.On
 				else
 				{
 					loading.put(tb.getTaskInfo().getId(), tb.getTaskInfo());
-					dia.notifyItemInserted(loading.size()+1);
+					//dia.notifyItemInserted(loading.size()+1);
+					dia.notifyDataSetChanged();
 				}
 				break;
 		}

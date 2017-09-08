@@ -43,9 +43,6 @@ public class CacheManager
 			if (MediaUtils.isFormat(url, MediaUtils.Type.IMAGE))
 				type=Type.IMAGE;
 		else
-			if(MediaUtils.isFormat(url,MediaUtils.Type.CSS))	
-		type=Type.CSS;
-		else
 			type=Type.OTHER;
 		if(type!=Type.OTHER){
 			File file=new File(cache,p2.getUrl().toString().hashCode()+"");

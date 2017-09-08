@@ -6,7 +6,6 @@ import android.os.Build;
 import android.content.Intent;
 import com.moe.entity.TaskInfo;
 import android.app.PendingIntent;
-import android.app.NotificationManager;
 import android.app.Notification;
 import com.moe.Mbrowser.R;
 import android.widget.RemoteViews;
@@ -25,16 +24,20 @@ import android.app.Service;
 
 public class NotificationManager
 {
-	private NotificationManager nm;
+	private static NotificationManager manger;
+	private android.app.NotificationManager nm;
 	private Context context;
 	private LinkedListMap<Integer,NotificationItem> llm;
-	public NotificationManager(Context context){
+	private NotificationManager(Context context){
 		this.context=context;
 		llm=new LinkedListMap<>();
-		nm=(NotificationManager)context.getSystemService(Service.NOTIFICATION_SERVICE);
+		nm=(android.app.NotificationManager)context.getSystemService(Service.NOTIFICATION_SERVICE);
 		EventBus.getDefault().register(this);
 	}
-
+	public static NotificationManager getInstance(Context context){
+		if(manger==null)manger=new NotificationManager(context);
+		return manger;
+	}
 	public void cancel(int id)
 	{
 		nm.cancel(id);
@@ -120,6 +123,7 @@ public class NotificationManager
 			context.startActivity(intent);
 	}
 	public void destory(){
+		manger=null;
 		nm.cancelAll();
 		EventBus.getDefault().unregister(this);
 	}

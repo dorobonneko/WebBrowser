@@ -68,8 +68,6 @@ public void onViewCreated(View view, Bundle savedInstanceState)
 	TabCursor tc=(TabCursor)view.findViewById(R.id.menu_view_tabCursor);
 	tc.setUpViewPager(vp);
 	super.onViewCreated(view, savedInstanceState);
-	Theme.unRegisterBackground(view);
-	Theme.registerForeGround(view);
 }
 
 	
@@ -249,12 +247,6 @@ private void updateNightMode(){
         super.onDestroyView();
     }
 
-    @Override
-    public boolean onBackPressed()
-    {
-        // TODO: Implement this method
-        return false;
-    }
 
     private void parser(int resId) throws XmlPullParserException, IOException{
 		XmlPullParser xml=getResources().getXml(resId);

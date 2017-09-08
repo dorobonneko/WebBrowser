@@ -88,16 +88,14 @@ ViewFlipper.OnChangeListener
 		ith.attachToRecyclerView(rv);
 		//rv.setBackgroundResource(R.color.window_background);
 		//((ViewGroup)v).getChildAt(1).setBackgroundResource(R.color.window_background);
-		int width=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
-		rv.setPadding(width, width, width, 0);
 		//v.setPadding(0,0,0,0);
 		rv.addItemDecoration(new CustomDecoration((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()), 0x00000000));
 		security = (ImageView)v.findViewById(R.id.windowview_security);
 		security.setOnClickListener(this);
 		super.onViewCreated(v, savedInstanceState);
-		Theme.unRegisterBackground(v);
-		Theme.registerForeGround(rv);
-		Theme.registerForeGround(((ViewGroup)v).getChildAt(1));
+		View bottom=((ViewGroup)v).getChildAt(1);
+		bottom.setOnClickListener(null);
+		//Theme.registerForeGround(bottom);
 	}
 
     @Override
@@ -145,12 +143,7 @@ ViewFlipper.OnChangeListener
     }
 
 
-    @Override
-    public boolean onBackPressed()
-    {
-        // TODO: Implement this method
-        return false;
-    }
+ 
 	@Subscribe(threadMode=ThreadMode.MainThread)
     public void refresh(Message msg)
 	{

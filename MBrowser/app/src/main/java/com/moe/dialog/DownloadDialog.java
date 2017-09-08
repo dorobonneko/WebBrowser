@@ -95,6 +95,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener
 	
 	public void show(DownloadItem di)
 	{
+		ResourceService.start(getContext());
 		this.di=di;
 		super.show();
 		namelayout.setError(null);

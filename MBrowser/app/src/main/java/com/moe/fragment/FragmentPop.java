@@ -3,8 +3,10 @@ import android.os.Bundle;
 import com.moe.widget.ViewFlipper;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.View;
+import com.moe.internal.Theme;
 
-public abstract class FragmentPop extends Fragment {
+public abstract class FragmentPop extends android.support.v4.app.Fragment {
 	private OnHideListener ohl;
 	@Override
     public void onActivityCreated(Bundle savedInstanceState)
@@ -13,6 +15,13 @@ public abstract class FragmentPop extends Fragment {
         super.onActivityCreated(savedInstanceState);
         if (ohl != null)
             ohl.hide(this, false);
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState)
+	{
+		Theme.registerForeGround(view);
+		super.onViewCreated(view, savedInstanceState);
 	}
 
 

@@ -75,6 +75,10 @@ public class WebView extends WebView
 	@Override
 	public void destroy()
 	{
+		loadUrl("about:blank");
+		setWebViewClient(null);
+		setWebChromeClient(null);
+		setDownloadListener(null);
 		setEnabled(false);
 		onPause();
 		loadData(null,null,null);
@@ -82,10 +86,13 @@ public class WebView extends WebView
 		clearHistory();
 		otl=null;
 		osl=null;
+		if(video!=null)
 		video.clear();
 		video=null;
+		if(block!=null)
 		block.clear();
 		block=null;
+		if(llm!=null)
 		llm.clear();
 		llm=null;
 		setVisibility(View.GONE);
